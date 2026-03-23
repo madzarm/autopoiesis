@@ -62,7 +62,7 @@ Create a utility module `llm.py` with a reusable OpenAI client:
 
 ## PHASE 1 — DEEP RESEARCH (Do this FIRST, and revisit periodically)
 
-You must understand the full landscape before you build. Use Firecrawl MCP to scrape, read, and deeply understand the following. **Do not skim. Read thoroughly.**
+You must understand the full landscape before you build. Use Brave web search / WebSearch / WebFetch tools to scrape, read, and deeply understand the following. **Do not skim. Read thoroughly.**
 
 ### 1.1 Papers to Find, Scrape, and Study
 
@@ -82,7 +82,7 @@ Search for and read the **full text** (or as much as accessible) of these papers
 | **MetaClaw** (2026) | Continual meta-learning, agents evolve through usage | Skill synthesis across tasks |
 
 ### 1.2 Research Strategy
-Use Firecrawl MCP to search and deeply scrape each paper. For every paper:
+Use Brave web search / WebSearch / WebFetch tools to search and deeply scrape each paper. For every paper:
 - Find and read the full text on arxiv, semantic scholar, or project pages
 - Locate their GitHub repos and read the core search algorithm implementation
 - **Extract and record:**

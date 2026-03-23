@@ -2,25 +2,25 @@
 Samples per benchmark: 100
 
 --- gsm8k ---
-  score: 94.0
-  cost: $0.0570
-  time: 93.1s
-  correct: 94/100
---- arc ---
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-  score: 81.0
-  cost: $0.0620
-  time: 97.6s
-  correct: 81/100
+  score: 95.0
+  cost: $0.0562
+  time: 102.5s
+  correct: 95/100
+--- arc ---
+  score: 84.0
+  cost: $0.0610
+  time: 100.9s
+  correct: 84/100
 --- drop ---
-  score: 40.44
-  cost: $0.0591
-  time: 87.5s
+  score: 44.04
+  cost: $0.0597
+  time: 97.9s
   correct: N/A/100
 
 === SUMMARY: evo_g1_2 ===
-  gsm8k: 94.0%
-  arc: 81.0%
-  drop: 40.44%
-  Average: 71.81%
-  Total cost: $0.1781
+  gsm8k: 95.0%
+  arc: 84.0%
+  drop: 44.04%
+  Average: 74.35%
+  Total cost: $0.1770

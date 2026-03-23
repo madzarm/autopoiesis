@@ -1,0 +1,10 @@
+=== Improved AIDE vs SOTA (gpt-4o-mini) ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Method                    | Benchmark  | Score    | Cost     | Correct
+---------------------------------------------------------------------------
+  aide_math_expert          | gsm8k      |  95.00% | $0.3233 | 190/200
+  aide_math_refine          | gsm8k      |  94.50% | $0.7155 | 189/200
+  aide_math_expert          | math       |  51.00% | $0.7616 | 102/200
+  aide_math_refine          | math       |  51.50% | $2.5623 | 103/200
+  aide_code_expert          | humaneval  |  84.76% | $0.0758 | 139/164

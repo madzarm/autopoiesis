@@ -1,0 +1,27 @@
+=== Meta Agent Search (ADAS-style) ===
+Samples: 30, Iterations: 10
+Loaded: gsm8k=30, arc=30
+
+==================================================
+Iteration 1/10
+==================================================
+Generated 3219 chars of code
+Compiled successfully
+Scores: {'gsm8k': 90.0, 'arc': 83.33}
+Average: 86.66%
+Cost: $0.0092
+*** NEW BEST: 86.66% ***
+
+==================================================
+Iteration 2/10
+==================================================
+Generated 4604 chars of code
+Compiled successfully
+Scores: {'gsm8k': 93.33, 'arc': 86.67}
+Average: 90.0%
+Cost: $0.0052
+*** NEW BEST: 90.0% ***
+
+==================================================
+Iteration 3/10
+==================================================

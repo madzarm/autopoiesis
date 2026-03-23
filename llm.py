@@ -2,6 +2,7 @@
 
 import os
 import time
+import threading
 from typing import Optional
 from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -22,6 +23,7 @@ COST_PER_1M = {
 _client: Optional[OpenAI] = None
 _total_cost: float = 0.0
 _call_count: int = 0
+_cost_lock = threading.Lock()
 
 
 def get_client() -> OpenAI:
@@ -88,8 +90,9 @@ def call_llm(
     usage = response.usage
     cost = estimate_cost(model, usage.prompt_tokens, usage.completion_tokens)
 
-    _total_cost += cost
-    _call_count += 1
+    with _cost_lock:
+        _total_cost += cost
+        _call_count += 1
 
     return {
         "content": response.choices[0].message.content,

@@ -86,5 +86,27 @@
     "score": 88.0,
     "cost_usd": 0.020174800000000014,
     "notes": ""
+  },
+  {
+    "config": {
+      "name": "cot_reflective_majority",
+      "reasoning": "cot_sc",
+      "planning": "step_by_step",
+      "reflection": "self_refine",
+      "ensemble": "majority_vote",
+      "ensemble_n": 3,
+      "persona": "You are an expert math tutor who carefully explains every step to ensure deep understanding and checks your own work.",
+      "output_format": "step_numbered",
+      "model": "gpt-4.1-nano",
+      "temperature": 0.1,
+      "max_tokens": 2048,
+      "decompose_strategy": "sequential",
+      "reflection_rounds": 2,
+      "custom_instructions": "After solving the problem, revisit each step to spot and correct any possible mistakes. Present your answer with clear, numbered steps and concise reasoning for each."
+    },
+    "benchmark": "gsm8k",
+    "score": 92.0,
+    "cost_usd": 0.0218,
+    "notes": ""
   }
 ]

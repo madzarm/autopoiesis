@@ -1,11 +1,18 @@
-"""Evaluation harness — runs benchmarks and returns scores."""
+"""Evaluation harness — runs benchmarks and returns scores.
+
+Supports parallel evaluation via ThreadPoolExecutor for ~10x speedup.
+"""
 
 import json
 import re
 import random
 from typing import Callable, Optional
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datasets import load_dataset
 from llm import call_llm, CHEAP, get_session_cost, reset_cost_tracking
+
+# Max concurrent LLM calls for parallel eval
+MAX_WORKERS = 16
 
 
 def extract_number(text: str) -> Optional[float]:
@@ -37,7 +44,6 @@ def load_gsm8k(split: str = "test", n: Optional[int] = None, seed: int = 42) -> 
     samples = []
     for item in ds:
         answer_text = item["answer"]
-        # Extract final numeric answer after ####
         match = re.search(r'####\s*([\-\d,\.]+)', answer_text)
         if match:
             gold = float(match.group(1).replace(',', ''))
@@ -65,7 +71,7 @@ def load_drop(split: str = "validation", n: Optional[int] = None, seed: int = 42
         samples.append({
             "passage": item["passage"],
             "question": item["question"],
-            "gold_answers": answers["spans"],  # list of acceptable answers
+            "gold_answers": answers["spans"],
         })
     if n is not None and n < len(samples):
         rng = random.Random(seed)
@@ -88,46 +94,59 @@ def load_mgsm(lang: str = "en", n: Optional[int] = None, seed: int = 42) -> list
     return samples
 
 
+def _eval_single_math(agent_fn, sample, idx):
+    """Evaluate a single math sample. Thread-safe."""
+    try:
+        response = agent_fn(sample["question"])
+        predicted = extract_number(response)
+        gold = sample["gold_answer"]
+        is_correct = predicted is not None and abs(predicted - gold) < 1e-6
+        return {
+            "idx": idx,
+            "correct": is_correct,
+            "predicted": predicted,
+            "gold": gold,
+            "question": sample["question"][:200],
+        }
+    except Exception as e:
+        return {
+            "idx": idx,
+            "correct": False,
+            "error": str(e),
+            "question": sample.get("question", "")[:200],
+        }
+
+
 def evaluate_math_accuracy(
     agent_fn: Callable[[str], str],
     samples: list[dict],
     benchmark_name: str = "gsm8k",
+    parallel: bool = True,
+    max_workers: int = MAX_WORKERS,
 ) -> dict:
     """Evaluate agent on math benchmark (GSM8K, MGSM).
 
-    Args:
-        agent_fn: Function that takes a question string, returns answer string.
-        samples: List of dicts with 'question' and 'gold_answer' keys.
-        benchmark_name: Name for logging.
-
-    Returns:
-        dict with score, correct, total, cost_usd, details
+    Uses parallel execution by default for ~10x speedup.
     """
     reset_cost_tracking()
-    correct = 0
     total = len(samples)
     details = []
 
-    for i, sample in enumerate(samples):
-        try:
-            response = agent_fn(sample["question"])
-            predicted = extract_number(response)
-            gold = sample["gold_answer"]
-            is_correct = predicted is not None and abs(predicted - gold) < 1e-6
-            if is_correct:
-                correct += 1
-            details.append({
-                "idx": i,
-                "correct": is_correct,
-                "predicted": predicted,
-                "gold": gold,
-            })
-        except Exception as e:
-            details.append({
-                "idx": i,
-                "correct": False,
-                "error": str(e),
-            })
+    if parallel and total > 1:
+        with ThreadPoolExecutor(max_workers=min(max_workers, total)) as executor:
+            futures = {
+                executor.submit(_eval_single_math, agent_fn, sample, i): i
+                for i, sample in enumerate(samples)
+            }
+            for future in as_completed(futures):
+                details.append(future.result())
+    else:
+        for i, sample in enumerate(samples):
+            details.append(_eval_single_math(agent_fn, sample, i))
+
+    # Sort by index for consistent ordering
+    details.sort(key=lambda x: x["idx"])
+    correct = sum(1 for d in details if d.get("correct", False))
 
     score = correct / total if total > 0 else 0.0
     return {
@@ -143,11 +162,8 @@ def evaluate_math_accuracy(
 def normalize_answer(s: str) -> str:
     """Normalize answer string for comparison."""
     s = s.lower().strip()
-    # Remove articles
     s = re.sub(r'\b(a|an|the)\b', ' ', s)
-    # Remove punctuation
     s = re.sub(r'[^\w\s]', '', s)
-    # Collapse whitespace
     s = re.sub(r'\s+', ' ', s).strip()
     return s
 
@@ -168,35 +184,47 @@ def compute_f1(prediction: str, gold: str) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
+def _eval_single_drop(agent_fn, sample, idx):
+    """Evaluate a single DROP sample. Thread-safe."""
+    try:
+        response = agent_fn(sample["passage"], sample["question"])
+        max_f1 = max(
+            compute_f1(response, gold)
+            for gold in sample["gold_answers"]
+        )
+        return {
+            "idx": idx,
+            "f1": max_f1,
+            "predicted": response[:200],
+        }
+    except Exception as e:
+        return {"idx": idx, "f1": 0.0, "error": str(e)}
+
+
 def evaluate_drop_f1(
     agent_fn: Callable[[str, str], str],
     samples: list[dict],
+    parallel: bool = True,
+    max_workers: int = MAX_WORKERS,
 ) -> dict:
-    """Evaluate agent on DROP (F1 metric).
-
-    agent_fn takes (passage, question) and returns answer string.
-    """
+    """Evaluate agent on DROP (F1 metric). Parallel by default."""
     reset_cost_tracking()
-    f1_scores = []
     details = []
 
-    for i, sample in enumerate(samples):
-        try:
-            response = agent_fn(sample["passage"], sample["question"])
-            # Compute max F1 against all gold answers
-            max_f1 = max(
-                compute_f1(response, gold)
-                for gold in sample["gold_answers"]
-            )
-            f1_scores.append(max_f1)
-            details.append({
-                "idx": i,
-                "f1": max_f1,
-                "predicted": response[:200],
-            })
-        except Exception as e:
-            f1_scores.append(0.0)
-            details.append({"idx": i, "f1": 0.0, "error": str(e)})
+    if parallel and len(samples) > 1:
+        with ThreadPoolExecutor(max_workers=min(max_workers, len(samples))) as executor:
+            futures = {
+                executor.submit(_eval_single_drop, agent_fn, sample, i): i
+                for i, sample in enumerate(samples)
+            }
+            for future in as_completed(futures):
+                details.append(future.result())
+    else:
+        for i, sample in enumerate(samples):
+            details.append(_eval_single_drop(agent_fn, sample, i))
+
+    details.sort(key=lambda x: x["idx"])
+    f1_scores = [d["f1"] for d in details]
 
     avg_f1 = sum(f1_scores) / len(f1_scores) if f1_scores else 0.0
     return {

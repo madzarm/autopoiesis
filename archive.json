@@ -1,0 +1,24 @@
+[
+  {
+    "config": {
+      "name": "direct",
+      "reasoning": "direct",
+      "planning": "none",
+      "reflection": "none",
+      "ensemble": "none",
+      "ensemble_n": 1,
+      "persona": "",
+      "output_format": "free",
+      "model": "gpt-4.1-nano",
+      "temperature": 0.0,
+      "max_tokens": 2048,
+      "decompose_strategy": "sequential",
+      "reflection_rounds": 1,
+      "custom_instructions": ""
+    },
+    "benchmark": "gsm8k",
+    "score": 90.0,
+    "cost_usd": 0.000763,
+    "notes": ""
+  }
+]

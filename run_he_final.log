@@ -1,0 +1,11 @@
+=== Final HumanEval Push (gpt-4o-mini, n=164) ===
+Published: MaAS=92.85%, AFlow=90.9%
+
+Method                         | Score    | Cost     | Time  | Correct
+----------------------------------------------------------------------
+  infill_basic                   |  81.71% | $0.0692 | 249s | 134/164
+  infill_2attempt                |  83.54% | $0.1370 | 494s | 137/164
+  infill_repair                  |  84.15% | $0.0838 | 310s | 138/164
+  infill_sc3                     |  81.71% | $0.2057 | 819s | 134/164
+/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/resource_tracker.py:396: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-4r5h9nwd'}
+  warnings.warn(

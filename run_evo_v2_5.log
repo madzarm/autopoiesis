@@ -1,0 +1,97 @@
+Loading benchmarks...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loaded: gsm8k=50, arc=50
+
+--- Initial Population ---
+  cot_base (cot): avg=90.0% | {'gsm8k': 90.0, 'arc': 90.0}
+  code_base (code_solve): avg=88.0% | {'gsm8k': 86.0, 'arc': 90.0}
+  psv_base (plan_solve_verify): avg=87.0% | {'gsm8k': 92.0, 'arc': 82.0}
+  pr_base (progressive_refine): avg=91.0% | {'gsm8k': 94.0, 'arc': 88.0}
+  ens_base (ensemble_diverse): avg=90.0% | {'gsm8k': 94.0, 'arc': 86.0}
+
+Best initial: pr_base = 91.0%
+
+==================================================
+Generation 1/6
+==================================================
+  evo_g1_2 (ensemble_diverse): avg=92.0% | {'gsm8k': 92.0, 'arc': 92.0}
+    *** NEW BEST: 92.0% ***
+  evo_g1_3 (ensemble_diverse): avg=91.0% | {'gsm8k': 90.0, 'arc': 92.0}
+  evo_g1_4 (ensemble_diverse): avg=91.0% | {'gsm8k': 94.0, 'arc': 88.0}
+
+Gen 1: best=92.0%, avg=91.0%
+
+==================================================
+Generation 2/6
+==================================================
+  evo_g2_2 (ensemble_diverse): avg=92.0% | {'gsm8k': 92.0, 'arc': 92.0}
+  evo_g2_3 (ensemble_diverse): avg=92.0% | {'gsm8k': 92.0, 'arc': 92.0}
+  evo_g2_4 (code_solve): avg=88.0% | {'gsm8k': 86.0, 'arc': 90.0}
+
+Gen 2: best=92.0%, avg=91.0%
+
+==================================================
+Generation 3/6
+==================================================
+  evo_g3_2 (classify_route): avg=81.0% | {'gsm8k': 88.0, 'arc': 74.0}
+  evo_g3_3 (classify_route): avg=78.0% | {'gsm8k': 86.0, 'arc': 70.0}
+  evo_g3_4 (ensemble_diverse): avg=94.0% | {'gsm8k': 94.0, 'arc': 94.0}
+    *** NEW BEST: 94.0% ***
+
+Gen 3: best=94.0%, avg=87.4%
+
+==================================================
+Generation 4/6
+==================================================
+  evo_g4_2 (classify_route): avg=83.0% | {'gsm8k': 88.0, 'arc': 78.0}
+  evo_g4_3 (ensemble_diverse): avg=93.0% | {'gsm8k': 92.0, 'arc': 94.0}
+  evo_g4_4 (classify_route): avg=83.0% | {'gsm8k': 86.0, 'arc': 80.0}
+
+Gen 4: best=94.0%, avg=89.0%
+
+==================================================
+Generation 5/6
+==================================================
+  evo_g5_2 (classify_route): avg=85.0% | {'gsm8k': 90.0, 'arc': 80.0}
+  evo_g5_3 (classify_route): avg=85.0% | {'gsm8k': 88.0, 'arc': 82.0}
+  evo_g5_4 (classify_route): avg=83.0% | {'gsm8k': 86.0, 'arc': 80.0}
+
+Gen 5: best=94.0%, avg=88.0%
+
+==================================================
+Generation 6/6
+==================================================
+  evo_g6_2 (ensemble_diverse): avg=91.0% | {'gsm8k': 92.0, 'arc': 90.0}
+  evo_g6_3 (ensemble_diverse): avg=94.0% | {'gsm8k': 94.0, 'arc': 94.0}
+  evo_g6_4 (ensemble_diverse): avg=93.0% | {'gsm8k': 92.0, 'arc': 94.0}
+
+Gen 6: best=94.0%, avg=93.0%
+
+==================================================
+EVOLUTION COMPLETE
+==================================================
+Best: evo_g3_4 (ensemble_diverse)
+Score: 94.0%
+  gsm8k: 94.0%
+  arc: 94.0%
+
+Config:
+{
+  "name": "evo_g3_4",
+  "architecture": "ensemble_diverse",
+  "code_max_attempts": 2,
+  "verify_strategy": "recompute",
+  "ensemble_architectures": [
+    "code_solve",
+    "plan_solve_verify",
+    "progressive_refine",
+    "cot"
+  ],
+  "ensemble_n": 3,
+  "refine_rounds": 2,
+  "persona": "You are an expert AI system engineered to deliver precise, step-by-step reasoning across math, logic, and knowledge tasks, optimizing for accuracy and efficiency. Use the best-suited strategy for each problem and ensure clarity in every step.",
+  "custom_instructions": "1. Classify the problem: for numerical tasks, execute code; for knowledge-based queries, apply progressive refinement; for conceptual problems, use chain-of-thought. 2. After arriving at a solution, recompute or double-check critical steps. 3. Provide concise, annotated reasoning alongside the final answer.",
+  "model": "gpt-5.4-nano-2026-03-17",
+  "temperature": 0.0,
+  "max_tokens": 2048
+}

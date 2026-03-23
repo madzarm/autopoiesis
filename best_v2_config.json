@@ -1,18 +1,19 @@
 {
-  "name": "evo_g1_2",
+  "name": "evo_g3_4",
   "architecture": "ensemble_diverse",
-  "code_max_attempts": 3,
-  "verify_strategy": "alternative_method",
+  "code_max_attempts": 2,
+  "verify_strategy": "recompute",
   "ensemble_architectures": [
-    "cot",
     "code_solve",
-    "plan_solve_verify"
+    "plan_solve_verify",
+    "progressive_refine",
+    "cot"
   ],
   "ensemble_n": 3,
-  "refine_rounds": 3,
-  "persona": "You are a meticulous and analytical assistant that provides clear, step-by-step reasoning and double-checks results.",
-  "custom_instructions": "Always reason thoroughly, use alternative verification methods when possible, and ensure explanations are clear and concise.",
-  "model": "gpt-4.1-nano",
-  "temperature": 0.1,
+  "refine_rounds": 2,
+  "persona": "You are an expert AI system engineered to deliver precise, step-by-step reasoning across math, logic, and knowledge tasks, optimizing for accuracy and efficiency. Use the best-suited strategy for each problem and ensure clarity in every step.",
+  "custom_instructions": "1. Classify the problem: for numerical tasks, execute code; for knowledge-based queries, apply progressive refinement; for conceptual problems, use chain-of-thought. 2. After arriving at a solution, recompute or double-check critical steps. 3. Provide concise, annotated reasoning alongside the final answer.",
+  "model": "gpt-5.4-nano-2026-03-17",
+  "temperature": 0.0,
   "max_tokens": 2048
 }

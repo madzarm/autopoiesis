@@ -250,3 +250,166 @@ def evaluate_drop_f1(
         "cost_usd": round(get_session_cost(), 4),
         "details": details,
     }
+
+
+# ─── ARC-Challenge ────────────────────────────────────
+
+def load_arc(split: str = "test", n: Optional[int] = None, seed: int = 42) -> list[dict]:
+    """Load ARC-Challenge benchmark samples."""
+    ds = load_dataset("allenai/ai2_arc", "ARC-Challenge", split=split)
+    samples = []
+    for item in ds:
+        choices = item["choices"]
+        labels = choices["label"]
+        texts = choices["text"]
+        answer_key = item["answerKey"]
+        # Build choice string
+        choice_str = "\n".join(f"{l}. {t}" for l, t in zip(labels, texts))
+        samples.append({
+            "question": item["question"],
+            "choices": choice_str,
+            "choices_labels": labels,
+            "choices_texts": texts,
+            "gold_answer": answer_key,
+        })
+    if n is not None and n < len(samples):
+        rng = random.Random(seed)
+        samples = rng.sample(samples, n)
+    return samples
+
+
+def _eval_single_arc(agent_fn, sample, idx):
+    """Evaluate a single ARC sample. Thread-safe."""
+    try:
+        response = agent_fn(sample["question"], sample["choices"])
+        # Extract the answer letter
+        predicted = extract_answer_letter(response, sample["choices_labels"])
+        gold = sample["gold_answer"]
+        is_correct = predicted == gold
+        return {
+            "idx": idx,
+            "correct": is_correct,
+            "predicted": predicted,
+            "gold": gold,
+        }
+    except Exception as e:
+        return {"idx": idx, "correct": False, "error": str(e)}
+
+
+def extract_answer_letter(text: str, valid_labels: list[str]) -> Optional[str]:
+    """Extract answer letter (A, B, C, D, etc.) from response."""
+    text_upper = text.upper()
+    # Look for "The answer is X" pattern
+    match = re.search(r'(?:answer|correct)\s+is\s+\(?([A-E])\)?', text_upper)
+    if match and match.group(1) in valid_labels:
+        return match.group(1)
+    # Look for "#### X" pattern
+    match = re.search(r'####\s*\(?([A-E])\)?', text_upper)
+    if match and match.group(1) in valid_labels:
+        return match.group(1)
+    # Look for standalone letter at end
+    match = re.search(r'\b([A-E])\b\s*$', text_upper.strip())
+    if match and match.group(1) in valid_labels:
+        return match.group(1)
+    # First mentioned valid label
+    for label in valid_labels:
+        if re.search(rf'\b{label}\b', text_upper):
+            return label
+    return None
+
+
+def evaluate_arc_accuracy(
+    agent_fn: Callable[[str, str], str],
+    samples: list[dict],
+    parallel: bool = True,
+    max_workers: int = MAX_WORKERS,
+) -> dict:
+    """Evaluate agent on ARC-Challenge (accuracy). agent_fn(question, choices_str) -> str."""
+    reset_cost_tracking()
+    details = []
+
+    if parallel and len(samples) > 1:
+        with ThreadPoolExecutor(max_workers=min(max_workers, len(samples))) as executor:
+            futures = {
+                executor.submit(_eval_single_arc, agent_fn, sample, i): i
+                for i, sample in enumerate(samples)
+            }
+            for future in as_completed(futures):
+                details.append(future.result())
+    else:
+        for i, sample in enumerate(samples):
+            details.append(_eval_single_arc(agent_fn, sample, i))
+
+    details.sort(key=lambda x: x["idx"])
+    correct = sum(1 for d in details if d.get("correct", False))
+    total = len(samples)
+
+    return {
+        "benchmark": "arc_challenge",
+        "score": round(correct / total * 100, 2) if total > 0 else 0.0,
+        "correct": correct,
+        "total": total,
+        "cost_usd": round(get_session_cost(), 4),
+        "details": details,
+    }
+
+
+# ─── MMLU ────────────────────────────────────
+
+def load_mmlu(subject: str = "all", split: str = "test", n: Optional[int] = None, seed: int = 42) -> list[dict]:
+    """Load MMLU benchmark samples."""
+    ds = load_dataset("cais/mmlu", subject, split=split)
+    samples = []
+    labels = ["A", "B", "C", "D"]
+    for item in ds:
+        choices_text = item["choices"]
+        choice_str = "\n".join(f"{l}. {t}" for l, t in zip(labels, choices_text))
+        gold_idx = item["answer"]  # 0-3
+        samples.append({
+            "question": item["question"],
+            "choices": choice_str,
+            "choices_labels": labels,
+            "choices_texts": choices_text,
+            "gold_answer": labels[gold_idx],
+            "subject": item.get("subject", subject),
+        })
+    if n is not None and n < len(samples):
+        rng = random.Random(seed)
+        samples = rng.sample(samples, n)
+    return samples
+
+
+def evaluate_mmlu_accuracy(
+    agent_fn: Callable[[str, str], str],
+    samples: list[dict],
+    parallel: bool = True,
+    max_workers: int = MAX_WORKERS,
+) -> dict:
+    """Evaluate agent on MMLU (accuracy). agent_fn(question, choices_str) -> str."""
+    reset_cost_tracking()
+    details = []
+
+    if parallel and len(samples) > 1:
+        with ThreadPoolExecutor(max_workers=min(max_workers, len(samples))) as executor:
+            futures = {
+                executor.submit(_eval_single_arc, agent_fn, sample, i): i
+                for i, sample in enumerate(samples)
+            }
+            for future in as_completed(futures):
+                details.append(future.result())
+    else:
+        for i, sample in enumerate(samples):
+            details.append(_eval_single_arc(agent_fn, sample, i))
+
+    details.sort(key=lambda x: x["idx"])
+    correct = sum(1 for d in details if d.get("correct", False))
+    total = len(samples)
+
+    return {
+        "benchmark": "mmlu",
+        "score": round(correct / total * 100, 2) if total > 0 else 0.0,
+        "correct": correct,
+        "total": total,
+        "cost_usd": round(get_session_cost(), 4),
+        "details": details,
+    }

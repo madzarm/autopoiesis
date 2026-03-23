@@ -1,0 +1,15 @@
+=== Validating: evo_g1_2 (ensemble_diverse) ===
+Samples per benchmark: 100
+
+--- gsm8k ---
+  score: 94.0
+  cost: $0.0570
+  time: 93.1s
+  correct: 94/100
+--- arc ---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  score: 81.0
+  cost: $0.0620
+  time: 97.6s
+  correct: 81/100
+--- drop ---

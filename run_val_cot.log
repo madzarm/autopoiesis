@@ -1,0 +1,26 @@
+=== Validating: cot_v2 (cot) ===
+Samples per benchmark: 100
+
+--- gsm8k ---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  score: 92.0
+  cost: $0.0082
+  time: 17.7s
+  correct: 92/100
+--- arc ---
+  score: 86.0
+  cost: $0.0075
+  time: 16.1s
+  correct: 86/100
+--- drop ---
+  score: 78.95
+  cost: $0.0077
+  time: 11.9s
+  correct: N/A/100
+
+=== SUMMARY: cot_v2 ===
+  gsm8k: 92.0%
+  arc: 86.0%
+  drop: 78.95%
+  Average: 85.65%
+  Total cost: $0.0234

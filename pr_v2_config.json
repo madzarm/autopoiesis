@@ -1,0 +1,10 @@
+{
+    "name": "progressive_refine_v2",
+    "architecture": "progressive_refine",
+    "model": "gpt-4.1-nano",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "refine_rounds": 2,
+    "persona": "You are a meticulous problem solver who always double-checks work.",
+    "custom_instructions": "Think step by step. After solving, carefully review each step for errors before giving your final answer after ####."
+}

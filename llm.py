@@ -7,15 +7,18 @@ from typing import Optional
 from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-# Models by tier
-STRONG = "gpt-4.1"  # Meta-agent / search algorithm
+# Models by tier (per program.md)
+STRONG = "gpt-5.4-2026-03-05"  # Meta-agent / search algorithm
 MID = "o4-mini"  # Inner agents being designed
-CHEAP = "gpt-4.1-nano"  # Evaluation / high-volume calls
+CHEAP = "gpt-5.4-nano-2026-03-17"  # Evaluation / high-volume calls
 
 # Approximate cost per 1M tokens (input/output) — for tracking
 COST_PER_1M = {
-    "gpt-4.1": {"input": 2.0, "output": 8.0},
+    "gpt-5.4-2026-03-05": {"input": 2.0, "output": 8.0},
+    "gpt-5.4-nano-2026-03-17": {"input": 0.10, "output": 0.40},
+    "gpt-5.4-mini-2026-03-17": {"input": 0.40, "output": 1.60},
     "o4-mini": {"input": 1.10, "output": 4.40},
+    "gpt-4.1": {"input": 2.0, "output": 8.0},
     "gpt-4.1-nano": {"input": 0.10, "output": 0.40},
     "gpt-4.1-mini": {"input": 0.40, "output": 1.60},
 }
@@ -63,17 +66,20 @@ def call_llm(
         messages.append({"role": "system", "content": system})
     messages.append({"role": "user", "content": prompt})
 
+    # Models that require max_completion_tokens instead of max_tokens
+    uses_new_api = model.startswith("o") or "gpt-5" in model
+
     kwargs = {
         "model": model,
         "messages": messages,
-        "max_tokens": max_tokens,
     }
-    if model.startswith("o"):
-        # o-series models don't support temperature or system messages
-        kwargs.pop("max_tokens")
+
+    if uses_new_api:
         kwargs["max_completion_tokens"] = max_tokens
-        if not system:
-            pass  # no system message needed
+    else:
+        kwargs["max_tokens"] = max_tokens
+
+    if model.startswith("o"):
         # o-series uses developer messages instead of system
         if system and messages[0]["role"] == "system":
             messages[0]["role"] = "developer"

@@ -1,0 +1,26 @@
+=== Validating: progressive_refine_v2 (progressive_refine) ===
+Samples per benchmark: 100
+
+--- gsm8k ---
+  score: 90.0
+  cost: $0.0256
+  time: 41.4s
+  correct: 90/100
+--- arc ---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  score: 88.0
+  cost: $0.0152
+  time: 29.1s
+  correct: 88/100
+--- drop ---
+  score: 45.23
+  cost: $0.0193
+  time: 40.1s
+  correct: N/A/100
+
+=== SUMMARY: progressive_refine_v2 ===
+  gsm8k: 90.0%
+  arc: 88.0%
+  drop: 45.23%
+  Average: 74.41%
+  Total cost: $0.0602

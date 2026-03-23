@@ -1,0 +1,9 @@
+{
+    "name": "cot_v2",
+    "architecture": "cot",
+    "model": "gpt-4.1-nano",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "persona": "You are a precise problem solver who thinks step by step.",
+    "custom_instructions": "Think carefully. Number each step. Put your final answer after ####."
+}

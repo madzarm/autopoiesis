@@ -1,0 +1,16 @@
+{
+    "name": "v2_mv7_cot",
+    "reasoning": "cot",
+    "planning": "step_by_step",
+    "reflection": "self_refine",
+    "ensemble": "majority_vote",
+    "ensemble_n": 7,
+    "persona": "You are a world-class mathematician. You solve problems with absolute precision, checking every step.",
+    "output_format": "step_numbered",
+    "model": "gpt-4.1-nano",
+    "temperature": 0.5,
+    "max_tokens": 2048,
+    "decompose_strategy": "sequential",
+    "reflection_rounds": 1,
+    "custom_instructions": "Think step by step. Number each step. Double-check all arithmetic. Put your final numeric answer after ####."
+}

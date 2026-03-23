@@ -1,0 +1,37 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+benchmark: mgsm
+agent: cot
+model: gpt-4.1-nano
+n_samples: 50
+reasoning: cot
+reflection: none
+ensemble: none (n=1)
+---
+Traceback (most recent call last):
+  File "/Users/madzarmaksim/Workspace/adas/run_experiment.py", line 100, in <module>
+    main()
+    ~~~~^^
+  File "/Users/madzarmaksim/Workspace/adas/run_experiment.py", line 96, in main
+    run(config, args.benchmark, args.n, args.seed)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/madzarmaksim/Workspace/adas/run_experiment.py", line 45, in run
+    samples = load_mgsm(lang="en", n=n, seed=seed)
+  File "/Users/madzarmaksim/Workspace/adas/evaluate.py", line 84, in load_mgsm
+    ds = load_dataset("juletxara/mgsm", lang, split="test")
+  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/datasets/load.py", line 1688, in load_dataset
+    builder_instance = load_dataset_builder(
+        path=path,
+    ...<10 lines>...
+        **config_kwargs,
+    )
+  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/datasets/load.py", line 1315, in load_dataset_builder
+    dataset_module = dataset_module_factory(
+        path,
+    ...<5 lines>...
+        cache_dir=cache_dir,
+    )
+  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/datasets/load.py", line 1207, in dataset_module_factory
+    raise e1 from None
+  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/datasets/load.py", line 1167, in dataset_module_factory
+    raise RuntimeError(f"Dataset scripts are no longer supported, but found {filename}")
+RuntimeError: Dataset scripts are no longer supported, but found mgsm.py

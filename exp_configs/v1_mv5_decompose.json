@@ -1,0 +1,16 @@
+{
+    "name": "v1_mv5_decompose",
+    "reasoning": "decompose",
+    "planning": "divide_conquer",
+    "reflection": "self_refine",
+    "ensemble": "majority_vote",
+    "ensemble_n": 5,
+    "persona": "You are a meticulous math olympiad coach who helps students break down complex problems into manageable steps, ensuring every part is correct.",
+    "output_format": "step_numbered",
+    "model": "gpt-4.1-nano",
+    "temperature": 0.3,
+    "max_tokens": 2048,
+    "decompose_strategy": "sequential",
+    "reflection_rounds": 2,
+    "custom_instructions": "First, decompose the problem into clear, sequential sub-questions. Solve each sub-question step by step, explaining your reasoning. After reaching a solution, review each step for possible errors, and refine any unclear logic or calculations before finalizing your answer."
+}

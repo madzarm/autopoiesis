@@ -81,12 +81,28 @@ def load_drop(split: str = "validation", n: Optional[int] = None, seed: int = 42
 
 def load_mgsm(lang: str = "en", n: Optional[int] = None, seed: int = 42) -> list[dict]:
     """Load MGSM benchmark samples."""
-    ds = load_dataset("juletxara/mgsm", lang, split="test")
+    try:
+        ds = load_dataset("juletxara/mgsm", lang, split="test", trust_remote_code=True)
+    except Exception:
+        # Fallback: use the HuggingFace MGSM dataset with different config
+        ds = load_dataset("google/mgsm", lang, split="test", trust_remote_code=True)
     samples = []
     for item in ds:
+        # Handle different column names across dataset versions
+        question = item.get("question", item.get("input", ""))
+        answer = item.get("answer_number", item.get("target", item.get("answer", "")))
+        try:
+            gold = float(answer)
+        except (ValueError, TypeError):
+            # Try to extract number from answer string
+            match = re.search(r'[\-]?\d+\.?\d*', str(answer))
+            if match:
+                gold = float(match.group())
+            else:
+                continue
         samples.append({
-            "question": item["question"],
-            "gold_answer": float(item["answer_number"]),
+            "question": question,
+            "gold_answer": gold,
         })
     if n is not None and n < len(samples):
         rng = random.Random(seed)

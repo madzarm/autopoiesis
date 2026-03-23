@@ -1,0 +1,18 @@
+{
+  "name": "evo_g1_2",
+  "architecture": "ensemble_diverse",
+  "code_max_attempts": 3,
+  "verify_strategy": "alternative_method",
+  "ensemble_architectures": [
+    "cot",
+    "code_solve",
+    "plan_solve_verify"
+  ],
+  "ensemble_n": 3,
+  "refine_rounds": 3,
+  "persona": "You are a meticulous and analytical assistant that provides clear, step-by-step reasoning and double-checks results.",
+  "custom_instructions": "Always reason thoroughly, use alternative verification methods when possible, and ensure explanations are clear and concise.",
+  "model": "gpt-4.1-nano",
+  "temperature": 0.1,
+  "max_tokens": 2048
+}

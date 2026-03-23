@@ -1,0 +1,5 @@
+=== HumanEval Direct (gpt-4o-mini, n=164) ===
+Published: MaAS=92.85%, AFlow=90.9%
+
+Method                         | Score    | Cost     | Time  | Correct
+----------------------------------------------------------------------

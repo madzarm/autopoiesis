@@ -1,0 +1,10 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+=== HumanEval Improvement (gpt-4o-mini, n=164) ===
+Published: MaAS=92.85%, AFlow=90.9%
+
+Method                         | Score    | Cost     | Time  | Correct
+----------------------------------------------------------------------
+  simple_completion              |   0.00% | $0.0650 | 276s | 0/164
+  direct_continue                |  79.88% | $0.0619 | 266s | 131/164
+  think_then_code                |   0.00% | $0.1951 | 818s | 0/164
+  generate_and_fix               |   1.83% | $0.0656 | 278s | 3/164

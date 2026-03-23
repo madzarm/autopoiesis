@@ -1,0 +1,24 @@
+agent: ensemble_diverse
+architecture: ensemble_diverse
+benchmarks: ['gsm8k', 'arc']
+n_samples: 50
+---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+benchmark: gsm8k
+score: 94.0
+cost_usd: 0.0254
+time_s: 50.4
+correct: 47
+total: 50
+---
+benchmark: arc
+score: 86.0
+cost_usd: 0.028
+time_s: 47.6
+correct: 43
+total: 50
+---
+
+=== SUMMARY ===
+gsm8k: 94.0% ($0.0254, 50.4s)
+arc: 86.0% ($0.028, 47.6s)

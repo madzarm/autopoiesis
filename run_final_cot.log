@@ -1,0 +1,40 @@
+agent: cot_v2
+architecture: cot
+benchmarks: ['gsm8k', 'arc', 'drop', 'mmlu']
+n_samples: 50
+---
+benchmark: gsm8k
+score: 96.0
+cost_usd: 0.0042
+time_s: 11.4
+correct: 48
+total: 50
+---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+benchmark: arc
+score: 86.0
+cost_usd: 0.0032
+time_s: 8.4
+correct: 43
+total: 50
+---
+benchmark: drop
+score: 53.48
+cost_usd: 0.0032
+time_s: 8.1
+correct: N/A
+total: 50
+---
+benchmark: mmlu
+score: 74.0
+cost_usd: 0.0061
+time_s: 23.4
+correct: 37
+total: 50
+---
+
+=== SUMMARY ===
+gsm8k: 96.0% ($0.0042, 11.4s)
+arc: 86.0% ($0.0032, 8.4s)
+drop: 53.48% ($0.0032, 8.1s)
+mmlu: 74.0% ($0.0061, 23.4s)

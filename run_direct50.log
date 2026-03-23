@@ -1,1 +1,14 @@
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+benchmark: gsm8k
+agent: direct
+model: gpt-4.1-nano
+n_samples: 50
+reasoning: direct
+reflection: none
+ensemble: none (n=1)
+---
+score: 90.0
+cost_usd: 0.0023
+time_s: 69.6
+correct: 45
+total: 50

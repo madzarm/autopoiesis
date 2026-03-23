@@ -1,1 +1,14 @@
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+benchmark: gsm8k
+agent: cot
+model: gpt-4.1-nano
+n_samples: 50
+reasoning: cot
+reflection: none
+ensemble: none (n=1)
+---
+score: 92.0
+cost_usd: 0.0044
+time_s: 135.6
+correct: 46
+total: 50

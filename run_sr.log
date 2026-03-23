@@ -1,0 +1,13 @@
+benchmark: gsm8k
+agent: self_refine
+model: gpt-4.1-nano
+n_samples: 50
+reasoning: cot
+reflection: self_refine
+ensemble: none (n=1)
+---
+score: 88.0
+cost_usd: 0.0202
+time_s: 465.0
+correct: 44
+total: 50

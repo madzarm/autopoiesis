@@ -6,60 +6,9 @@ reasoning: cot
 reflection: self_refine
 ensemble: majority_vote (n=7)
 ---
-Traceback (most recent call last):
-  File "/Users/madzarmaksim/Workspace/adas/run_experiment.py", line 100, in <module>
-    main()
-    ~~~~^^
-  File "/Users/madzarmaksim/Workspace/adas/run_experiment.py", line 96, in main
-    run(config, args.benchmark, args.n, args.seed)
-    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/madzarmaksim/Workspace/adas/run_experiment.py", line 40, in run
-    samples = load_gsm8k(split="test", n=n, seed=seed)
-  File "/Users/madzarmaksim/Workspace/adas/evaluate.py", line 43, in load_gsm8k
-    ds = load_dataset("openai/gsm8k", "main", split=split)
-  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/datasets/load.py", line 2062, in load_dataset
-    builder_instance = load_dataset_builder(
-        path=path,
-    ...<12 lines>...
-        **config_kwargs,
-    )
-  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/datasets/load.py", line 1833, in load_dataset_builder
-    builder_instance._use_legacy_cache_dir_if_possible(dataset_module)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
-  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/datasets/builder.py", line 643, in _use_legacy_cache_dir_if_possible
-    self._check_legacy_cache2(dataset_module) or self._check_legacy_cache() or None
-    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
-  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/datasets/builder.py", line 487, in _check_legacy_cache2
-    config_id = self.config.name + "-" + Hasher.hash({"data_files": self.config.data_files})
-                                         ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/datasets/fingerprint.py", line 188, in hash
-    return cls.hash_bytes(dumps(value))
-                          ~~~~~^^^^^^^
-  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/datasets/utils/_dill.py", line 109, in dumps
-    dump(obj, file)
-    ~~~~^^^^^^^^^^^
-  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/datasets/utils/_dill.py", line 103, in dump
-    Pickler(file, recurse=True).dump(obj)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/dill/_dill.py", line 420, in dump
-    StockPickler.dump(self, obj)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pickle.py", line 498, in dump
-    self.save(obj)
-    ~~~~~~~~~^^^^^
-  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/datasets/utils/_dill.py", line 70, in save
-    dill.Pickler.save(self, obj, save_persistent_id=save_persistent_id)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/dill/_dill.py", line 414, in save
-    StockPickler.save(self, obj, save_persistent_id)
-    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pickle.py", line 572, in save
-    f(self, obj)  # Call unbound method with explicit self
-    ~^^^^^^^^^^^
-  File "/Users/madzarmaksim/Workspace/adas/.venv/lib/python3.14/site-packages/dill/_dill.py", line 1217, in save_module_dict
-    StockPickler.save_dict(pickler, obj)
-    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pickle.py", line 1064, in save_dict
-    self._batch_setitems(obj.items(), obj)
-    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
-TypeError: Pickler._batch_setitems() takes 2 positional arguments but 3 were given
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+score: 96.0
+cost_usd: 0.0393
+time_s: 86.6
+correct: 48
+total: 50

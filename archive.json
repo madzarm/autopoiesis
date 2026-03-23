@@ -460,5 +460,93 @@
     "score": 92.0,
     "cost_usd": 0.0587,
     "notes": ""
+  },
+  {
+    "config": {
+      "name": "v4_simple_cot_selfcheck",
+      "reasoning": "cot",
+      "planning": "none",
+      "reflection": "self_check",
+      "ensemble": "none",
+      "ensemble_n": 1,
+      "persona": "You are an expert mathematician. Solve problems step by step with perfect accuracy.",
+      "output_format": "step_numbered",
+      "model": "gpt-4.1-nano",
+      "temperature": 0.0,
+      "max_tokens": 2048,
+      "decompose_strategy": "sequential",
+      "reflection_rounds": 1,
+      "custom_instructions": "Solve the problem step by step. Number each step. After your solution, verify each step is correct. Put your final numeric answer after ####."
+    },
+    "benchmark": "gsm8k",
+    "score": 94.0,
+    "cost_usd": 0.0119913,
+    "notes": ""
+  },
+  {
+    "config": {
+      "name": "v3_mv3_analogy",
+      "reasoning": "analogy",
+      "planning": "step_by_step",
+      "reflection": "self_refine",
+      "ensemble": "majority_vote",
+      "ensemble_n": 3,
+      "persona": "You are a creative math problem solver who approaches each problem by first thinking of similar, simpler problems, then applies those patterns to solve the harder one.",
+      "output_format": "step_numbered",
+      "model": "gpt-4.1-nano",
+      "temperature": 0.1,
+      "max_tokens": 2048,
+      "decompose_strategy": "sequential",
+      "reflection_rounds": 2,
+      "custom_instructions": "First, identify a simpler analogous problem. Solve that simpler version. Then adapt the approach to the original problem. Check your work step by step. Put your final numeric answer after ####."
+    },
+    "benchmark": "gsm8k",
+    "score": 94.0,
+    "cost_usd": 0.024767699999999997,
+    "notes": ""
+  },
+  {
+    "config": {
+      "name": "v1_mv5_decompose",
+      "reasoning": "decompose",
+      "planning": "divide_conquer",
+      "reflection": "self_refine",
+      "ensemble": "majority_vote",
+      "ensemble_n": 5,
+      "persona": "You are a meticulous math olympiad coach who helps students break down complex problems into manageable steps, ensuring every part is correct.",
+      "output_format": "step_numbered",
+      "model": "gpt-4.1-nano",
+      "temperature": 0.3,
+      "max_tokens": 2048,
+      "decompose_strategy": "sequential",
+      "reflection_rounds": 2,
+      "custom_instructions": "First, decompose the problem into clear, sequential sub-questions. Solve each sub-question step by step, explaining your reasoning. After reaching a solution, review each step for possible errors, and refine any unclear logic or calculations before finalizing your answer."
+    },
+    "benchmark": "gsm8k",
+    "score": 94.0,
+    "cost_usd": 0.034097899999999993,
+    "notes": ""
+  },
+  {
+    "config": {
+      "name": "v2_mv7_cot",
+      "reasoning": "cot",
+      "planning": "step_by_step",
+      "reflection": "self_refine",
+      "ensemble": "majority_vote",
+      "ensemble_n": 7,
+      "persona": "You are a world-class mathematician. You solve problems with absolute precision, checking every step.",
+      "output_format": "step_numbered",
+      "model": "gpt-4.1-nano",
+      "temperature": 0.5,
+      "max_tokens": 2048,
+      "decompose_strategy": "sequential",
+      "reflection_rounds": 1,
+      "custom_instructions": "Think step by step. Number each step. Double-check all arithmetic. Put your final numeric answer after ####."
+    },
+    "benchmark": "gsm8k",
+    "score": 96.0,
+    "cost_usd": 0.039322700000000065,
+    "notes": ""
   }
 ]

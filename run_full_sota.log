@@ -1,0 +1,26 @@
+================================================================================
+AIDE vs Published SOTA (gpt-4o-mini)
+================================================================================
+Method                    | Benchmark  | Score  | Cost    | Time  | Correct
+--------------------------------------------------------------------------------
+
+--- Published SOTA (from papers) ---
+  MaAS                      | gsm8k      |  92.30% |         |       |
+  MaAS                      | math       |  51.82% |         |       |
+  MaAS                      | humaneval  |  92.85% |         |       |
+  AFlow                     | gsm8k      |  91.20% |         |       |
+  AFlow                     | math       |  51.30% |         |       |
+  AFlow                     | humaneval  |  90.90% |         |       |
+
+--- Our Methods (AIDE) ---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+  cot                       | gsm8k      |  95.50% | $0.2727 | 102s | 191/200
+  progressive_refine        | gsm8k      |  95.50% | $0.6339 | 192s | 191/200
+  code_solve                | gsm8k      |  93.00% | $0.1304 | 52s | 186/200
+  aide_ensemble             | gsm8k      |  96.00% | $0.9821 | 293s | 192/200
+  cot                       | math       |  49.00% | $0.3563 | 114s | 49/100
+  progressive_refine        | math       |  46.00% | $1.1899 | 327s | 46/100
+  code_solve                | math       |  34.00% | $0.3700 | 123s | 34/100
+  aide_ensemble             | math       |  30.00% | $1.8697 | 532s | 30/100
+  cot                       | humaneval  |  85.98% | $0.0686 | 842s | 141/164
+  code_solve                | humaneval  |  85.98% | $0.2186 | 850s | 141/164

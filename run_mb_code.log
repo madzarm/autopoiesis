@@ -1,0 +1,24 @@
+agent: code_solve
+architecture: code_solve
+benchmarks: ['gsm8k', 'arc']
+n_samples: 50
+---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+benchmark: gsm8k
+score: 94.0
+cost_usd: 0.0039
+time_s: 33.2
+correct: 47
+total: 50
+---
+benchmark: arc
+score: 80.0
+cost_usd: 0.0021
+time_s: 8.3
+correct: 40
+total: 50
+---
+
+=== SUMMARY ===
+gsm8k: 94.0% ($0.0039, 33.2s)
+arc: 80.0% ($0.0021, 8.3s)

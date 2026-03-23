@@ -1,0 +1,24 @@
+agent: plan_solve_verify
+architecture: plan_solve_verify
+benchmarks: ['gsm8k', 'drop']
+n_samples: 50
+---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+benchmark: gsm8k
+score: 82.0
+cost_usd: 0.0187
+time_s: 43.7
+correct: 41
+total: 50
+---
+benchmark: drop
+score: 2.2
+cost_usd: 0.0244
+time_s: 61.4
+correct: N/A
+total: 50
+---
+
+=== SUMMARY ===
+gsm8k: 82.0% ($0.0187, 43.7s)
+drop: 2.2% ($0.0244, 61.4s)

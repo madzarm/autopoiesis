@@ -51,48 +51,60 @@ class AgentV2Config(BaseModel):
     max_tokens: int = 2048
 
 
-def run_agent_v2(config: AgentV2Config, question: str, passage: str = "") -> str:
-    """Run a V2 agent on a question."""
+def run_agent_v2(config: AgentV2Config, question: str, passage: str = "", answer_format: str = "numeric") -> str:
+    """Run a V2 agent on a question.
+
+    answer_format: "numeric" for math, "text" for reading comprehension, "mc" for multiple choice
+    """
     arch = config.architecture
 
     if arch == "direct":
-        return _direct(config, question, passage)
+        return _direct(config, question, passage, answer_format)
     elif arch == "cot":
-        return _cot(config, question, passage)
+        return _cot(config, question, passage, answer_format)
     elif arch == "code_solve":
         return _code_solve(config, question, passage)
     elif arch == "plan_solve_verify":
-        return _plan_solve_verify(config, question, passage)
+        return _plan_solve_verify(config, question, passage, answer_format)
     elif arch == "classify_route":
-        return _classify_route(config, question, passage)
+        return _classify_route(config, question, passage, answer_format)
     elif arch == "ensemble_diverse":
-        return _ensemble_diverse(config, question, passage)
+        return _ensemble_diverse(config, question, passage, answer_format)
     elif arch == "progressive_refine":
-        return _progressive_refine(config, question, passage)
+        return _progressive_refine(config, question, passage, answer_format)
     else:
-        return _cot(config, question, passage)
+        return _cot(config, question, passage, answer_format)
 
 
-def _build_base_prompt(config: AgentV2Config, question: str, passage: str = "") -> tuple[str, str]:
-    """Build base system + user prompts."""
+def _build_base_prompt(config: AgentV2Config, question: str, passage: str = "", answer_format: str = "numeric") -> tuple[str, str]:
+    """Build base system + user prompts.
+
+    answer_format: "numeric" for math, "text" for reading comprehension, "mc" for multiple choice
+    """
     system = config.persona or "You are a helpful AI assistant that solves problems accurately."
     if config.custom_instructions:
         system += "\n\n" + config.custom_instructions
-    system += "\n\nAlways put your final numeric answer after #### on its own line."
+
+    if answer_format == "numeric":
+        system += "\n\nAlways put your final numeric answer after #### on its own line."
+    elif answer_format == "text":
+        system += "\n\nProvide a concise, direct answer. State just the answer without explanation in your final line after ####."
+    elif answer_format == "mc":
+        system += "\n\nSelect the correct answer letter. State your answer letter after #### on its own line."
 
     user = f"Question: {question}" if not passage else f"Passage: {passage}\n\nQuestion: {question}"
     return system, user
 
 
-def _direct(config: AgentV2Config, question: str, passage: str = "") -> str:
-    system, user = _build_base_prompt(config, question, passage)
+def _direct(config: AgentV2Config, question: str, passage: str = "", answer_format: str = "numeric") -> str:
+    system, user = _build_base_prompt(config, question, passage, answer_format)
     result = call_llm(prompt=user, system=system, model=config.model,
                       temperature=config.temperature, max_tokens=config.max_tokens)
     return result["content"]
 
 
-def _cot(config: AgentV2Config, question: str, passage: str = "") -> str:
-    system, user = _build_base_prompt(config, question, passage)
+def _cot(config: AgentV2Config, question: str, passage: str = "", answer_format: str = "numeric") -> str:
+    system, user = _build_base_prompt(config, question, passage, answer_format)
     system += "\n\nThink step by step. Number each step of your reasoning."
     result = call_llm(prompt=user, system=system, model=config.model,
                       temperature=config.temperature, max_tokens=config.max_tokens)
@@ -180,7 +192,7 @@ def _safe_exec(code: str, timeout: int = 5) -> str:
     return stdout.getvalue()
 
 
-def _plan_solve_verify(config: AgentV2Config, question: str, passage: str = "") -> str:
+def _plan_solve_verify(config: AgentV2Config, question: str, passage: str = "", answer_format: str = "numeric") -> str:
     """Three-step pipeline: Plan → Solve → Verify."""
     context = f"Passage: {passage}\n\n" if passage else ""
 
@@ -236,7 +248,7 @@ def _plan_solve_verify(config: AgentV2Config, question: str, passage: str = "") 
     return verify_result["content"]
 
 
-def _classify_route(config: AgentV2Config, question: str, passage: str = "") -> str:
+def _classify_route(config: AgentV2Config, question: str, passage: str = "", answer_format: str = "numeric") -> str:
     """Classify problem type and route to the best strategy."""
     # Classify
     classify_result = call_llm(
@@ -284,7 +296,7 @@ def _classify_route(config: AgentV2Config, question: str, passage: str = "") -> 
         return _cot(config, question, passage)
 
 
-def _ensemble_diverse(config: AgentV2Config, question: str, passage: str = "") -> str:
+def _ensemble_diverse(config: AgentV2Config, question: str, passage: str = "", answer_format: str = "numeric") -> str:
     """Run multiple diverse architectures and vote on the answer."""
     from evaluate import extract_number
     from collections import Counter
@@ -318,7 +330,7 @@ def _ensemble_diverse(config: AgentV2Config, question: str, passage: str = "") -
     return f"#### {best_answer}"
 
 
-def _progressive_refine(config: AgentV2Config, question: str, passage: str = "") -> str:
+def _progressive_refine(config: AgentV2Config, question: str, passage: str = "", answer_format: str = "numeric") -> str:
     """Progressively refine the answer through multiple rounds of self-critique."""
     # Initial solve
     system, user = _build_base_prompt(config, question, passage)

@@ -461,17 +461,45 @@ def extract_math_answer(text: str) -> Optional[str]:
 
 
 def normalize_math_answer(s: str) -> str:
-    """Normalize a math answer for comparison."""
+    """Normalize a math answer for comparison. Handles LaTeX, fractions, etc."""
+    if s is None:
+        return ""
     s = s.strip()
-    # Remove $ signs
-    s = s.replace('$', '')
-    # Remove \text{...}
-    s = re.sub(r'\\text\{([^}]*)\}', r'\1', s)
+    # Remove $ signs and \displaystyle
+    s = s.replace('$', '').replace('\\displaystyle', '')
+    # Remove \text{...} and \mathrm{...}
+    s = re.sub(r'\\(?:text|mathrm|textbf)\{([^}]*)\}', r'\1', s)
+    # Remove \left and \right
+    s = s.replace('\\left', '').replace('\\right', '')
+    # Handle \frac{a}{b}
+    frac_match = re.match(r'^\\frac\{([^}]+)\}\{([^}]+)\}$', s)
+    if frac_match:
+        try:
+            num = float(frac_match.group(1))
+            den = float(frac_match.group(2))
+            if den != 0:
+                return str(round(num / den, 10))
+        except ValueError:
+            pass
+    # Handle \dfrac similarly
+    frac_match = re.match(r'^\\dfrac\{([^}]+)\}\{([^}]+)\}$', s)
+    if frac_match:
+        try:
+            num = float(frac_match.group(1))
+            den = float(frac_match.group(2))
+            if den != 0:
+                return str(round(num / den, 10))
+        except ValueError:
+            pass
     # Remove spaces
     s = s.replace(' ', '')
+    # Remove trailing period
+    s = s.rstrip('.')
     # Try to evaluate as number
     try:
-        return str(float(s))
+        val = float(s)
+        # Round to avoid floating point issues
+        return str(round(val, 10))
     except ValueError:
         return s.lower()
 

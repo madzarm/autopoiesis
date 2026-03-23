@@ -1,0 +1,32 @@
+agent: progressive_refine
+architecture: progressive_refine
+benchmarks: ['gsm8k', 'arc', 'drop']
+n_samples: 50
+---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+benchmark: gsm8k
+score: 88.0
+cost_usd: 0.0124
+time_s: 48.9
+correct: 44
+total: 50
+---
+benchmark: arc
+score: 78.0
+cost_usd: 0.0069
+time_s: 17.9
+correct: 39
+total: 50
+---
+benchmark: drop
+score: 5.52
+cost_usd: 0.01
+time_s: 44.5
+correct: N/A
+total: 50
+---
+
+=== SUMMARY ===
+gsm8k: 88.0% ($0.0124, 48.9s)
+arc: 78.0% ($0.0069, 17.9s)
+drop: 5.52% ($0.01, 44.5s)

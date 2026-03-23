@@ -200,18 +200,31 @@ def compute_f1(prediction: str, gold: str) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
+def extract_text_answer(response: str) -> str:
+    """Extract the text answer from agent response. Looks for #### marker or uses last line."""
+    # Look for #### marker
+    match = re.search(r'####\s*(.+)', response)
+    if match:
+        return match.group(1).strip()
+    # Use last non-empty line
+    lines = [l.strip() for l in response.strip().split('\n') if l.strip()]
+    return lines[-1] if lines else response.strip()
+
+
 def _eval_single_drop(agent_fn, sample, idx):
     """Evaluate a single DROP sample. Thread-safe."""
     try:
         response = agent_fn(sample["passage"], sample["question"])
+        # Extract just the answer portion for F1 comparison
+        predicted = extract_text_answer(response)
         max_f1 = max(
-            compute_f1(response, gold)
+            compute_f1(predicted, gold)
             for gold in sample["gold_answers"]
         )
         return {
             "idx": idx,
             "f1": max_f1,
-            "predicted": response[:200],
+            "predicted": predicted[:200],
         }
     except Exception as e:
         return {"idx": idx, "f1": 0.0, "error": str(e)}

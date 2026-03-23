@@ -313,16 +313,34 @@ def _ensemble_diverse(config: AgentV2Config, question: str, passage: str = "", a
             custom_instructions=config.custom_instructions,
         )
         try:
-            resp = run_agent_v2(sub_config, question, passage)
+            resp = run_agent_v2(sub_config, question, passage, answer_format)
             responses.append(resp)
-            num = extract_number(resp)
-            if num is not None:
-                answers.append(str(num))
+
+            if answer_format == "numeric":
+                num = extract_number(resp)
+                if num is not None:
+                    answers.append(str(num))
+            elif answer_format == "mc":
+                # Extract letter answer
+                from evaluate import extract_answer_letter
+                letter = extract_answer_letter(resp, ["A", "B", "C", "D", "E"])
+                if letter:
+                    answers.append(letter)
+            else:
+                # Text answer — extract after ####
+                match = re.search(r'####\s*(.+)', resp)
+                if match:
+                    answers.append(match.group(1).strip())
+                else:
+                    # Use last line as answer
+                    last_line = resp.strip().split('\n')[-1].strip()
+                    if last_line:
+                        answers.append(last_line)
         except Exception:
             continue
 
     if not answers:
-        return responses[-1] if responses else _cot(config, question, passage)
+        return responses[-1] if responses else _cot(config, question, passage, answer_format)
 
     # Majority vote
     counter = Counter(answers)
@@ -333,8 +351,8 @@ def _ensemble_diverse(config: AgentV2Config, question: str, passage: str = "", a
 def _progressive_refine(config: AgentV2Config, question: str, passage: str = "", answer_format: str = "numeric") -> str:
     """Progressively refine the answer through multiple rounds of self-critique."""
     # Initial solve
-    system, user = _build_base_prompt(config, question, passage)
-    system += "\n\nThink step by step. Be very careful with arithmetic."
+    system, user = _build_base_prompt(config, question, passage, answer_format)
+    system += "\n\nThink step by step. Be very careful."
     result = call_llm(prompt=user, system=system, model=config.model,
                       temperature=config.temperature, max_tokens=config.max_tokens)
     current_answer = result["content"]

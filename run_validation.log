@@ -1,0 +1,14 @@
+benchmark: gsm8k
+agent: cot_decompose_reflect_vote
+model: gpt-4.1-nano
+n_samples: 200
+reasoning: decompose
+reflection: self_refine
+ensemble: majority_vote (n=3)
+---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+score: 93.0
+cost_usd: 0.0859
+time_s: 167.7
+correct: 186
+total: 200

@@ -1,0 +1,16 @@
+benchmark: drop
+agent: cot_decompose_reflect_vote
+model: gpt-4.1-nano
+n_samples: 50
+reasoning: decompose
+reflection: self_refine
+ensemble: majority_vote (n=3)
+---
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Generating train split:   0%|          | 0/77400 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 77400/77400 [00:00<00:00, 1080462.92 examples/s]
+Generating validation split:   0%|          | 0/9535 [00:00<?, ? examples/s]Generating validation split: 100%|██████████| 9535/9535 [00:00<00:00, 1907411.11 examples/s]
+score: 56.32
+cost_usd: 0.0214
+time_s: 58.3
+correct: N/A
+total: 50

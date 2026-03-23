@@ -1,0 +1,119 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+=== AIDE Evolution ===
+Benchmark: gsm8k, Samples: 100
+Population: 6, Generations: 5
+Mutation: 0.7, Crossover: 0.2, Random: 0.1
+
+--- Evaluating initial population ---
+  seed_cot: 95.0%
+  seed_decompose: 94.0%
+  seed_cot_refine: 86.0%
+  seed_random_3: 92.0%
+  seed_random_4: 90.0%
+  seed_random_5: 90.0%
+
+Best initial: seed_cot = 95.0%
+
+==================================================
+Generation 1/5
+==================================================
+Elites: seed_cot=95.0%, seed_decompose=94.0%
+  Mutation from seed_decompose
+    → mut_g1_2: 93.0%
+  Mutation from seed_cot
+    → mut_g1_3: 89.0%
+  Crossover: seed_cot x seed_decompose
+    → cross_g1_4: 95.0%
+  Mutation from seed_cot
+    → mut_g1_5: 83.0%
+
+Gen 1 stats: best=95.0%, avg=91.5%, worst=83.0%
+Best ever: seed_cot = 95.0%
+
+==================================================
+Generation 2/5
+==================================================
+Elites: seed_cot=95.0%, cross_g1_4=95.0%
+  Mutation from cross_g1_4
+    → mut_g2_2: 92.0%
+  Mutation from seed_cot
+    → mut_g2_3: 94.0%
+  Mutation from cross_g1_4
+    → mut_g2_4: 95.0%
+  Mutation from cross_g1_4
+    → mut_g2_5: 94.0%
+
+Gen 2 stats: best=95.0%, avg=94.2%, worst=92.0%
+Best ever: seed_cot = 95.0%
+
+==================================================
+Generation 3/5
+==================================================
+Elites: seed_cot=95.0%, cross_g1_4=95.0%
+  Mutation from cross_g1_4
+    → mut_g3_2: 95.0%
+  Mutation from cross_g1_4
+    → mut_g3_3: 93.0%
+  Mutation from seed_cot
+    → mut_g3_4: 93.0%
+  Mutation from mut_g2_3
+    → mut_g3_5: 95.0%
+
+Gen 3 stats: best=95.0%, avg=94.3%, worst=93.0%
+Best ever: seed_cot = 95.0%
+
+==================================================
+Generation 4/5
+==================================================
+Elites: seed_cot=95.0%, cross_g1_4=95.0%
+  Crossover: mut_g3_2 x seed_cot
+    → cross_g4_2: 94.0%
+  Mutation from mut_g3_2
+    → mut_g4_3: 93.0%
+  Mutation from cross_g1_4
+    → mut_g4_4: 85.0%
+  Random exploration
+    → rand_g4_5: 93.0%
+
+Gen 4 stats: best=95.0%, avg=92.5%, worst=85.0%
+Best ever: seed_cot = 95.0%
+
+==================================================
+Generation 5/5
+==================================================
+Elites: seed_cot=95.0%, cross_g1_4=95.0%
+  Mutation from seed_cot
+    → mut_g5_2: 93.0%
+  Crossover: cross_g4_2 x cross_g4_2
+    → cross_g5_3: 92.0%
+  Mutation from cross_g1_4
+    → mut_g5_4: 91.0%
+  Random exploration
+    → rand_g5_5: 92.0%
+
+Gen 5 stats: best=95.0%, avg=93.0%, worst=91.0%
+Best ever: seed_cot = 95.0%
+
+==================================================
+EVOLUTION COMPLETE
+==================================================
+Best config: seed_cot
+Best score: 95.0%
+
+Config details:
+{
+  "name": "seed_cot",
+  "reasoning": "cot",
+  "planning": "none",
+  "reflection": "none",
+  "ensemble": "none",
+  "ensemble_n": 1,
+  "persona": "",
+  "output_format": "step_numbered",
+  "model": "gpt-4.1-nano",
+  "temperature": 0.0,
+  "max_tokens": 2048,
+  "decompose_strategy": "sequential",
+  "reflection_rounds": 1,
+  "custom_instructions": ""
+}

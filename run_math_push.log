@@ -4,3 +4,8 @@ Published: MaAS=51.82%, AFlow=51.3%
 
 Method                    | Score    | Cost     | Time  | Correct
 -----------------------------------------------------------------
+  cot                       |  50.50% | $0.7358 | 193s | 101/200
+  cot_refine                |  52.00% | $1.6032 | 374s | 104/200
+1
+/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/resource_tracker.py:396: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-cz_g6hgf'}
+  warnings.warn(

@@ -3,3 +3,6 @@ Published: MaAS=92.85%, AFlow=90.9%
 
 Method                         | Score    | Cost     | Time  | Correct
 ----------------------------------------------------------------------
+  direct_best                    |  87.20% | $0.0636 | 232s | 143/164
+  direct_best+repair             |  86.59% | $0.0781 | 277s | 142/164
+  direct_t03+repair              |  84.76% | $0.0761 | 295s | 139/164

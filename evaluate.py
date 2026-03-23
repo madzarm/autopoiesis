@@ -426,3 +426,183 @@ def evaluate_mmlu_accuracy(
         "cost_usd": round(get_session_cost(), 4),
         "details": details,
     }
+
+
+# ─── MATH ────────────────────────────────────
+
+def load_math(split: str = "test", n: Optional[int] = None, seed: int = 42) -> list[dict]:
+    """Load MATH benchmark."""
+    ds = load_dataset("lighteval/MATH-Hard", split=split)
+    samples = []
+    for item in ds:
+        samples.append({
+            "problem": item["problem"],
+            "solution": item["solution"],
+            "level": item.get("level", ""),
+            "type": item.get("type", ""),
+        })
+    if n is not None and n < len(samples):
+        rng = random.Random(seed)
+        samples = rng.sample(samples, n)
+    return samples
+
+
+def extract_math_answer(text: str) -> Optional[str]:
+    """Extract answer from MATH response — handles boxed and #### formats."""
+    # Look for \boxed{...}
+    match = re.search(r'\\boxed\{([^}]+)\}', text)
+    if match:
+        return match.group(1).strip()
+    # Look for #### format
+    match = re.search(r'####\s*(.+?)(?:\n|$)', text)
+    if match:
+        return match.group(1).strip()
+    return None
+
+
+def normalize_math_answer(s: str) -> str:
+    """Normalize a math answer for comparison."""
+    s = s.strip()
+    # Remove $ signs
+    s = s.replace('$', '')
+    # Remove \text{...}
+    s = re.sub(r'\\text\{([^}]*)\}', r'\1', s)
+    # Remove spaces
+    s = s.replace(' ', '')
+    # Try to evaluate as number
+    try:
+        return str(float(s))
+    except ValueError:
+        return s.lower()
+
+
+def _eval_single_math_bench(agent_fn, sample, idx):
+    """Evaluate a single MATH sample."""
+    try:
+        response = agent_fn(sample["problem"])
+        predicted = extract_math_answer(response)
+        gold = extract_math_answer(sample["solution"])
+
+        if predicted is None or gold is None:
+            return {"idx": idx, "correct": False, "predicted": predicted, "gold": gold}
+
+        is_correct = normalize_math_answer(predicted) == normalize_math_answer(gold)
+        return {
+            "idx": idx,
+            "correct": is_correct,
+            "predicted": predicted,
+            "gold": gold,
+        }
+    except Exception as e:
+        return {"idx": idx, "correct": False, "error": str(e)}
+
+
+def evaluate_math_bench(
+    agent_fn: Callable[[str], str],
+    samples: list[dict],
+    parallel: bool = True,
+    max_workers: int = MAX_WORKERS,
+) -> dict:
+    """Evaluate on MATH benchmark (accuracy)."""
+    reset_cost_tracking()
+    details = []
+
+    if parallel and len(samples) > 1:
+        with ThreadPoolExecutor(max_workers=min(max_workers, len(samples))) as executor:
+            futures = {
+                executor.submit(_eval_single_math_bench, agent_fn, s, i): i
+                for i, s in enumerate(samples)
+            }
+            for future in as_completed(futures):
+                details.append(future.result())
+    else:
+        for i, s in enumerate(samples):
+            details.append(_eval_single_math_bench(agent_fn, s, i))
+
+    details.sort(key=lambda x: x["idx"])
+    correct = sum(1 for d in details if d.get("correct", False))
+    total = len(samples)
+
+    return {
+        "benchmark": "math",
+        "score": round(correct / total * 100, 2) if total > 0 else 0.0,
+        "correct": correct,
+        "total": total,
+        "cost_usd": round(get_session_cost(), 4),
+        "details": details,
+    }
+
+
+# ─── HumanEval ────────────────────────────────────
+
+def load_humaneval(n: Optional[int] = None, seed: int = 42) -> list[dict]:
+    """Load HumanEval benchmark."""
+    ds = load_dataset("openai/openai_humaneval", split="test")
+    samples = []
+    for item in ds:
+        samples.append({
+            "task_id": item["task_id"],
+            "prompt": item["prompt"],
+            "test": item["test"],
+            "entry_point": item["entry_point"],
+            "canonical_solution": item["canonical_solution"],
+        })
+    if n is not None and n < len(samples):
+        rng = random.Random(seed)
+        samples = rng.sample(samples, n)
+    return samples
+
+
+def _eval_single_humaneval(agent_fn, sample, idx):
+    """Evaluate a single HumanEval sample."""
+    try:
+        response = agent_fn(sample["prompt"])
+        # Extract code from response
+        code_match = re.search(r'```python\s*(.*?)\s*```', response, re.DOTALL)
+        if code_match:
+            code = code_match.group(1)
+        else:
+            code = response
+
+        # Build complete program
+        full_code = sample["prompt"] + code + "\n" + sample["test"] + f"\ncheck({sample['entry_point']})"
+
+        # Execute safely
+        import io, contextlib
+        stdout = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(stdout):
+                exec(full_code, {})
+            return {"idx": idx, "correct": True, "task_id": sample["task_id"]}
+        except Exception as e:
+            return {"idx": idx, "correct": False, "task_id": sample["task_id"], "error": str(e)[:100]}
+
+    except Exception as e:
+        return {"idx": idx, "correct": False, "error": str(e)[:100]}
+
+
+def evaluate_humaneval(
+    agent_fn: Callable[[str], str],
+    samples: list[dict],
+    parallel: bool = False,  # Code execution not thread-safe
+    max_workers: int = 4,
+) -> dict:
+    """Evaluate on HumanEval (pass@1)."""
+    reset_cost_tracking()
+    details = []
+
+    # Run sequentially for safety (code execution)
+    for i, s in enumerate(samples):
+        details.append(_eval_single_humaneval(agent_fn, s, i))
+
+    correct = sum(1 for d in details if d.get("correct", False))
+    total = len(samples)
+
+    return {
+        "benchmark": "humaneval",
+        "score": round(correct / total * 100, 2) if total > 0 else 0.0,
+        "correct": correct,
+        "total": total,
+        "cost_usd": round(get_session_cost(), 4),
+        "details": details,
+    }

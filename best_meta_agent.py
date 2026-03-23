@@ -7,8 +7,8 @@ def forward(question, call_llm_fn):
     def ask(prompt, system="", temperature=0.2):
         return call_llm_fn(prompt, system=system, temperature=temperature).strip()
 
-    def jget(txt, default):
-        m = re.search(r'\{.*\}', txt, re.S)
+    def jtxt(s, default):
+        m = re.search(r'\{.*\}', s, re.S)
         if not m:
             return default
         try:
@@ -16,96 +16,102 @@ def forward(question, call_llm_fn):
         except:
             return default
 
-    def extract_mc_options(text):
-        pats = [
-            r'([A-D])[\)\.\:]\s*(.+?)(?=(?:\n[A-D][\)\.\:])|\Z)',
-            r'\(([A-D])\)\s*(.+?)(?=(?:\n\([A-D]\))|\Z)',
-        ]
-        for p in pats:
-            ms = re.findall(p, text, re.S)
-            if len(ms) >= 3:
-                return {k: v.strip() for k, v in ms}
-        return {}
+    def classify():
+        out = ask(
+            'Return only JSON: {"type":"math|mc|open","answer_format":"number|letter|text","brief":"..."}\n'
+            f"Question:\n{q}",
+            system="You are a precise classifier.",
+            temperature=0.0,
+        )
+        d = jtxt(out, {})
+        t = d.get("type", "")
+        if t in ("math", "mc", "open"):
+            return d
+        if re.search(r'(^|\n)\s*([A-D])[\).\s]', q) or re.search(r'\b[A-D][\)\.]\s', q):
+            return {"type": "mc", "answer_format": "letter", "brief": ""}
+        if any(x in q.lower() for x in ["how many", "what is", "total", "left", "remain", "sum"]):
+            return {"type": "math", "answer_format": "number", "brief": ""}
+        return {"type": "open", "answer_format": "text", "brief": ""}
 
-    def parse_final(text, mode):
-        if mode == "mc":
-            m = re.search(r'####\s*([A-D])\b', text)
-            if m:
-                return m.group(1)
-            m = re.search(r'\b(?:answer|final)\s*[:\-]?\s*([A-D])\b', text, re.I)
-            return m.group(1).upper() if m else None
-        m = re.search(r'####\s*([-+]?\d[\d,]*(?:\.\d+)?)', text)
+    def extract_num(s):
+        ms = re.findall(r'####\s*([-+]?\d[\d,]*(?:\.\d+)?)', s)
+        if ms:
+            return ms[-1].replace(",", "")
+        ms = re.findall(r'[-+]?\d[\d,]*(?:\.\d+)?', s)
+        return ms[-1].replace(",", "") if ms else None
+
+    def extract_letter(s):
+        m = re.findall(r'####\s*([A-D])', s.upper())
         if m:
-            return m.group(1).replace(",", "")
-        nums = re.findall(r'[-+]?\d[\d,]*(?:\.\d+)?', text)
-        return nums[-1].replace(",", "") if nums else None
+            return m[-1]
+        m = re.findall(r'\b([A-D])\b', s.upper())
+        return m[-1] if m else None
 
-    cls = jget(ask(
-        'Classify the question. Return JSON only with keys '
-        '{"mode":"math|mc|open","brief":"...","difficulty":"easy|med|hard"}\n'
-        f'Question:\n{q}',
-        system="You are a strict classifier. Output only JSON.",
-        temperature=0.0), {"mode": "open", "brief": "", "difficulty": "med"})
-    mode = cls.get("mode", "open")
-    if mode == "open" and extract_mc_options(q):
-        mode = "mc"
-
-    if mode == "mc":
-        opts = extract_mc_options(q)
-        analyses = []
-        for t in (0.1, 0.4, 0.7):
-            analyses.append(ask(
-                f"Solve the multiple-choice question carefully.\nQuestion:\n{q}\n"
-                "Give concise reasoning, then end with '#### <letter>'.",
-                system="You are an expert test solver. Be careful and avoid guessing.",
-                temperature=t))
-        cands = [parse_final(a, "mc") for a in analyses if parse_final(a, "mc")]
-        if not cands and opts:
-            elim = ask(
-                f"Eliminate wrong options first, then choose the best answer.\nQuestion:\n{q}\n"
-                f"Options parsed: {json.dumps(opts)}\nEnd with #### <letter>.",
-                system="Use process of elimination and factual checking.",
-                temperature=0.2)
-            x = parse_final(elim, "mc")
-            if x:
-                cands.append(x)
-        choice = Counter(cands).most_common(1)[0][0] if cands else "A"
-        judge = ask(
-            f"Question:\n{q}\nCandidate answer: {choice}\n"
-            "Is this likely correct? Briefly verify against the question and options. "
-            "If another option is clearly better, output it. End with #### <letter>.",
-            system="You are a skeptical verifier.",
-            temperature=0.0)
-        final = parse_final(judge, "mc") or choice
-        return f"#### {final}"
-
-    if mode == "math":
-        plans = ask(
-            f"Create a short plan to solve this math word problem.\nQuestion:\n{q}",
-            system="Be concise and identify equations/units.", temperature=0.0)
+    def solve_math():
         sols = []
-        for t in (0.0, 0.3, 0.6):
-            sols.append(ask(
-                f"Use this plan if helpful:\n{plans}\n\nSolve carefully:\n{q}\n"
-                "Show minimal steps, compute exactly, and end with '#### <number>'.",
-                system="You are a meticulous math solver.", temperature=t))
-        nums = [parse_final(s, "math") for s in sols if parse_final(s, "math") is not None]
-        guess = Counter(nums).most_common(1)[0][0] if nums else None
-        verify = ask(
-            f"Question:\n{q}\nProposed answer: {guess}\n"
-            "Check the arithmetic and logic independently. If wrong, correct it. "
-            "End with #### <number>.",
-            system="You are a strict math verifier.", temperature=0.0)
-        final = parse_final(verify, "math") or guess or "0"
-        return f"#### {final}"
+        for t in (0.2, 0.5, 0.8):
+            out = ask(
+                "Solve carefully but concisely. Check arithmetic. End with exactly: #### <number>\n"
+                f"Question:\n{q}",
+                system="You are a careful math solver.",
+                temperature=t,
+            )
+            n = extract_num(out)
+            if n is not None:
+                sols.append((n, out))
+        if not sols:
+            out = ask(f"Solve and end with #### <number>.\n{q}", temperature=0.2)
+            n = extract_num(out)
+            return out if n is None else re.sub(r'.*', f"#### {n}", out.splitlines()[-1])
+        cnt = Counter(n for n, _ in sols)
+        best = cnt.most_common(1)[0][0]
+        judge = ask(
+            "Choose the most likely correct final numeric answer among these candidate solutions. "
+            "Return only JSON {\"answer\":\"<number>\",\"why\":\"...\"}.\n\n" +
+            "\n\n".join([f"Candidate {i+1}:\n{s}" for i, (_, s) in enumerate(sols)]),
+            system="You evaluate consistency and arithmetic correctness.",
+            temperature=0.0,
+        )
+        jd = jtxt(judge, {})
+        ans = jd.get("answer", best)
+        return f"#### {ans}"
 
-    ans = ask(
-        f"Answer the question accurately and concisely:\n{q}",
-        system="Provide the best possible answer.", temperature=0.2)
-    mc = parse_final(ans, "mc")
-    if mc:
-        return f"#### {mc}"
-    num = parse_final(ans, "math")
-    if num is not None:
-        return f"#### {num}"
-    return ans
+    def solve_mc():
+        drafts = []
+        for t in (0.0, 0.3, 0.7):
+            out = ask(
+                "Solve the multiple-choice question. Briefly reason by eliminating wrong options. "
+                "End with exactly: #### <letter>\n"
+                f"Question:\n{q}",
+                system="You are an expert test taker.",
+                temperature=t,
+            )
+            a = extract_letter(out)
+            if a:
+                drafts.append((a, out))
+        if not drafts:
+            out = ask(f"Answer with only the correct option letter.\n{q}", temperature=0.0)
+            a = extract_letter(out)
+            return f"#### {a}" if a else out
+        cnt = Counter(a for a, _ in drafts)
+        top = [k for k, v in cnt.items() if v == cnt.most_common(1)[0][1]]
+        if len(top) == 1:
+            return f"#### {top[0]}"
+        judge = ask(
+            "You are given several candidate analyses for the same multiple-choice question. "
+            "Select the best-supported option. Return only JSON {\"answer\":\"A|B|C|D\"}.\n\n"
+            f"Question:\n{q}\n\n" + "\n\n".join([f"Candidate {i+1}:\n{s}" for i, (_, s) in enumerate(drafts)]),
+            system="Prefer direct textual evidence and valid reasoning.",
+            temperature=0.0,
+        )
+        jd = jtxt(judge, {})
+        a = jd.get("answer", top[0])
+        return f"#### {a}"
+
+    c = classify()
+    if c["type"] == "math":
+        return solve_math()
+    if c["type"] == "mc":
+        return solve_mc()
+    out = ask(f"Answer concisely.\nQuestion:\n{q}", system="You are a helpful expert.", temperature=0.2)
+    return out

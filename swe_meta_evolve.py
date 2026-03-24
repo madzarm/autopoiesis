@@ -47,7 +47,7 @@ import hashlib
 from typing import Optional, Tuple
 from collections import defaultdict
 
-from swe_llm import call_llm, SONNET, get_session_stats
+from swe_llm import call_llm, SONNET, AGENT_MODEL, get_session_stats
 from swe_interactive_agent import (
     solve_interactive, DEFAULT_INTERACTIVE_CONFIG, DEFAULT_SYSTEM_PROMPT,
 )
@@ -58,7 +58,7 @@ from swe_interactive_agent import (
 INTERACTIVE_SEEDS = [
     {
         "name": "default_interactive",
-        "model": SONNET,
+        "model": AGENT_MODEL,
         "temperature": 0.0,
         "max_tokens": 4096,
         "max_turns": 25,
@@ -67,7 +67,7 @@ INTERACTIVE_SEEDS = [
     },
     {
         "name": "methodical_explorer",
-        "model": SONNET,
+        "model": AGENT_MODEL,
         "temperature": 0.0,
         "max_tokens": 4096,
         "max_turns": 30,
@@ -111,7 +111,7 @@ CRITICAL RULES:
     },
     {
         "name": "test_driven_fixer",
-        "model": SONNET,
+        "model": AGENT_MODEL,
         "temperature": 0.0,
         "max_tokens": 4096,
         "max_turns": 30,
@@ -143,7 +143,7 @@ CRITICAL RULES:
     },
     {
         "name": "surgical_fixer",
-        "model": SONNET,
+        "model": AGENT_MODEL,
         "temperature": 0.0,
         "max_tokens": 4096,
         "max_turns": 20,
@@ -171,7 +171,7 @@ One command per turn. Always view before editing.""",
     },
     {
         "name": "context_builder",
-        "model": SONNET,
+        "model": AGENT_MODEL,
         "temperature": 0.2,
         "max_tokens": 4096,
         "max_turns": 30,

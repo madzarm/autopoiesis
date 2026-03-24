@@ -8,13 +8,19 @@ import anthropic
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 # Claude models
-SONNET = "claude-sonnet-4-20250514"  # Agent backbone (cheap, good at code)
-OPUS = "claude-opus-4-0-20250514"    # Meta-model for evolution (expensive, best reasoning)
+SONNET = "claude-sonnet-4-20250514"       # Meta-model + strong agent backbone
+HAIKU = "claude-haiku-4-5-20251001"       # Cheap agent backbone ($0.80/$4 per 1M)
+OPUS = "claude-opus-4-0-20250514"         # Strongest reasoning (expensive)
+
+# Default agent model
+AGENT_MODEL = SONNET  # Claude Sonnet 4 — comparable to EvoMAS's Claude-3.5-Sonnet
 
 # Cost per 1M tokens
 COST_PER_1M = {
     SONNET: {"input": 3.0, "output": 15.0},
+    HAIKU: {"input": 0.80, "output": 4.0},
     OPUS: {"input": 15.0, "output": 75.0},
+    "claude-3-haiku-20240307": {"input": 0.25, "output": 1.25},
 }
 
 _client: Optional[anthropic.Anthropic] = None

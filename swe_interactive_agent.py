@@ -26,7 +26,7 @@ import shutil
 import time
 from typing import Optional
 
-from swe_llm import call_llm, call_llm_multi_turn, SONNET
+from swe_llm import call_llm, call_llm_multi_turn, SONNET, AGENT_MODEL
 
 
 # ── Default System Prompt (evolvable) ────────────────────────────────────────
@@ -87,7 +87,7 @@ END_EDIT
 
 DEFAULT_INTERACTIVE_CONFIG = {
     "name": "interactive_agent",
-    "model": SONNET,
+    "model": AGENT_MODEL,
     "temperature": 0.0,
     "max_tokens": 4096,
     "max_turns": 25,

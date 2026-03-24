@@ -15,7 +15,7 @@ from genesis import (
     random_genome, mutate_genome, crossover_genomes, llm_evolve_genome,
     SEED_GENOMES, CHEAP,
 )
-from evaluate import load_gsm8k, load_humaneval
+from evaluate import load_gsm8k, load_humaneval, load_math
 from llm import get_session_cost, reset_cost_tracking
 
 
@@ -71,6 +71,7 @@ def _generate_child(idx, population, gen_num):
 def run_genesis_multi(
     n_gsm: int = 20,
     n_he: int = 15,
+    n_math: int = 20,
     population_size: int = 8,
     generations: int = 15,
     elite_size: int = 2,
@@ -79,6 +80,7 @@ def run_genesis_multi(
     benchmarks = {
         "gsm8k": load_gsm8k(n=n_gsm, seed=seed),
         "humaneval": load_humaneval(n=n_he, seed=seed),
+        "math": load_math(n=n_math, seed=seed),
     }
     print(f"═══ Genesis Multi-Benchmark (Parallel) ═══")
     print(f"Benchmarks: {', '.join(f'{k}={len(v)}' for k, v in benchmarks.items())}")
@@ -178,8 +180,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--n-gsm", type=int, default=25)
     parser.add_argument("--n-he", type=int, default=15)
+    parser.add_argument("--n-math", type=int, default=20)
     parser.add_argument("--pop", type=int, default=8)
     parser.add_argument("--gens", type=int, default=15)
     args = parser.parse_args()
-    run_genesis_multi(n_gsm=args.n_gsm, n_he=args.n_he,
+    run_genesis_multi(n_gsm=args.n_gsm, n_he=args.n_he, n_math=args.n_math,
                       population_size=args.pop, generations=args.gens)

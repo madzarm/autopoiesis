@@ -520,22 +520,35 @@ def _eval_single_genesis(genome_dict: dict, sample: dict, idx: int, benchmark: s
     """Evaluate a single sample with a genome. Thread-safe."""
     genome = Genome.from_dict(genome_dict)
     try:
-        if benchmark in ("gsm8k", "math"):
-            problem = sample.get("question", sample.get("problem", ""))
+        if benchmark == "gsm8k":
+            problem = sample.get("question", "")
             response = execute_genome(genome, problem)
             predicted = extract_number(response)
-            if predicted is None:
-                ans = extract_math_answer(response)
-                if ans:
-                    predicted_str = normalize_math_answer(ans)
-                    gold_str = normalize_math_answer(str(sample["gold_answer"]))
-                    if predicted_str == gold_str:
-                        return {"idx": idx, "correct": True}
             gold = sample["gold_answer"]
             is_correct = predicted is not None and abs(predicted - gold) < 1e-6
             if not is_correct:
                 return {"idx": idx, "correct": False,
                         "problem": problem[:200], "gold": str(gold), "predicted": str(predicted)}
+            return {"idx": idx, "correct": True}
+        elif benchmark == "math":
+            problem = sample.get("problem", "")
+            response = execute_genome(genome, problem)
+            pred_ans = extract_math_answer(response)
+            gold_ans = extract_math_answer(sample.get("solution", ""))
+            if pred_ans and gold_ans:
+                is_correct = normalize_math_answer(pred_ans) == normalize_math_answer(gold_ans)
+            else:
+                pred_num = extract_number(response)
+                gold_num_match = extract_math_answer(sample.get("solution", ""))
+                is_correct = False
+                if pred_num is not None and gold_num_match:
+                    try:
+                        is_correct = abs(pred_num - float(normalize_math_answer(gold_num_match))) < 1e-6
+                    except (ValueError, TypeError):
+                        pass
+            if not is_correct:
+                return {"idx": idx, "correct": False,
+                        "problem": problem[:200], "gold": str(gold_ans), "predicted": str(pred_ans)}
             return {"idx": idx, "correct": True}
         elif benchmark == "humaneval":
             prompt = sample["prompt"]

@@ -1,0 +1,5 @@
+Validating Genesis genome on 200 GSM8K (gpt-4o-mini)
+score: 96.0
+correct: 192/200
+cost: $0.6427
+time: 175s

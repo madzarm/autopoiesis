@@ -1,0 +1,88 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+═══ Genesis Multi-Benchmark ═══
+Benchmarks: gsm8k=25, humaneval=15
+Population: 8, Generations: 15
+
+── Initial Population ──
+  simple_cot                | avg= 74.0% | {'gsm8k': 88.0, 'humaneval': 60.0}
+  cot_verify_repair         | avg= 78.7% | {'gsm8k': 84.0, 'humaneval': 73.33}
+  multi_vote                | avg= 44.0% | {'gsm8k': 88.0, 'humaneval': 0.0}
+  code_first                | avg= 52.0% | {'gsm8k': 84.0, 'humaneval': 20.0}
+  adaptive_depth            | avg= 61.3% | {'gsm8k': 76.0, 'humaneval': 46.67}
+  random_5                  | avg= 87.3% | {'gsm8k': 88.0, 'humaneval': 86.67}
+  random_6                  | avg= 78.7% | {'gsm8k': 84.0, 'humaneval': 73.33}
+  random_7                  | avg= 70.7% | {'gsm8k': 88.0, 'humaneval': 53.33}
+
+Best: random_5 = 87.34%
+
+── Generation 1/15 ──
+  [llm_evolve] llm_g1_2               | avg= 82.7% | {'gsm8k': 72.0, 'humaneval': 93.33}
+  [random    ] rand_g1_3              | avg= 85.3% | {'gsm8k': 84.0, 'humaneval': 86.67}
+  [crossover ] cross_g1_4             | avg= 82.0% | {'gsm8k': 84.0, 'humaneval': 80.0}
+  [random    ] rand_g1_5              | avg= 90.7% | {'gsm8k': 88.0, 'humaneval': 93.33} *** NEW BEST ***
+  [llm_evolve] llm_g1_6               | avg= 71.3% | {'gsm8k': 76.0, 'humaneval': 66.67}
+  [llm_evolve] llm_g1_7               | avg= 42.0% | {'gsm8k': 84.0, 'humaneval': 0.0}
+  Gen 1: best=90.7%, avg=77.5%, best_ever=90.7%
+
+── Generation 2/15 ──
+  [llm_evolve] llm_g2_2               | avg= 80.0% | {'gsm8k': 80.0, 'humaneval': 80.0}
+  [llm_evolve] llm_g2_3               | avg= 42.0% | {'gsm8k': 84.0, 'humaneval': 0.0}
+  [mutation  ] mut_g2_4               | avg= 89.3% | {'gsm8k': 92.0, 'humaneval': 86.67}
+  [crossover ] cross_g2_5             | avg= 89.3% | {'gsm8k': 92.0, 'humaneval': 86.67}
+  [llm_evolve] llm_g2_6               | avg= 86.0% | {'gsm8k': 92.0, 'humaneval': 80.0}
+  [llm_evolve] llm_g2_7               | avg= 80.0% | {'gsm8k': 80.0, 'humaneval': 80.0}
+  Gen 2: best=90.7%, avg=80.6%, best_ever=90.7%
+
+── Generation 3/15 ──
+  [crossover ] cross_g3_2             | avg= 85.3% | {'gsm8k': 84.0, 'humaneval': 86.67}
+  [crossover ] cross_g3_3             | avg= 85.3% | {'gsm8k': 84.0, 'humaneval': 86.67}
+  [mutation  ] mut_g3_4               | avg= 88.7% | {'gsm8k': 84.0, 'humaneval': 93.33}
+  [llm_evolve] llm_g3_5               | avg= 90.7% | {'gsm8k': 88.0, 'humaneval': 93.33}
+  [random    ] rand_g3_6              | avg= 89.3% | {'gsm8k': 92.0, 'humaneval': 86.67}
+  [llm_evolve] llm_g3_7               | avg= 86.7% | {'gsm8k': 80.0, 'humaneval': 93.33}
+  Gen 3: best=90.7%, avg=88.2%, best_ever=90.7%
+
+── Generation 4/15 ──
+  [llm_evolve] llm_g4_2               | avg= 73.3% | {'gsm8k': 80.0, 'humaneval': 66.67}
+  [llm_evolve] llm_g4_3               | avg= 87.3% | {'gsm8k': 88.0, 'humaneval': 86.67}
+  [mutation  ] mut_g4_4               | avg= 87.3% | {'gsm8k': 88.0, 'humaneval': 86.67}
+  [mutation  ] mut_g4_5               | avg= 87.3% | {'gsm8k': 88.0, 'humaneval': 86.67}
+  [random    ] rand_g4_6              | avg=  0.0% | {'gsm8k': 0.0, 'humaneval': 0.0}
+  [mutation  ] mut_g4_7               | avg= 87.3% | {'gsm8k': 88.0, 'humaneval': 86.67}
+  Gen 4: best=90.7%, avg=75.5%, best_ever=90.7%
+
+── Generation 5/15 ──
+  [random    ] rand_g5_2              | avg=  0.0% | {'gsm8k': 0.0, 'humaneval': 0.0}
+  [llm_evolve] llm_g5_3               | avg= 85.3% | {'gsm8k': 84.0, 'humaneval': 86.67}
+  [mutation  ] mut_g5_4               | avg= 86.7% | {'gsm8k': 80.0, 'humaneval': 93.33}
+  [llm_evolve] llm_g5_5               | avg= 52.0% | {'gsm8k': 84.0, 'humaneval': 20.0}
+  [random    ] rand_g5_6              | avg= 86.7% | {'gsm8k': 80.0, 'humaneval': 93.33}
+  [crossover ] cross_g5_7             | avg= 54.0% | {'gsm8k': 88.0, 'humaneval': 20.0}
+  Gen 5: best=90.7%, avg=68.2%, best_ever=90.7%
+
+── Generation 6/15 ──
+  [mutation  ] mut_g6_2               | avg= 84.0% | {'gsm8k': 88.0, 'humaneval': 80.0}
+  [llm_evolve] llm_g6_3               | avg= 58.7% | {'gsm8k': 84.0, 'humaneval': 33.33}
+  [llm_evolve] llm_g6_4               | avg= 52.7% | {'gsm8k': 92.0, 'humaneval': 13.33}
+  [random    ] rand_g6_5              | avg= 85.3% | {'gsm8k': 84.0, 'humaneval': 86.67}
+  [mutation  ] mut_g6_6               | avg= 84.7% | {'gsm8k': 76.0, 'humaneval': 93.33}
+  [llm_evolve] llm_g6_7               | avg= 86.7% | {'gsm8k': 80.0, 'humaneval': 93.33}
+  Gen 6: best=90.7%, avg=79.2%, best_ever=90.7%
+
+── Generation 7/15 ──
+  [crossover ] cross_g7_2             | avg= 79.3% | {'gsm8k': 72.0, 'humaneval': 86.67}
+  [random    ] rand_g7_3              | avg= 92.7% | {'gsm8k': 92.0, 'humaneval': 93.33} *** NEW BEST ***
+  [random    ] rand_g7_4              | avg= 84.7% | {'gsm8k': 76.0, 'humaneval': 93.33}
+  [mutation  ] mut_g7_5               | avg= 84.7% | {'gsm8k': 76.0, 'humaneval': 93.33}
+  [llm_evolve] llm_g7_6               | avg= 88.7% | {'gsm8k': 84.0, 'humaneval': 93.33}
+  [random    ] rand_g7_7              | avg= 89.3% | {'gsm8k': 92.0, 'humaneval': 86.67}
+  Gen 7: best=92.7%, avg=87.6%, best_ever=92.7%
+
+── Generation 8/15 ──
+  [random    ] rand_g8_2              | avg= 83.3% | {'gsm8k': 80.0, 'humaneval': 86.67}
+  [llm_evolve] llm_g8_3               | avg= 80.7% | {'gsm8k': 88.0, 'humaneval': 73.33}
+  [crossover ] cross_g8_4             | avg= 85.3% | {'gsm8k': 84.0, 'humaneval': 86.67}
+  [llm_evolve] llm_g8_5               | avg= 83.3% | {'gsm8k': 80.0, 'humaneval': 86.67}
+  [random    ] rand_g8_6              | avg=  0.0% | {'gsm8k': 0.0, 'humaneval': 0.0}
+/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/resource_tracker.py:396: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-kg7c4_zi'}
+  warnings.warn(

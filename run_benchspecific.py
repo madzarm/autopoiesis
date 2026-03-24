@@ -163,10 +163,10 @@ def eval_quick(genome, samples, benchmark, max_workers=20):
 
 
 def main():
-    gsm = load_gsm8k(n=20, seed=42)
-    he = load_humaneval(n=20, seed=42)
+    gsm = load_gsm8k(n=200, seed=42)
+    he = load_humaneval(n=None)  # Full HumanEval (164 samples)
 
-    print(f"═══ Benchmark-Specific Eval (model={MODEL}, n=20) ═══\n", flush=True)
+    print(f"═══ Benchmark-Specific Eval (model={MODEL}, GSM8K={len(gsm)}, HE={len(he)}) ═══\n", flush=True)
 
     # Run ALL approaches in parallel (each approach evals both benchmarks)
     results = {}

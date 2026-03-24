@@ -1,34 +1,79 @@
 {
-  "name": "random_7",
+  "name": "mut_g4_2",
   "model": "gpt-5.4-nano-2026-03-17",
   "max_candidates": 5,
   "stages": [
     {
-      "action": "verify",
-      "temperature": 0.0,
-      "system_prompt": "You are a precise mathematician. Think step by step. Answer after ####.",
+      "action": "repair",
+      "temperature": 0.7,
+      "system_prompt": "You are a coding expert. Solve with clear logic.",
       "condition": "low_confidence",
       "condition_threshold": 0.5,
+      "terminate_if_confident": false,
+      "confidence_threshold": 0.9
+    },
+    {
+      "action": "repair",
+      "temperature": 0.7,
+      "system_prompt": "Solve step by step. Double-check arithmetic. Answer after ####.",
+      "condition": "after_failure",
+      "condition_threshold": 0.7,
+      "terminate_if_confident": false,
+      "confidence_threshold": 0.95
+    },
+    {
+      "action": "generate",
+      "temperature": 0.0,
+      "system_prompt": "You are a creative thinker. Try an unusual approach.",
+      "condition": "low_confidence",
+      "condition_threshold": 0.6,
       "terminate_if_confident": false,
       "confidence_threshold": 0.85
     },
     {
+      "action": "generate_code",
+      "temperature": 0.7,
+      "system_prompt": "You are a creative thinker. Try an unusual approach.",
+      "condition": "always",
+      "condition_threshold": 0.5,
+      "terminate_if_confident": false,
+      "confidence_threshold": 0.9
+    },
+    {
       "action": "generate",
-      "temperature": 0.3,
-      "system_prompt": "You are a coding expert. Solve with clear logic.",
-      "condition": "low_confidence",
-      "condition_threshold": 0.6,
+      "temperature": 0.0,
+      "system_prompt": "Solve the problem step by step. Provide your final answer after ####.",
+      "condition": "always",
+      "condition_threshold": 0.7,
       "terminate_if_confident": false,
       "confidence_threshold": 0.9
     },
     {
       "action": "vote",
       "temperature": 0.0,
-      "system_prompt": "You are a careful reasoner. Break the problem into parts.",
-      "condition": "disagreement",
-      "condition_threshold": 0.6,
+      "system_prompt": "",
+      "condition": "always",
+      "condition_threshold": 0.7,
+      "terminate_if_confident": true,
+      "confidence_threshold": 0.9
+    },
+    {
+      "action": "verify",
+      "temperature": 0.0,
+      "system_prompt": "Check the selected answer by re-computing or validating the reasoning. If you find an error, flag it; otherwise confirm correctness.",
+      "condition": "low_confidence",
+      "condition_threshold": 0.7,
       "terminate_if_confident": false,
-      "confidence_threshold": 0.95
+      "confidence_threshold": 0.9
+    },
+    {
+      "action": "repair",
+      "temperature": 0.0,
+      "system_prompt": "A mistake was detected in the previous answer. Correct the reasoning and provide the accurate numeric result.",
+      "condition": "after_failure",
+      "condition_threshold": 0.7,
+      "terminate_if_confident": false,
+      "confidence_threshold": 0.9
     }
   ]
 }

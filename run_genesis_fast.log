@@ -1,0 +1,175 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+═══ Genesis Evolution ═══
+Benchmark: gsm8k, Samples: 30
+Population: 8, Generations: 15
+
+── Initial Population ──
+  code_first                |  86.7% | $0.0102 | stages=3 | generate_code→generate→vote
+  random_5                  |  83.3% | $0.0113 | stages=3 | verify→generate→generate_code
+  adaptive_depth            |  76.7% | $0.0120 | stages=6 | generate→generate→generate_code→vote→verify→repair
+  random_6                  |  86.7% | $0.0122 | stages=4 | verify→generate_code→generate→repair
+  simple_cot                |  83.3% | $0.0124 | stages=1 | generate
+  multi_vote                |  86.7% | $0.0130 | stages=4 | generate→generate→generate→vote
+  random_7                  |  76.7% | $0.0134 | stages=2 | generate→vote
+  cot_verify_repair         |  86.7% | $0.0146 | stages=3 | generate→verify→repair
+
+Best: code_first = 86.67%
+
+── Generation 1/15 ──
+  [random    ] rand_g1_4                 |   0.0% | $0.0000 | stages=4
+  [llm_evolve] llm_g1_2                  |  83.3% | $0.0045 | stages=4
+  [crossover ] cross_g1_5                |  83.3% | $0.0050 | stages=3
+  [random    ] rand_g1_7                 |  83.3% | $0.0061 | stages=3
+  [llm_evolve] llm_g1_6                  |  83.3% | $0.0062 | stages=5
+  [random    ] rand_g1_3                 |  93.3% | $0.0067 | stages=6 *** NEW BEST ***
+  Gen 1: best=93.3%, avg=75.0%, best_ever=93.3%
+
+── Generation 2/15 ──
+  [llm_evolve] llm_g2_6                  |  83.3% | $0.0080 | stages=5
+  [random    ] rand_g2_4                 |  90.0% | $0.0082 | stages=2
+  [llm_evolve] llm_g2_3                  |  86.7% | $0.0088 | stages=5
+  [crossover ] cross_g2_2                |  86.7% | $0.0089 | stages=3
+  [random    ] rand_g2_5                 |  83.3% | $0.0094 | stages=3
+  [llm_evolve] llm_g2_7                  |  83.3% | $0.0120 | stages=4
+  Gen 2: best=93.3%, avg=86.7%, best_ever=93.3%
+
+── Generation 3/15 ──
+  [crossover ] cross_g3_2                |  93.3% | $0.0115 | stages=6
+  [llm_evolve] llm_g3_4                  |  83.3% | $0.0125 | stages=5
+  [random    ] rand_g3_3                 |  83.3% | $0.0169 | stages=3
+  [crossover ] cross_g3_6                |  93.3% | $0.0177 | stages=8
+  [llm_evolve] llm_g3_5                  |  83.3% | $0.0185 | stages=4
+  [llm_evolve] llm_g3_7                  |  90.0% | $0.0195 | stages=5
+  Gen 3: best=93.3%, avg=88.7%, best_ever=93.3%
+
+── Generation 4/15 ──
+  [mutation  ] mut_g4_3                  |  86.7% | $0.0107 | stages=2
+  [llm_evolve] llm_g4_6                  |  86.7% | $0.0226 | stages=5
+  [llm_evolve] llm_g4_5                  |  90.0% | $0.0231 | stages=5
+  [llm_evolve] llm_g4_4                  |  73.3% | $0.0233 | stages=4
+  [crossover ] cross_g4_7                |  93.3% | $0.0236 | stages=7
+  [mutation  ] mut_g4_2                  |  96.7% | $0.0241 | stages=8 *** NEW BEST ***
+  Gen 4: best=96.7%, avg=89.2%, best_ever=96.7%
+
+── Generation 5/15 ──
+  [crossover ] cross_g5_5                |   0.0% | $0.0000 | stages=2
+  [mutation  ] mut_g5_7                  |  83.3% | $0.0063 | stages=6
+  [llm_evolve] llm_g5_4                  |  90.0% | $0.0146 | stages=4
+  [mutation  ] mut_g5_3                  |  86.7% | $0.0149 | stages=7
+  [llm_evolve] llm_g5_2                  |  93.3% | $0.0149 | stages=5
+  [random    ] rand_g5_6                 |  86.7% | $0.0150 | stages=4
+  Gen 5: best=96.7%, avg=78.8%, best_ever=96.7%
+
+── Generation 6/15 ──
+  [random    ] rand_g6_2                 |  83.3% | $0.0075 | stages=6
+  [random    ] rand_g6_5                 |  83.3% | $0.0076 | stages=2
+  [crossover ] cross_g6_4                |  83.3% | $0.0170 | stages=4
+  [random    ] rand_g6_7                 |  83.3% | $0.0176 | stages=3
+  [llm_evolve] llm_g6_6                  |  83.3% | $0.0178 | stages=5
+  [mutation  ] mut_g6_3                  |  93.3% | $0.0180 | stages=8
+  Gen 6: best=96.7%, avg=87.5%, best_ever=96.7%
+
+── Generation 7/15 ──
+  [random    ] rand_g7_5                 |   0.0% | $0.0000 | stages=4
+  [llm_evolve] llm_g7_7                  |  83.3% | $0.0106 | stages=4
+  [crossover ] cross_g7_6                |  93.3% | $0.0164 | stages=6
+  [mutation  ] mut_g7_2                  |  93.3% | $0.0175 | stages=8
+  [mutation  ] mut_g7_4                  |  90.0% | $0.0179 | stages=8
+  [mutation  ] mut_g7_3                  |  90.0% | $0.0181 | stages=8
+  Gen 7: best=96.7%, avg=80.0%, best_ever=96.7%
+
+── Generation 8/15 ──
+  [random    ] rand_g8_3                 |   0.0% | $0.0000 | stages=5
+  [llm_evolve] llm_g8_5                  |  86.7% | $0.0065 | stages=4
+  [llm_evolve] llm_g8_7                  |  83.3% | $0.0073 | stages=3
+  [llm_evolve] llm_g8_2                  |  80.0% | $0.0124 | stages=5
+  [crossover ] cross_g8_4                |  90.0% | $0.0151 | stages=8
+  [mutation  ] mut_g8_6                  |  96.7% | $0.0153 | stages=8
+  Gen 8: best=96.7%, avg=78.3%, best_ever=96.7%
+
+── Generation 9/15 ──
+  [llm_evolve] llm_g9_6                  |  83.3% | $0.0151 | stages=5
+  [crossover ] cross_g9_2                |  83.3% | $0.0238 | stages=7
+  [mutation  ] mut_g9_4                  |  93.3% | $0.0262 | stages=8
+  [random    ] rand_g9_5                 |  90.0% | $0.0268 | stages=6
+  [llm_evolve] llm_g9_3                  |  83.3% | $0.0269 | stages=4
+  [mutation  ] mut_g9_7                  |  96.7% | $0.0270 | stages=8
+  Gen 9: best=96.7%, avg=90.4%, best_ever=96.7%
+
+── Generation 10/15 ──
+  [llm_evolve] llm_g10_4                 |  83.3% | $0.0063 | stages=4
+  [llm_evolve] llm_g10_2                 |  86.7% | $0.0098 | stages=4
+  [mutation  ] mut_g10_6                 |  93.3% | $0.0218 | stages=8
+  [llm_evolve] llm_g10_7                 |  83.3% | $0.0219 | stages=4
+  [llm_evolve] llm_g10_3                 |  90.0% | $0.0230 | stages=5
+  [llm_evolve] llm_g10_5                 |  86.7% | $0.0239 | stages=6
+  Gen 10: best=96.7%, avg=89.6%, best_ever=96.7%
+
+── Generation 11/15 ──
+  [random    ] rand_g11_5                |   0.0% | $0.0000 | stages=5
+  [llm_evolve] llm_g11_7                 |  83.3% | $0.0059 | stages=5
+  [random    ] rand_g11_6                |  83.3% | $0.0082 | stages=5
+  [random    ] rand_g11_3                |  83.3% | $0.0083 | stages=2
+  [random    ] rand_g11_2                |  86.7% | $0.0089 | stages=6
+  [crossover ] cross_g11_4               |  86.7% | $0.0112 | stages=8
+  Gen 11: best=96.7%, avg=77.1%, best_ever=96.7%
+
+── Generation 12/15 ──
+  [random    ] rand_g12_3                |  83.3% | $0.0113 | stages=5
+  [crossover ] cross_g12_4               |  83.3% | $0.0115 | stages=3
+  [llm_evolve] llm_g12_7                 |  83.3% | $0.0119 | stages=5
+  [crossover ] cross_g12_6               |  83.3% | $0.0129 | stages=4
+  [llm_evolve] llm_g12_2                 |  83.3% | $0.0171 | stages=4
+  [crossover ] cross_g12_5               |  93.3% | $0.0174 | stages=8
+  Gen 12: best=96.7%, avg=87.9%, best_ever=96.7%
+
+── Generation 13/15 ──
+  [random    ] rand_g13_7                |  86.7% | $0.0104 | stages=4
+  [llm_evolve] llm_g13_5                 |  83.3% | $0.0130 | stages=5
+  [llm_evolve] llm_g13_2                 |  90.0% | $0.0153 | stages=6
+  [mutation  ] mut_g13_4                 |  90.0% | $0.0188 | stages=7
+  [random    ] rand_g13_6                |  83.3% | $0.0190 | stages=4
+  [mutation  ] mut_g13_3                 |  93.3% | $0.0190 | stages=7
+  Gen 13: best=96.7%, avg=90.0%, best_ever=96.7%
+
+── Generation 14/15 ──
+  [random    ] rand_g14_4                |  83.3% | $0.0093 | stages=6
+  [random    ] rand_g14_2                |  83.3% | $0.0101 | stages=3
+  [llm_evolve] llm_g14_7                 |  83.3% | $0.0112 | stages=5
+  [crossover ] cross_g14_5               |  86.7% | $0.0177 | stages=6
+  [mutation  ] mut_g14_3                 |  90.0% | $0.0180 | stages=8
+  [llm_evolve] llm_g14_6                 |  83.3% | $0.0182 | stages=5
+  Gen 14: best=96.7%, avg=87.9%, best_ever=96.7%
+
+── Generation 15/15 ──
+  [llm_evolve] llm_g15_5                 |  83.3% | $0.0086 | stages=3
+  [llm_evolve] llm_g15_4                 |  83.3% | $0.0097 | stages=3
+  [random    ] rand_g15_6                |  83.3% | $0.0103 | stages=4
+  [random    ] rand_g15_3                |  83.3% | $0.0121 | stages=6
+  [llm_evolve] llm_g15_2                 |  83.3% | $0.0125 | stages=5
+  [llm_evolve] llm_g15_7                 |  90.0% | $0.0127 | stages=3
+  Gen 15: best=96.7%, avg=87.5%, best_ever=96.7%
+
+════════════════════════════════════════════════════════════
+GENESIS EVOLUTION COMPLETE
+════════════════════════════════════════════════════════════
+Best genome: mut_g4_2
+Score: 96.67%
+Stages: 8
+
+Genome structure:
+  1. repair(t=0.7) [if low_confidence<0.5]
+     prompt: You are a coding expert. Solve with clear logic....
+  2. repair(t=0.7) [if after_failure<0.7]
+     prompt: Solve step by step. Double-check arithmetic. Answer after ##...
+  3. generate(t=0.0) [if low_confidence<0.6]
+     prompt: You are a creative thinker. Try an unusual approach....
+  4. generate_code(t=0.7) [if always]
+     prompt: You are a creative thinker. Try an unusual approach....
+  5. generate(t=0.0) [if always]
+     prompt: Solve the problem step by step. Provide your final answer af...
+  6. vote(t=0.0) [if always] → STOP if confident
+  7. verify(t=0.0) [if low_confidence<0.7]
+     prompt: Check the selected answer by re-computing or validating the ...
+  8. repair(t=0.0) [if after_failure<0.7]
+     prompt: A mistake was detected in the previous answer. Correct the r...

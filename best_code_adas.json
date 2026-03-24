@@ -1,0 +1,31 @@
+{
+  "name": "gen_test_repair",
+  "model": "gpt-4o-mini",
+  "max_candidates": 7,
+  "stages": [
+    {
+      "action": "generate",
+      "temperature": 0.0,
+      "system_prompt": "Complete this Python function. Write clean, correct code.",
+      "condition": "always"
+    },
+    {
+      "action": "test",
+      "temperature": 0.0,
+      "system_prompt": "",
+      "condition": "always"
+    },
+    {
+      "action": "repair",
+      "temperature": 0.1,
+      "system_prompt": "",
+      "condition": "after_failure"
+    },
+    {
+      "action": "test",
+      "temperature": 0.0,
+      "system_prompt": "",
+      "condition": "after_failure"
+    }
+  ]
+}

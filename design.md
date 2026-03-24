@@ -41,6 +41,25 @@
 - **Hypothesized advantage**: Data-efficient (good with few evaluations). Global model of config space. Natural uncertainty quantification via GP variance.
 - **Risk**: Feature encoding may lose important information. GP may not capture complex config interactions. 11-dim feature space may be too coarse.
 
+## Approach 6: LLM-Architect — Strong LLM as Direct Search Algorithm (IMPLEMENTED)
+- **Search space**: Structured configs proposed by strong LLM
+- **Search algo**: LLM proposes designs based on error analysis + history
+- **Novelty**: No population, no GP, no tree. The LLM IS the search algorithm. Uses a "design journal" of accumulated insights. The LLM reasons about WHY things fail and proposes targeted fixes.
+- **Result**: 96.7% GSM8K/30. Best cross-benchmark: 96% GSM8K/50 + 75% HumanEval/20 = 85.5% avg
+- **Key finding**: Simple 2-stage design (generate + conditional generate) outperforms complex pipelines cross-benchmark because it's format-agnostic.
+
+## Approach 7: Hybrid-MCTS-Evo — Tree Search for Structure + Evolution for Parameters (IMPLEMENTED)
+- **Search space**: Two-level: MCTS over structural decisions, mini-evolution for parameters
+- **Search algo**: Outer MCTS with UCB1 + Inner evolutionary parameter optimization
+- **Novelty**: Addresses MCTS-Morph's weakness (noisy rollouts) by replacing random parameter selection with mini-evolution. Addresses Genesis's weakness (wastes time on bad structures) by using MCTS to guide structural exploration.
+- **Result**: 96.7% GSM8K/30 with single generate_code stage.
+
+## Approach 8: Adaptive-Universal — Multi-Benchmark Generalization Search (IMPLEMENTED)
+- **Search space**: Hybrid LLM-Architect + Evolution with multi-benchmark fitness
+- **Search algo**: Multi-objective: optimize GSM8K + HumanEval simultaneously
+- **Novelty**: First approach to optimize for GENERALIZATION across benchmarks. Avoids format-specific primitives (vote) that break on non-math tasks. Task-adaptive primitives.
+- **Key insight from comparison**: Most GSM8K-optimized designs fail on HumanEval (0%) because vote/verify are format-dependent.
+
 ## Previous (pre-refactor)
 AIDE: Adaptive Immune-inspired Design Evolution
 

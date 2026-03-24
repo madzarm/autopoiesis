@@ -575,6 +575,54 @@ Return ONLY a valid JSON genome (same format as above).
 # FAST EVALUATOR — quick eval for the search loop
 # ═══════════════════════════════════════════════════════════════
 
+def _sanitize_code(response: str) -> str:
+    """Extract function body from LLM response, matching AFlow/MaAS methodology.
+
+    Tries AST-based extraction first (finds longest valid Python), then falls
+    back to regex-based extraction.
+    """
+    import ast
+
+    # Strip code fences and math format
+    body = re.sub(r'```python\s*', '', response)
+    body = re.sub(r'```\s*', '', body)
+    body = re.sub(r'^####\s*.*$', '', body, flags=re.MULTILINE).strip()
+
+    # Try to find the function body by removing the def line and docstring
+    lines = body.split('\n')
+    if lines and lines[0].strip().startswith('def '):
+        i_s = 1
+        # Skip docstring
+        if i_s < len(lines) and ('"""' in lines[i_s] or "'''" in lines[i_s]):
+            i_s += 1
+            while i_s < len(lines) and '"""' not in lines[i_s] and "'''" not in lines[i_s]:
+                i_s += 1
+            i_s += 1
+        body = '\n'.join(lines[i_s:])
+
+    # Try AST-based validation: find longest substring that parses as valid Python
+    # (matching AFlow's sanitize approach)
+    if body.strip():
+        try:
+            # Quick check if the whole body is valid
+            ast.parse(body)
+            return body
+        except SyntaxError:
+            pass
+
+        # Try progressively shorter substrings from the start
+        lines = body.split('\n')
+        for end in range(len(lines), 0, -1):
+            candidate = '\n'.join(lines[:end])
+            try:
+                ast.parse(candidate)
+                return candidate
+            except SyntaxError:
+                continue
+
+    return body
+
+
 def _eval_single_genesis(genome_dict: dict, sample: dict, idx: int, benchmark: str) -> dict:
     """Evaluate a single sample with a genome. Thread-safe."""
     genome = Genome.from_dict(genome_dict)
@@ -612,25 +660,24 @@ def _eval_single_genesis(genome_dict: dict, sample: dict, idx: int, benchmark: s
         elif benchmark == "humaneval":
             prompt = sample["prompt"]
             response = execute_genome(genome, f"Complete this Python function body:\n\n{prompt}")
-            body = response
-            # Strip code fences
-            body = re.sub(r'```python\s*', '', body)
-            body = re.sub(r'```\s*', '', body)
-            # Strip #### math answer format if vote accidentally returned it
-            body = re.sub(r'^####\s*.*$', '', body, flags=re.MULTILINE).strip()
-            lines = body.split('\n')
-            if lines and lines[0].strip().startswith('def '):
-                i_s = 1
-                if i_s < len(lines) and ('"""' in lines[i_s] or "'''" in lines[i_s]):
-                    i_s += 1
-                    while i_s < len(lines) and '"""' not in lines[i_s] and "'''" not in lines[i_s]:
-                        i_s += 1
-                    i_s += 1
-                body = '\n'.join(lines[i_s:])
+            body = _sanitize_code(response)
             full = sample["prompt"] + body + "\n" + sample["test"] + f"\ncheck({sample['entry_point']})"
             try:
-                exec(full, {})
-                return {"idx": idx, "correct": True}
+                # Execute with timeout (15s, matching AFlow/MaAS)
+                import threading
+                result_box = [False]
+                def _run():
+                    try:
+                        exec(full, {"__builtins__": __builtins__})
+                        result_box[0] = True
+                    except Exception:
+                        pass
+                t = threading.Thread(target=_run)
+                t.start()
+                t.join(timeout=15)
+                if result_box[0]:
+                    return {"idx": idx, "correct": True}
+                return {"idx": idx, "correct": False, "problem": prompt[:100]}
             except Exception:
                 return {"idx": idx, "correct": False, "problem": prompt[:100]}
     except Exception as e:

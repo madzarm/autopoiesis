@@ -642,38 +642,45 @@ def _sanitize_code(response: str) -> str:
 
 
 def _ensure_indentation(code: str) -> str:
-    """Ensure code has proper indentation for a function body.
+    """Ensure code has minimum 4-space indent for function body.
 
-    If the code has no indentation (starts at column 0), add 4-space indent.
-    This handles cases where the LLM outputs 'return x' instead of '    return x'.
+    Only adds indent if there's NO indentation at all (bare 'return x').
+    Does NOT modify code that already has any indentation — to avoid
+    breaking code with mixed indent levels (helpers, nested scopes).
     """
     if not code.strip():
         return code
     lines = code.split('\n')
-    # Check if the first non-empty line has indentation
+    # Check first non-empty line
     for line in lines:
         if line.strip():
-            if not line.startswith((' ', '\t')):
-                # No indentation — add 4 spaces to all non-empty lines
+            if line[0] not in (' ', '\t'):
+                # Zero indentation — add 4 spaces to all non-empty lines
                 return '\n'.join(('    ' + line if line.strip() else line) for line in lines)
-            break
+            return code  # Already has some indentation, don't touch
     return code
 
 
 def _extract_function_body(code: str) -> str:
-    """Extract function body from code that may include a def line and docstring."""
+    """Extract function body from code that may include a def line and docstring.
+
+    If code contains multiple functions, returns EVERYTHING (including helpers)
+    because the eval will prepend the function signature + docstring.
+    We only strip the LAST def + its docstring since that's the target function.
+    Helper functions defined before it are kept as part of the body.
+    """
     lines = code.split('\n')
     if not lines:
         return code
 
-    # Find the def line
-    start = 0
-    for i, line in enumerate(lines):
-        if line.strip().startswith('def '):
-            start = i + 1
-            break
-    else:
+    # Find ALL def lines (there may be helpers before the target function)
+    def_lines = [i for i, line in enumerate(lines) if line.strip().startswith('def ')]
+
+    if not def_lines:
         return code  # No def line found, return as-is
+
+    # Use the LAST def line (the target function, helpers are before it)
+    start = def_lines[-1] + 1
 
     # Skip docstring if present
     if start < len(lines):
@@ -750,7 +757,8 @@ def _eval_single_genesis_inner(genome_dict: dict, sample: dict, idx: int, benchm
             prompt = sample["prompt"]
             response = execute_genome(genome, f"Complete this Python function body:\n\n{prompt}")
             body = _sanitize_code(response)
-            full = sample["prompt"] + body + "\n" + sample["test"] + f"\ncheck({sample['entry_point']})"
+            entry = sample["entry_point"]
+            full = sample["prompt"] + body + "\n" + sample["test"] + f"\ncheck({entry})"
             try:
                 # Execute with timeout (15s, matching AFlow/MaAS)
                 import threading

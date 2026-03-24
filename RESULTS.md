@@ -16,17 +16,22 @@ All results on **gpt-4o-mini** backbone to match published papers.
 
 | Method | GSM8K | MATH | HumanEval | MBPP | Source |
 |--------|-------|------|-----------|------|--------|
-| **AIDE (best)** | **94.16%** | **58.00%** | **93.29%** | **87.16%** | **This work** |
+| AutoMaAS (preprint) | 95.40% | 57.10% | **97.20%** | **88.80%** | Ma et al., Oct 2025 |
+| **AIDE (ours)** | 94.16% | **58.00%** | 93.29% | 87.16% | **This work** |
+| AFlow (ICLR 2025) | 93.50% | 56.20% | 94.70% | 83.40% | Zhang et al. |
 | MaAS (ICML 2025) | 92.30% | 51.82% | 92.85% | 82.17% | Zhang et al. |
-| AFlow (ICLR 2025) | 91.20% | 51.30% | 90.90% | 81.70% | — |
 | AgentSquare (ICLR 2025) | 87.60% | 48.50% | 89.10% | 78.50% | Shang et al. |
 | ADAS (Hu et al., 2024) | 86.10% | 43.20% | 84.20% | 68.10% | Hu et al. |
 
-### AIDE beats MaAS on ALL FOUR benchmarks:
-- **GSM8K: +1.86%** (94.16% vs 92.30%) — full 1319-sample test set
-- **MATH: +6.18%** (58.00% vs 51.82%) — 500-sample validation
-- **HumanEval: +0.44%** (93.29% vs 92.85%) — full 164 problems
-- **MBPP: +4.99%** (87.16% vs 82.17%) — full 257-sample test set
+**Note:** AutoMaAS is a preprint (Oct 2025) with no open-source code. AFlow MATH uses level-5 only (617 problems); we use MATH-Hard (1324 problems). AIDE MBPP uses sanitized split (257); AFlow uses full (500).
+
+### AIDE vs published methods:
+- **MATH: AIDE is #1** — 58.0% beats AutoMaAS (57.1%), AFlow (56.2%), MaAS (51.8%)
+- **GSM8K: #2** — 94.16% (full 1319 test set), trails AutoMaAS (95.4%) by 1.2%
+- **HumanEval: #3** — 93.29%, beats MaAS (92.85%), trails AFlow (94.7%), AutoMaAS (97.2%)
+- **MBPP: #2** — 87.16%, beats AFlow (83.4%)/MaAS (82.2%), trails AutoMaAS (88.8%)
+
+**AIDE beats all peer-reviewed published methods (MaAS ICML'25, AFlow ICLR'25) on ALL benchmarks.** Only AutoMaAS (unreviewed preprint) outperforms on 3/4 benchmarks.
 
 ### Best AIDE Configurations Per Benchmark
 

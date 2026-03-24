@@ -141,7 +141,7 @@ HE_WORKFLOWS = {
 }
 
 
-def eval_quick(genome, samples, benchmark, max_workers=16):
+def eval_quick(genome, samples, benchmark, max_workers=20):
     genome_dict = genome.to_dict()
     total = len(samples)
     correct = 0
@@ -167,17 +167,24 @@ def main():
     he = load_humaneval(n=20, seed=42)
 
     print(f"═══ Benchmark-Specific Eval (model={MODEL}, n=20) ═══\n", flush=True)
-    print(f"{'Approach':25s} | {'GSM8K/20':>8s} | {'HE/20':>8s} | {'Avg':>8s}", flush=True)
-    print(f"{'-'*25}-+-{'-'*8}-+-{'-'*8}-+-{'-'*8}", flush=True)
 
+    # Run ALL approaches in parallel (each approach evals both benchmarks)
     results = {}
-    for name in GSM8K_WORKFLOWS:
-        reset_cost_tracking()
+    lock = threading.Lock()
+
+    def _eval_approach(name):
         gsm_score = eval_quick(GSM8K_WORKFLOWS[name], gsm, "gsm8k")
         he_score = eval_quick(HE_WORKFLOWS[name], he, "humaneval")
         avg = (gsm_score + he_score) / 2
-        results[name] = {"gsm8k": gsm_score, "humaneval": he_score, "avg": avg}
-        print(f"{name:25s} | {gsm_score:7.1f}% | {he_score:7.1f}% | {avg:7.1f}%", flush=True)
+        with lock:
+            results[name] = {"gsm8k": gsm_score, "humaneval": he_score, "avg": avg}
+            print(f"{name:25s} | {gsm_score:7.1f}% | {he_score:7.1f}% | {avg:7.1f}%", flush=True)
+
+    print(f"{'Approach':25s} | {'GSM8K/20':>8s} | {'HE/20':>8s} | {'Avg':>8s}", flush=True)
+    print(f"{'-'*25}-+-{'-'*8}-+-{'-'*8}-+-{'-'*8}", flush=True)
+
+    with ThreadPoolExecutor(max_workers=9) as ex:
+        list(ex.map(_eval_approach, GSM8K_WORKFLOWS.keys()))
 
     # Sort by avg
     print(f"\n{'═'*60}", flush=True)

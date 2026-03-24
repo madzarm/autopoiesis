@@ -1,0 +1,6 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+=== MATH Combined (gpt-4o-mini, n=500) ===
+Published: MaAS=51.82%
+
+Method                    | Score    | Cost     | Time  | Correct
+-----------------------------------------------------------------

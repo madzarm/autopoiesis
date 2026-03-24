@@ -1,0 +1,61 @@
+{
+  "name": "llm_g3_5",
+  "model": "gpt-5.4-nano-2026-03-17",
+  "max_candidates": 7,
+  "stages": [
+    {
+      "action": "generate",
+      "temperature": 0.0,
+      "system_prompt": "Read the problem carefully. Show complete step-by-step arithmetic reasoning. Provide the final numeric answer only after '####'.",
+      "condition": "always",
+      "condition_threshold": 0.0,
+      "terminate_if_confident": false,
+      "confidence_threshold": 0.9
+    },
+    {
+      "action": "generate",
+      "temperature": 0.3,
+      "system_prompt": "Solve with careful calculation checks. Include intermediate sums and subtractions, then output the numeric result after '####'.",
+      "condition": "always",
+      "condition_threshold": 0.0,
+      "terminate_if_confident": false,
+      "confidence_threshold": 0.9
+    },
+    {
+      "action": "generate_code",
+      "temperature": 0.0,
+      "system_prompt": "Write Python code that parses the problem text, computes the answer, and prints exactly {\"answer\": <value>}. Do not include any explanation.",
+      "condition": "always",
+      "condition_threshold": 0.0,
+      "terminate_if_confident": false,
+      "confidence_threshold": 0.9
+    },
+    {
+      "action": "verify",
+      "temperature": 0.0,
+      "system_prompt": "Execute each Python code candidate, extract the printed 'answer' value, and compare it to the textual answers. Assign high confidence if they match and parse as a valid number.",
+      "condition": "always",
+      "condition_threshold": 0.0,
+      "terminate_if_confident": true,
+      "confidence_threshold": 0.95
+    },
+    {
+      "action": "repair",
+      "temperature": 0.0,
+      "system_prompt": "The code and textual answers disagree or failed. Reconcile by correcting the arithmetic or code logic, then output final numeric answer after '####'.",
+      "condition": "disagreement",
+      "condition_threshold": 0.0,
+      "terminate_if_confident": false,
+      "confidence_threshold": 0.9
+    },
+    {
+      "action": "vote",
+      "temperature": 0.0,
+      "system_prompt": "",
+      "condition": "always",
+      "condition_threshold": 0.0,
+      "terminate_if_confident": false,
+      "confidence_threshold": 0.9
+    }
+  ]
+}

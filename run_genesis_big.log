@@ -7,3 +7,90 @@ Population: 8, Generations: 20
   simple_cot                |  82.0% | $0.0025 | stages=1 | generate
   cot_verify_repair         |  88.0% | $0.0066 | stages=3 | generate→verify→repair
   multi_vote                |  86.0% | $0.0075 | stages=4 | generate→generate→generate→vote
+  code_first                |  78.0% | $0.0017 | stages=3 | generate_code→generate→vote
+  adaptive_depth            |  82.0% | $0.0023 | stages=6 | generate→generate→generate_code→vote→verify→repair
+  random_5                  |  80.0% | $0.0039 | stages=5 | generate→generate_code→vote→verify→generate_code
+  random_6                  |  86.0% | $0.0027 | stages=5 | generate→generate_code→vote→verify→generate_code
+  random_7                  |  84.0% | $0.0051 | stages=2 | generate→verify
+
+Best: cot_verify_repair = 88.0%
+
+── Generation 1/20 ──
+  [crossover ] cross_g1_2                |  88.0% | $0.0027 | stages=5
+  [mutation  ] mut_g1_3                  |  88.0% | $0.0065 | stages=3
+  [crossover ] cross_g1_4                |  82.0% | $0.0074 | stages=3
+  [random    ] rand_g1_5                 |  86.0% | $0.0052 | stages=2
+  [llm_evolve] llm_g1_6                  |  78.0% | $0.0074 | stages=4
+  [crossover ] cross_g1_7                |  88.0% | $0.0027 | stages=1
+  Gen 1: best=88.0%, avg=85.5%, best_ever=88.0%
+
+── Generation 2/20 ──
+  [crossover ] cross_g2_2                |  84.0% | $0.0027 | stages=4
+  [llm_evolve] llm_g2_3                  |  46.0% | $0.0035 | stages=4
+  [llm_evolve] llm_g2_4                  |  78.0% | $0.0017 | stages=4
+  [mutation  ] mut_g2_5                  |  86.0% | $0.0027 | stages=5
+  [random    ] rand_g2_6                 |   0.0% | $0.0000 | stages=4
+  [crossover ] cross_g2_7                |  90.0% | $0.0113 | stages=6 *** NEW BEST ***
+  Gen 2: best=90.0%, avg=70.0%, best_ever=90.0%
+
+── Generation 3/20 ──
+  [random    ] rand_g3_2                 |  92.0% | $0.0028 | stages=6 *** NEW BEST ***
+  [llm_evolve] llm_g3_3                  |  80.0% | $0.0017 | stages=5
+  [mutation  ] mut_g3_4                  |  86.0% | $0.0027 | stages=5
+  [random    ] rand_g3_5                 |  78.0% | $0.0046 | stages=6
+  [llm_evolve] llm_g3_6                  |  84.0% | $0.0060 | stages=4
+  [random    ] rand_g3_7                 |  86.0% | $0.0027 | stages=4
+  Gen 3: best=92.0%, avg=85.5%, best_ever=92.0%
+
+── Generation 4/20 ──
+  [random    ] rand_g4_2                 |  86.0% | $0.0027 | stages=2
+  [llm_evolve] llm_g4_3                  |  78.0% | $0.0017 | stages=3
+  [random    ] rand_g4_4                 |   0.0% | $0.0000 | stages=5
+  [llm_evolve] llm_g4_5                  |  78.0% | $0.0017 | stages=5
+  [llm_evolve] llm_g4_6                  |  88.0% | $0.0032 | stages=5
+  [crossover ] cross_g4_7                |  90.0% | $0.0093 | stages=5
+  Gen 4: best=92.0%, avg=75.2%, best_ever=92.0%
+
+── Generation 5/20 ──
+  [crossover ] cross_g5_2                |  90.0% | $0.0067 | stages=3
+  [crossover ] cross_g5_3                |  86.0% | $0.0118 | stages=8
+  [random    ] rand_g5_4                 |  84.0% | $0.0028 | stages=5
+  [llm_evolve] llm_g5_5                  |  78.0% | $0.0017 | stages=5
+  [llm_evolve] llm_g5_6                  |  90.0% | $0.0099 | stages=5
+  [random    ] rand_g5_7                 |  88.0% | $0.0028 | stages=2
+  Gen 5: best=92.0%, avg=87.2%, best_ever=92.0%
+
+── Generation 6/20 ──
+  [llm_evolve] llm_g6_2                  |  78.0% | $0.0017 | stages=5
+  [random    ] rand_g6_3                 |  82.0% | $0.0017 | stages=4
+  [mutation  ] mut_g6_4                  |  92.0% | $0.0099 | stages=5
+  [llm_evolve] llm_g6_5                  |  94.0% | $0.0088 | stages=5 *** NEW BEST ***
+  [llm_evolve] llm_g6_6                  |  90.0% | $0.0080 | stages=4
+  [llm_evolve] llm_g6_7                  |  84.0% | $0.0076 | stages=5
+  Gen 6: best=94.0%, avg=87.8%, best_ever=94.0%
+
+── Generation 7/20 ──
+  [mutation  ] mut_g7_2                  |  90.0% | $0.0029 | stages=6
+  [mutation  ] mut_g7_3                  |  94.0% | $0.0080 | stages=4
+  [llm_evolve] llm_g7_4                  |  92.0% | $0.0099 | stages=5
+  [mutation  ] mut_g7_5                  |  92.0% | $0.0029 | stages=6
+  [llm_evolve] llm_g7_6                  |  94.0% | $0.0098 | stages=5
+  [random    ] rand_g7_7                 |  78.0% | $0.0044 | stages=5
+  Gen 7: best=94.0%, avg=90.8%, best_ever=94.0%
+
+── Generation 8/20 ──
+  [random    ] rand_g8_2                 |  80.0% | $0.0044 | stages=3
+  [random    ] rand_g8_3                 |  86.0% | $0.0027 | stages=3
+  [mutation  ] mut_g8_4                  |  86.0% | $0.0047 | stages=4
+  [random    ] rand_g8_5                 |  82.0% | $0.0028 | stages=6
+  [crossover ] cross_g8_6                |  88.0% | $0.0100 | stages=6
+  [mutation  ] mut_g8_7                  |  90.0% | $0.0048 | stages=4
+  Gen 8: best=94.0%, avg=87.5%, best_ever=94.0%
+
+── Generation 9/20 ──
+  [crossover ] cross_g9_2                |  92.0% | $0.0070 | stages=4
+  [crossover ] cross_g9_3                |  90.0% | $0.0115 | stages=8
+  [mutation  ] mut_g9_4                  |  88.0% | $0.0049 | stages=4
+  [crossover ] cross_g9_5                |  78.0% | $0.0080 | stages=3
+/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/resource_tracker.py:396: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-ybr8ejn7'}
+  warnings.warn(

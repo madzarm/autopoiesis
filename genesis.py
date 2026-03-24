@@ -200,34 +200,73 @@ class Genome:
 def execute_genome(genome: Genome, problem: str) -> str:
     """Execute a genome on a problem, producing an adaptive computation graph.
 
-    This is the "developmental process" — the genome unfolds into different
-    computation patterns depending on intermediate results.
+    Batches independent generate/generate_code stages and fires them concurrently.
     """
-    candidates = []  # Pool of candidate answers
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    candidates = []
     best_confidence = 0.0
     best_answer = ""
     verification_feedback = ""
     had_failure = False
 
-    for stage in genome.stages:
+    # Group stages into batches: consecutive generate/generate_code with "always"
+    # condition can run in parallel. Everything else runs sequentially.
+    i = 0
+    while i < len(genome.stages):
+        stage = genome.stages[i]
+
         # Check activation condition
         if not _check_condition(stage, best_confidence, candidates, had_failure):
+            i += 1
             continue
 
-        # Execute the action
+        # Check if we can batch consecutive independent generate stages
+        if stage.action in ("generate", "generate_code") and stage.condition == "always":
+            # Collect all consecutive independent generate stages
+            batch = [stage]
+            j = i + 1
+            while j < len(genome.stages):
+                next_s = genome.stages[j]
+                if next_s.action in ("generate", "generate_code") and next_s.condition == "always":
+                    batch.append(next_s)
+                    j += 1
+                else:
+                    break
+
+            if len(batch) > 1:
+                # Fire all generates in parallel
+                def _run_gen(s):
+                    if s.action == "generate":
+                        return prim_generate(problem, genome.model, s.temperature, s.system_prompt)
+                    else:
+                        return prim_generate_code(problem, genome.model, s.temperature)
+
+                with ThreadPoolExecutor(max_workers=len(batch)) as ex:
+                    results = list(ex.map(_run_gen, batch))
+
+                for result in results:
+                    candidates.append(result["text"])
+                    if result["confidence"] > best_confidence:
+                        best_confidence = result["confidence"]
+                        best_answer = result["text"]
+
+                i = j  # Skip past the batch
+                # Check termination after batch
+                if any(s.terminate_if_confident for s in batch) and best_confidence >= 0.9:
+                    break
+                continue
+
+        # Single stage execution (sequential)
         if stage.action == "generate":
-            result = prim_generate(
-                problem, genome.model,
-                temperature=stage.temperature,
-                system=stage.system_prompt,
-            )
+            result = prim_generate(problem, genome.model, stage.temperature, stage.system_prompt)
             candidates.append(result["text"])
             if result["confidence"] > best_confidence:
                 best_confidence = result["confidence"]
                 best_answer = result["text"]
 
         elif stage.action == "generate_code":
-            result = prim_generate_code(problem, genome.model, temperature=stage.temperature)
+            result = prim_generate_code(problem, genome.model, stage.temperature)
             candidates.append(result["text"])
             if result["confidence"] > best_confidence:
                 best_confidence = result["confidence"]
@@ -245,10 +284,8 @@ def execute_genome(genome: Genome, problem: str) -> str:
 
         elif stage.action == "repair":
             if best_answer and (had_failure or verification_feedback):
-                result = prim_repair(
-                    problem, best_answer, verification_feedback,
-                    genome.model, temperature=stage.temperature,
-                )
+                result = prim_repair(problem, best_answer, verification_feedback,
+                                     genome.model, stage.temperature)
                 candidates.append(result["text"])
                 if result["confidence"] > best_confidence:
                     best_confidence = result["confidence"]
@@ -261,13 +298,13 @@ def execute_genome(genome: Genome, problem: str) -> str:
                 best_answer = result["text"]
                 best_confidence = result["confidence"]
 
-        # Trim candidate pool
         if len(candidates) > genome.max_candidates:
             candidates = candidates[-genome.max_candidates:]
 
-        # Check termination
         if stage.terminate_if_confident and best_confidence >= stage.confidence_threshold:
             break
+
+        i += 1
 
     return best_answer
 
@@ -526,27 +563,62 @@ def _eval_single_genesis(genome_dict: dict, sample: dict, idx: int, benchmark: s
     return {"idx": idx, "correct": False}
 
 
-def fast_eval(genome: Genome, samples: list[dict], benchmark: str) -> dict:
-    """Fast PARALLEL evaluation of a genome on a sample set."""
+def fast_eval(genome: Genome, samples: list[dict], benchmark: str,
+              early_stop_threshold: float = 0.3, early_stop_after: float = 0.4) -> dict:
+    """Fast PARALLEL evaluation with early stopping for hopeless candidates.
+
+    If after evaluating early_stop_after fraction of samples the score is below
+    early_stop_threshold, abort and return the partial score.
+    """
     from concurrent.futures import ThreadPoolExecutor, as_completed
+    import threading
 
     total = len(samples)
     genome_dict = genome.to_dict()
     details = []
+    correct_count = 0
+    completed_count = 0
+    _lock = threading.Lock()
+    _abort = threading.Event()
+
+    def _eval_and_track(sample, idx):
+        if _abort.is_set():
+            return {"idx": idx, "correct": False, "aborted": True}
+        result = _eval_single_genesis(genome_dict, sample, idx, benchmark)
+        nonlocal correct_count, completed_count
+        with _lock:
+            completed_count += 1
+            if result.get("correct", False):
+                correct_count += 1
+            # Early stopping check
+            check_point = int(total * early_stop_after)
+            if completed_count == check_point and check_point > 0:
+                current_score = correct_count / completed_count
+                if current_score < early_stop_threshold:
+                    _abort.set()
+        return result
 
     with ThreadPoolExecutor(max_workers=min(16, total)) as executor:
         futures = {
-            executor.submit(_eval_single_genesis, genome_dict, s, i, benchmark): i
+            executor.submit(_eval_and_track, s, i): i
             for i, s in enumerate(samples)
         }
         for future in as_completed(futures):
             details.append(future.result())
 
     correct = sum(1 for d in details if d.get("correct", False))
+    evaluated = sum(1 for d in details if not d.get("aborted", False))
     errors = [d for d in details if not d.get("correct", False) and "problem" in d]
 
-    score = round(correct / total * 100, 2) if total > 0 else 0.0
-    return {"score": score, "correct": correct, "total": total, "errors": errors[:5]}
+    # If aborted, extrapolate score from evaluated portion
+    if _abort.is_set() and evaluated > 0:
+        score = round(correct / evaluated * 100, 2)
+    else:
+        score = round(correct / total * 100, 2) if total > 0 else 0.0
+
+    return {"score": score, "correct": correct, "total": total,
+            "evaluated": evaluated, "errors": errors[:5],
+            "aborted": _abort.is_set()}
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -635,23 +707,26 @@ def run_genesis(
     while len(init_genomes) < population_size:
         init_genomes.append(random_genome(f"random_{len(init_genomes)}"))
 
-    # Evaluate initial population
+    # Evaluate initial population IN PARALLEL
     print("── Initial Population ──")
-    for genome in init_genomes:
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    def _eval_genome(genome, samples, bench):
         reset_cost_tracking()
-        result = fast_eval(genome, all_samples, benchmark)
-        cost = get_session_cost()
-        population.append({
-            "genome": genome,
-            "score": result["score"],
-            "cost": cost,
-            "errors": result["errors"],
-            "n_stages": len(genome.stages),
-        })
-        stages_str = "→".join(s.action for s in genome.stages)
-        conds = [s.condition for s in genome.stages if s.condition != "always"]
-        print(f"  {genome.name:25s} | {result['score']:5.1f}% | ${cost:.4f} | "
-              f"stages={len(genome.stages)} | {stages_str}")
+        result = fast_eval(genome, samples, bench)
+        return genome, result, get_session_cost()
+
+    with ThreadPoolExecutor(max_workers=len(init_genomes)) as ex:
+        futures = [ex.submit(_eval_genome, g, all_samples, benchmark) for g in init_genomes]
+        for future in as_completed(futures):
+            genome, result, cost = future.result()
+            population.append({
+                "genome": genome, "score": result["score"], "cost": cost,
+                "errors": result.get("errors", []), "n_stages": len(genome.stages),
+            })
+            stages_str = "→".join(s.action for s in genome.stages)
+            print(f"  {genome.name:25s} | {result['score']:5.1f}% | ${cost:.4f} | "
+                  f"stages={len(genome.stages)} | {stages_str}")
 
     best_ever = max(population, key=lambda x: x["score"])
     print(f"\nBest: {best_ever['genome'].name} = {best_ever['score']}%")
@@ -659,78 +734,77 @@ def run_genesis(
     # Evolution loop
     for gen in range(generations):
         print(f"\n── Generation {gen+1}/{generations} ──")
-
-        # Sort by score
         population.sort(key=lambda x: x["score"], reverse=True)
-
-        # Keep elites
         new_pop = population[:elite_size]
 
-        # Generate children
-        while len(new_pop) < population_size:
+        # STEP 1: Generate ALL children first (including LLM-evolved ones)
+        n_children = population_size - elite_size
+        children = []
+        methods = []
+
+        def _generate_child(idx, pop, gen_num):
+            """Generate a single child genome. Can run in parallel."""
             roll = random.random()
-
             if roll < 0.35:
-                # LLM-guided evolution (the novel part!)
-                parent = random.choice(population[:4])
-                child_genome = llm_evolve_genome(
-                    parent["genome"],
-                    parent["score"],
-                    parent.get("errors", []),
-                )
-                child_genome.name = f"llm_g{gen+1}_{len(new_pop)}"
-                method = "llm_evolve"
-
+                parent = random.choice(pop[:4])
+                child = llm_evolve_genome(parent["genome"], parent["score"],
+                                          parent.get("errors", []))
+                child.name = f"llm_g{gen_num}_{idx}"
+                return child, "llm_evolve"
             elif roll < 0.55:
-                # Random mutation
-                parent = random.choice(population[:4])
-                child_genome = mutate_genome(parent["genome"])
-                child_genome.name = f"mut_g{gen+1}_{len(new_pop)}"
-                method = "mutation"
-
+                parent = random.choice(pop[:4])
+                child = mutate_genome(parent["genome"])
+                child.name = f"mut_g{gen_num}_{idx}"
+                return child, "mutation"
             elif roll < 0.75:
-                # Crossover
-                p1, p2 = random.sample(population[:5], 2)
-                child_genome = crossover_genomes(p1["genome"], p2["genome"])
-                child_genome.name = f"cross_g{gen+1}_{len(new_pop)}"
-                method = "crossover"
-
+                p1, p2 = random.sample(pop[:5], 2)
+                child = crossover_genomes(p1["genome"], p2["genome"])
+                child.name = f"cross_g{gen_num}_{idx}"
+                return child, "crossover"
             else:
-                # Random exploration
-                child_genome = random_genome(f"rand_g{gen+1}_{len(new_pop)}")
-                method = "random"
+                child = random_genome(f"rand_g{gen_num}_{idx}")
+                return child, "random"
 
-            child_genome.model = CHEAP
+        # Generate children in parallel (LLM calls for llm_evolve run concurrently)
+        with ThreadPoolExecutor(max_workers=n_children) as ex:
+            gen_futures = [ex.submit(_generate_child, i, population, gen+1)
+                          for i in range(elite_size, population_size)]
+            for future in as_completed(gen_futures):
+                child, method = future.result()
+                child.model = CHEAP
+                children.append(child)
+                methods.append(method)
 
-            # Evaluate
-            reset_cost_tracking()
-            try:
-                result = fast_eval(child_genome, all_samples, benchmark)
-                cost = get_session_cost()
-                entry = {
-                    "genome": child_genome,
-                    "score": result["score"],
-                    "cost": cost,
-                    "errors": result["errors"],
-                    "n_stages": len(child_genome.stages),
-                }
-                new_pop.append(entry)
+        # STEP 2: Evaluate ALL children in parallel
+        with ThreadPoolExecutor(max_workers=len(children)) as ex:
+            eval_futures = {
+                ex.submit(_eval_genome, child, all_samples, benchmark): (child, method)
+                for child, method in zip(children, methods)
+            }
+            for future in as_completed(eval_futures):
+                child, method = eval_futures[future]
+                try:
+                    genome, result, cost = future.result()
+                    entry = {
+                        "genome": genome, "score": result["score"], "cost": cost,
+                        "errors": result.get("errors", []), "n_stages": len(genome.stages),
+                    }
+                    new_pop.append(entry)
 
-                marker = ""
-                if result["score"] > best_ever["score"]:
-                    best_ever = entry
-                    marker = " *** NEW BEST ***"
+                    marker = ""
+                    if result["score"] > best_ever["score"]:
+                        best_ever = entry
+                        marker = " *** NEW BEST ***"
 
-                stages_str = "→".join(s.action for s in child_genome.stages)
-                print(f"  [{method:10s}] {child_genome.name:25s} | {result['score']:5.1f}% | "
-                      f"${cost:.4f} | stages={len(child_genome.stages)}{marker}")
-
-            except Exception as e:
-                print(f"  [{method:10s}] CRASHED: {str(e)[:80]}")
-                new_pop.append({
-                    "genome": child_genome, "score": 0.0, "cost": 0,
-                    "errors": [], "n_stages": len(child_genome.stages),
-                })
+                    stages_str = "→".join(s.action for s in genome.stages)
+                    print(f"  [{method:10s}] {genome.name:25s} | {result['score']:5.1f}% | "
+                          f"${cost:.4f} | stages={len(genome.stages)}{marker}")
+                except Exception as e:
+                    print(f"  [{method:10s}] CRASHED: {str(e)[:80]}")
+                    new_pop.append({
+                        "genome": child, "score": 0.0, "cost": 0,
+                        "errors": [], "n_stages": len(child.stages),
+                    })
 
         population = new_pop
 

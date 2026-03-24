@@ -411,9 +411,22 @@ If you believe you've created a method that beats published SOTA:
 
 ## PERFORMANCE RULES
 
-- **ALWAYS parallelize evaluation**: Use ThreadPoolExecutor or concurrent.futures for all benchmark evaluations. Never evaluate samples sequentially when they can run in parallel. Target 16 concurrent threads minimum.
-- **Fast iteration**: Use small eval sets (20-30 samples) during search, validate winners on larger sets (200+).
+### Parallelism — think about ALL levels, not just the innermost loop
+- **Level 1 — samples**: Evaluate all samples for a single candidate concurrently (ThreadPoolExecutor, 16+ workers). You already do this.
+- **Level 2 — candidates**: Evaluate all candidates in a generation/batch concurrently. Do NOT loop over candidates sequentially and call `fast_eval` one at a time. Generate all children first, then evaluate them all in parallel.
+- **Level 3 — independent stages**: Within a single candidate's pipeline, if multiple stages are independent (e.g., 3 `generate` calls before a `vote`), fire them concurrently, not sequentially.
+- **Level 4 — benchmarks**: When evaluating across multiple benchmarks, run them concurrently.
+
+### Early termination
+- **Kill hopeless candidates early.** If a candidate scores 0% or below 50% after 30-40% of samples, abort the eval and assign the partial score. Don't waste a full eval on something that's clearly broken.
+- **Cache LLM calls.** Same (prompt, model, temperature, system) tuple = same result. Use an in-memory or disk cache to avoid redundant API calls, especially when genomes share stages or prompts.
+
+### Eval budget
+- **Fast iteration**: Use small eval sets (20-30 samples) during search. Only validate the top-K winners on larger sets (200+).
 - **Run multiple experiments in parallel**: When testing different approaches, launch them as background tasks simultaneously.
+
+### General principle
+When writing any evaluation, search, or experiment code: **before writing a loop, ask whether the iterations are independent.** If they are, use concurrent execution. Sequential-by-default is the single biggest performance mistake in this codebase.
 
 ---
 

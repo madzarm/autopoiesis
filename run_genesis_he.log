@@ -1,0 +1,139 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+═══ Genesis Evolution ═══
+Benchmark: humaneval, Samples: 20
+Population: 8, Generations: 10
+
+── Initial Population ──
+  simple_cot                |  70.0% | $0.0016 | stages=1 | generate
+  cot_verify_repair         |  80.0% | $0.0049 | stages=3 | generate→verify→repair
+  multi_vote                |   0.0% | $0.0047 | stages=4 | generate→generate→generate→vote
+  code_first                |  15.0% | $0.0030 | stages=3 | generate_code→generate→vote
+  adaptive_depth            |  60.0% | $0.0015 | stages=6 | generate→generate→generate_code→vote→verify→repair
+  random_5                  |  90.0% | $0.0017 | stages=4 | generate→repair→repair→verify
+  random_6                  |  90.0% | $0.0018 | stages=6 | generate→repair→generate_code→repair→vote→repair
+  random_7                  |  95.0% | $0.0018 | stages=3 | verify→generate→vote
+
+Best: random_7 = 95.0%
+
+── Generation 1/10 ──
+  [crossover ] cross_g1_2                |  95.0% | $0.0018 | stages=3
+  [crossover ] cross_g1_3                |  70.0% | $0.0015 | stages=4
+  [mutation  ] mut_g1_4                  |  95.0% | $0.0018 | stages=3
+  [crossover ] cross_g1_5                |  90.0% | $0.0018 | stages=3
+  [mutation  ] mut_g1_6                  |  90.0% | $0.0018 | stages=6
+  [random    ] rand_g1_7                 |  95.0% | $0.0019 | stages=5
+  Gen 1: best=95.0%, avg=90.0%, best_ever=95.0%
+
+── Generation 2/10 ──
+  [random    ] rand_g2_2                 |  90.0% | $0.0018 | stages=5
+  [random    ] rand_g2_3                 |   0.0% | $0.0000 | stages=6
+  [random    ] rand_g2_4                 |  90.0% | $0.0034 | stages=2
+  [mutation  ] mut_g2_5                  |  90.0% | $0.0018 | stages=3
+  [random    ] rand_g2_6                 |  10.0% | $0.0029 | stages=3
+  [crossover ] cross_g2_7                |  95.0% | $0.0016 | stages=2
+  Gen 2: best=95.0%, avg=70.6%, best_ever=95.0%
+
+── Generation 3/10 ──
+  [crossover ] cross_g3_2                |  95.0% | $0.0021 | stages=3
+  [llm_evolve] llm_g3_3                  |  70.0% | $0.0045 | stages=4
+  [mutation  ] mut_g3_4                  |  90.0% | $0.0017 | stages=3
+  [crossover ] cross_g3_5                |  90.0% | $0.0032 | stages=2
+  [random    ] rand_g3_6                 |  90.0% | $0.0018 | stages=4
+  [crossover ] cross_g3_7                |  90.0% | $0.0018 | stages=1
+  Gen 3: best=95.0%, avg=89.4%, best_ever=95.0%
+
+── Generation 4/10 ──
+  [crossover ] cross_g4_2                |  90.0% | $0.0019 | stages=4
+  [llm_evolve] llm_g4_3                  |  90.0% | $0.0054 | stages=5
+  [llm_evolve] llm_g4_4                  |  65.0% | $0.0035 | stages=4
+  [crossover ] cross_g4_5                |  95.0% | $0.0017 | stages=3
+  [mutation  ] mut_g4_6                  |  95.0% | $0.0018 | stages=3
+  [random    ] rand_g4_7                 |  90.0% | $0.0019 | stages=2
+  Gen 4: best=95.0%, avg=89.4%, best_ever=95.0%
+
+── Generation 5/10 ──
+  [mutation  ] mut_g5_2                  |  95.0% | $0.0016 | stages=4
+  [llm_evolve] llm_g5_3                  |  65.0% | $0.0037 | stages=4
+  [random    ] rand_g5_4                 |   0.0% | $0.0000 | stages=4
+  [mutation  ] mut_g5_5                  |  95.0% | $0.0018 | stages=4
+  [llm_evolve] llm_g5_6                  |  75.0% | $0.0038 | stages=4
+  [mutation  ] mut_g5_7                  |  90.0% | $0.0019 | stages=3
+  Gen 5: best=95.0%, avg=76.2%, best_ever=95.0%
+
+── Generation 6/10 ──
+  [llm_evolve] llm_g6_2                  |  70.0% | $0.0031 | stages=5
+  [llm_evolve] llm_g6_3                  |  70.0% | $0.0035 | stages=4
+  [random    ] rand_g6_4                 |   0.0% | $0.0000 | stages=3
+  [mutation  ] mut_g6_5                  |  95.0% | $0.0020 | stages=3
+  [random    ] rand_g6_6                 |   0.0% | $0.0000 | stages=4
+  [llm_evolve] llm_g6_7                  |  70.0% | $0.0039 | stages=4
+  Gen 6: best=95.0%, avg=61.9%, best_ever=95.0%
+
+── Generation 7/10 ──
+  [llm_evolve] llm_g7_2                  |   0.0% | $0.0069 | stages=5
+  [crossover ] cross_g7_3                |  90.0% | $0.0020 | stages=6
+  [llm_evolve] llm_g7_4                  |  70.0% | $0.0035 | stages=4
+  [crossover ] cross_g7_5                |  95.0% | $0.0017 | stages=3
+  [crossover ] cross_g7_6                |  95.0% | $0.0015 | stages=3
+  [llm_evolve] llm_g7_7                  |  65.0% | $0.0046 | stages=4
+  Gen 7: best=95.0%, avg=75.6%, best_ever=95.0%
+
+── Generation 8/10 ──
+  [random    ] rand_g8_2                 |  95.0% | $0.0019 | stages=4
+  [random    ] rand_g8_3                 |  90.0% | $0.0017 | stages=3
+  [random    ] rand_g8_4                 |   0.0% | $0.0000 | stages=3
+  [llm_evolve] llm_g8_5                  |  75.0% | $0.0043 | stages=4
+  [llm_evolve] llm_g8_6                  |  70.0% | $0.0035 | stages=4
+  [random    ] rand_g8_7                 |  95.0% | $0.0055 | stages=4
+  Gen 8: best=95.0%, avg=76.9%, best_ever=95.0%
+
+── Generation 9/10 ──
+  [random    ] rand_g9_2                 |  90.0% | $0.0033 | stages=2
+  [llm_evolve] llm_g9_3                  |  65.0% | $0.0036 | stages=4
+  [mutation  ] mut_g9_4                  |  95.0% | $0.0053 | stages=4
+  [crossover ] cross_g9_5                |  85.0% | $0.0035 | stages=4
+  [mutation  ] mut_g9_6                  |  95.0% | $0.0017 | stages=4
+  [random    ] rand_g9_7                 |  95.0% | $0.0033 | stages=5
+  Gen 9: best=95.0%, avg=89.4%, best_ever=95.0%
+
+── Generation 10/10 ──
+3
+123
+10
+0
+81
+0
+0
+58
+[2, 4, 6, 8]
+[2, 4, 6, 8]
+[10, 12, 14]
+[1, 4, 2, 3]
+[5, 5, 5, 5]
+[]
+[1, 3, 2, 2]
+is
+go for
+bb ccc eeeee
+  [llm_evolve] llm_g10_2                 |  90.0% | $0.0024 | stages=4
+  [llm_evolve] llm_g10_3                 |  90.0% | $0.0069 | stages=4
+  [random    ] rand_g10_4                |  80.0% | $0.0034 | stages=3
+  [random    ] rand_g10_5                |   0.0% | $0.0000 | stages=6
+  [crossover ] cross_g10_6               |  90.0% | $0.0021 | stages=3
+  [random    ] rand_g10_7                |   0.0% | $0.0000 | stages=6
+  Gen 10: best=95.0%, avg=67.5%, best_ever=95.0%
+
+════════════════════════════════════════════════════════════
+GENESIS EVOLUTION COMPLETE
+════════════════════════════════════════════════════════════
+Best genome: random_7
+Score: 95.0%
+Stages: 3
+
+Genome structure:
+  1. verify(t=0.0) [if low_confidence<0.5]
+     prompt: You are a precise mathematician. Think step by step. Answer ...
+  2. generate(t=0.3) [if low_confidence<0.6]
+     prompt: You are a coding expert. Solve with clear logic....
+  3. vote(t=0.0) [if disagreement<0.6]
+     prompt: You are a careful reasoner. Break the problem into parts....

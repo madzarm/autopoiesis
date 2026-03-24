@@ -1,0 +1,6 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Validating on 200 GSM8K samples...
+score: 91.5
+correct: 183/200
+cost: $0.0444
+time: 66s

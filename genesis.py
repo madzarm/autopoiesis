@@ -116,35 +116,79 @@ def prim_repair(problem: str, answer_text: str, feedback: str, model: str,
 def prim_vote(candidates: list[str]) -> dict:
     """Majority vote across candidate answers.
 
-    Task-aware: detects whether candidates are math answers or code.
+    Task-aware: detects whether candidates contain code or math answers.
     For math: extracts numbers and picks majority.
-    For code/other: picks the longest candidate (most complete answer).
+    For code: picks the candidate that looks most like code.
+    For mixed: prefers code candidates when detected.
     """
     if not candidates:
         return {"text": "", "confidence": 0.3}
 
-    # Try math extraction first
+    # Classify each candidate
+    code_candidates = []
+    math_candidates = []
+    for c in candidates:
+        # Check if candidate looks like code (has Python syntax markers)
+        code_markers = ["def ", "return ", "print(", "import ", "for ", "while ", "if ",
+                        "class ", "    ", "```"]
+        code_score = sum(1 for m in code_markers if m in c)
+        has_number = extract_number(c) is not None
+
+        if code_score >= 2:
+            code_candidates.append(c)
+        elif has_number or extract_math_answer(c):
+            math_candidates.append(c)
+        else:
+            # Ambiguous — add to both
+            code_candidates.append(c)
+            math_candidates.append(c)
+
+    # If we have code candidates, use best code candidate
+    # (prefer candidates with actual code structure)
+    if code_candidates and not math_candidates:
+        best = max(code_candidates, key=len)
+        return {"text": best, "confidence": 0.6}
+
+    # If purely math, do majority vote on extracted numbers
+    if math_candidates and not code_candidates:
+        answers = []
+        for c in math_candidates:
+            num = extract_number(c)
+            if num is not None:
+                answers.append(str(num))
+            else:
+                ans = extract_math_answer(c)
+                if ans:
+                    answers.append(normalize_math_answer(ans))
+        if answers:
+            counter = Counter(answers)
+            best, count = counter.most_common(1)[0]
+            confidence = count / len(answers)
+            return {"text": f"#### {best}", "confidence": confidence}
+
+    # Mixed case: we have both code and math candidates
+    # Try math majority vote first (since it's most reliable for math tasks)
     answers = []
     for c in candidates:
         num = extract_number(c)
         if num is not None:
-            answers.append(str(num))
-        else:
-            ans = extract_math_answer(c)
-            if ans:
-                answers.append(normalize_math_answer(ans))
+            answers.append((str(num), c))
+    if len(answers) >= 2:
+        nums = [a[0] for a in answers]
+        counter = Counter(nums)
+        best_num, count = counter.most_common(1)[0]
+        if count >= 2:
+            # Strong math consensus
+            return {"text": f"#### {best_num}", "confidence": count / len(candidates)}
 
-    # If we got math answers from most candidates, do majority vote
-    if len(answers) >= len(candidates) // 2 + 1:
-        counter = Counter(answers)
-        best, count = counter.most_common(1)[0]
-        confidence = count / len(answers)
-        return {"text": f"#### {best}", "confidence": confidence}
+    # No consensus — return candidate that has the most structured content
+    # Prefer code if it produced executable output (has #### from code execution)
+    for c in candidates:
+        if "#### " in c and ("code" in c.lower() or "output" in c.lower() or "print" in c.lower()):
+            return {"text": c, "confidence": 0.7}
 
-    # Otherwise, this is likely code or free-form text — pick the longest
-    # candidate as the most complete response (don't force number extraction)
-    best = max(candidates, key=len)
-    return {"text": best, "confidence": 0.5}
+    # Default: return the last candidate (most recent, likely most refined)
+    return {"text": candidates[-1], "confidence": 0.4}
 
 
 # ═══════════════════════════════════════════════════════════════

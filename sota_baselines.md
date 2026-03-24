@@ -1,74 +1,58 @@
-# SOTA Baselines (from literature)
+# SOTA Baselines (from literature) — Updated with Full Paper Research
 
-## Key Benchmarks — Best Published Numbers
+## Comprehensive Comparison Table (gpt-4o-mini backbone)
 
-All numbers below are from the papers' reported results. Model backbones vary — noted where known.
+| Method | GSM8K | MATH | HumanEval | MBPP | HotpotQA | DROP | Source |
+|--------|-------|------|-----------|------|----------|------|--------|
+| **AutoMaAS** | **95.4%** | 57.1% | **97.2%** | **88.8%** | — | — | Preprint Oct 2025 |
+| **AIDE (ours)** | 94.16% | **58.0%** | 93.29% | 87.16% | — | — | This work |
+| MaAS | 92.30% | 51.82% | 92.85% | 82.17% | — | — | ICML 2025 Oral |
+| AFlow | 93.5% | 56.2% | 94.7% | 83.4% | 73.5 | 80.6 | ICLR 2025 Oral |
+| AgentSquare | 87.6% | 48.5% | 89.1% | 78.5% | — | — | ICLR 2025 |
+| ADAS | 86.1% | 43.2% | 84.2% | 68.1% | — | — | ICLR 2025 |
+| DyLAN | 90.0% | 48.6% | 90.4% | 77.3% | — | — | — |
+| GPTSwarm | 89.1% | 47.9% | 89.3% | 77.4% | — | — | — |
+| CoT SC (5) | 92.7% | 50.4% | 91.6% | 73.6% | 68.9 | 78.8 | — |
+| CoT | 92.4% | 48.8% | 88.6% | 71.8% | 67.9 | 78.5 | — |
+| IO (direct) | 92.7% | 48.6% | 87.0% | 71.8% | 68.1 | 68.3 | — |
 
-### MGSM (Multilingual Grade School Math) — Accuracy %
+## Notes on Benchmark Alignment
 
-| Method | Score | Backbone | Source |
-|--------|-------|----------|--------|
-| Direct (IO) | 87.0% | gpt-4o-mini | AFlow |
-| CoT | 88.6% | gpt-4o-mini | AFlow |
-| CoT SC | 91.6% | gpt-4o-mini | AFlow |
-| Self-Refine | 87.8% | gpt-4o-mini | AFlow |
-| LLM Debate | 89.3% | gpt-4o-mini | AFlow |
-| MedPrompt | 91.6% | gpt-4o-mini | AFlow |
-| **AFlow (gpt-4o-mini)** | **94.7%** | gpt-4o-mini | AFlow |
-| AFlow (deepseek) | 94.66% | deepseek | AFlow |
-| Direct (IO) | 93.9% | gpt-4o | AFlow |
-| **AFlow (gpt-4o)** | **96.2%** | gpt-4o | AFlow |
+- **MATH**: AFlow uses MATH level 5 only (617 problems from 4 types). We use lighteval/MATH-Hard (1324 problems). Scores may not be directly comparable.
+- **GSM8K**: Full test set (1319 samples) used by all papers. Our 94.16% is on full test set.
+- **HumanEval**: Full 164 problems. AFlow's 94.7% is their highest; AutoMaAS claims 97.2%.
+- **MBPP**: AFlow uses full MBPP (500 test). We use sanitized version (257 test). Different test sets.
 
-### GSM8K — Accuracy %
+## Key Papers Summary
 
-| Method | Score | Backbone | Source |
-|--------|-------|----------|--------|
-| CoT | ~85% | gpt-4o-mini | Various |
-| ADAS (Meta Agent Search) | ~92% | gpt-4o-mini | ADAS |
-| AFlow | ~95% | gpt-4o-mini | AFlow (estimated) |
+### AutoMaAS (Oct 2025) — HIGHEST PUBLISHED NUMBERS
+- Self-evolving multi-agent NAS with dynamic operator lifecycle
+- Cost-aware 5-dimensional cost tensor
+- GSM8K 95.4%, MATH 57.1%, HumanEval 97.2%, MBPP 88.8%
+- Uses operator fusion (CoT+Self-Refine: 92% success, +4.2%)
+- Preprint — numbers may not be fully verified
 
-### DROP — F1
+### AFlow (ICLR 2025 Oral)
+- MCTS over code-represented workflow space
+- Optimizer: Claude-3.5-sonnet, Executor: GPT-4o-mini
+- 20 max rounds, early stopping after 5 without improvement
+- Average 80.3% across 6 benchmarks
+- Key: code-as-edges representation, predefined operators (Generate, Review, Revise, Ensemble, Test, Programmer)
 
-| Method | Score | Backbone | Source |
-|--------|-------|----------|--------|
-| Direct | ~57% | gpt-3.5 | ADAS |
-| ADAS (Meta Agent Search) | ~83% | gpt-3.5 | ADAS |
-| AFlow | ~85% | gpt-4o-mini | AFlow (estimated) |
+### MaAS (ICML 2025 Oral, top ~1%)
+- Agentic supernet with query-dependent sampling
+- Early-exit for easy queries, 6-45% inference cost
+- Training cost $3.38 vs AFlow $22.50
+- Key: probabilistic distribution over architectures, not single architecture
 
-### HumanEval — pass@1 %
+### EvoMAS (Feb 2026, withdrawn)
+- Configuration-space evolution with execution-trace-guided mutation
+- SWE-Bench-Verified: 79.1% (Claude-4.5-Sonnet), 63.8% (Claude-3.5-Sonnet)
+- BBEH: 58.7%, WorkBench: 48.9%
+- Key: evolves configs not code, 98%+ execution reliability
 
-| Method | Score | Backbone | Source |
-|--------|-------|----------|--------|
-| Direct | ~82% | gpt-4o-mini | Various |
-| ADAS (Meta Agent Search) | ~86% | gpt-4o-mini | ADAS |
-
-### MATH — Accuracy %
-
-| Method | Score | Backbone | Source |
-|--------|-------|----------|--------|
-| CoT | ~70% | gpt-4o-mini | Various |
-| AFlow | ~80% | gpt-4o-mini | AFlow (estimated) |
-
-### SWE-Bench-Verified — % Resolved
-
-| Method | Score | Backbone | Source |
-|--------|-------|----------|--------|
-| EvoMAS | 79.1% | Claude-4.5 | EvoMAS (withdrawn) |
-
-## Key ADAS Methods Summary
-
-1. **ADAS (Hu et al. 2024)**: Meta Agent Search — LLM generates Python code for new agents, tests on benchmarks, archives best. Search space = Python programs.
-2. **AFlow (ICLR 2025)**: MCTS over code-represented workflow DAGs. Operators modify nodes/edges. Best performance on reasoning benchmarks. ~94.7% MGSM.
-3. **AgentSquare (ICLR 2025)**: Modular design (Planning, Reasoning, ToolUse, Memory) with uniform I/O. Combinatorial search over module options.
-4. **MaAS (ICML 2025)**: NAS supernets for agents. Probabilistic architecture distribution, query-dependent sampling. 6-45% inference cost reduction.
-5. **EvoAgent (NAACL 2025)**: Evolutionary single→multi agent. Mutation/crossover of agent attributes. Framework-agnostic.
-6. **EvoMAS (Feb 2026)**: Configuration-space evolution with execution-trace-guided mutation. Evolves roles, prompts, models, topologies jointly. 79.1% SWE-Bench.
-7. **ARTEMIS (Dec 2025)**: No-code evolutionary optimization. Semantically-aware genetic operators. 13-37% improvements.
-
-## Our Internal Baselines (gpt-4.1-nano, 50 samples GSM8K)
-
-| Method | GSM8K | Cost |
-|--------|-------|------|
-| Direct | 90.0% | $0.002 |
-| CoT | 92.0% | $0.004 |
-| Self-Refine | 88.0% | $0.020 |
+### ADAS (Hu et al., ICLR 2025)
+- Meta Agent Search — LLM generates Python code for agents
+- Evaluated on GPT-3.5: DROP 79.4 F1, MGSM 53.4%, MMLU 69.6%, GPQA 34.6%
+- Cost: ~$300-500 per search run
+- Key: Turing-complete search space (Python code)

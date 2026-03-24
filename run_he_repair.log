@@ -1,3 +1,7 @@
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 === HumanEval Repair Loop (gpt-4o-mini, n=164) ===
 Published: MaAS=92.85%, AFlow=90.9%
+  repair_0             |  79.88% | $0.0638 | 244s | 131/164
+  repair_1             |  86.59% | $0.0796 | 314s | 142/164
+  repair_2             |  87.80% | $0.0934 | 366s | 144/164
+  repair_3             |  86.59% | $0.1109 | 486s | 142/164

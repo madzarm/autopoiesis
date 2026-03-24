@@ -620,7 +620,11 @@ def _sanitize_code(response, entrypoint=None):
 
 
 def _code_extract(text):
-    """Find longest contiguous block of syntactically valid Python (AFlow approach)."""
+    """Find longest contiguous block of syntactically valid Python.
+
+    Fast O(n) approach: try full text, then trim from end, then trim from start.
+    Falls back to O(n²) only for short texts (< 30 lines).
+    """
     import ast
     try:
         ast.parse(text)
@@ -629,20 +633,52 @@ def _code_extract(text):
         pass
 
     lines = text.split(chr(10))
-    best_pair = (0, len(lines) - 1)
-    best_len = 0
 
-    for i in range(len(lines)):
-        for j in range(i + 1, len(lines)):
-            candidate = chr(10).join(lines[i:j + 1])
+    # Fast path: trim from end (most common — trailing explanation text)
+    for end in range(len(lines), 0, -1):
+        candidate = chr(10).join(lines[:end])
+        try:
+            ast.parse(candidate)
+            return candidate
+        except SyntaxError:
+            continue
+
+    # Fast path: trim from start (leading explanation text)
+    for start in range(len(lines)):
+        candidate = chr(10).join(lines[start:])
+        try:
+            ast.parse(candidate)
+            return candidate
+        except SyntaxError:
+            continue
+
+    # Fast path: trim both ends
+    for start in range(min(len(lines), 10)):
+        for end in range(len(lines), max(0, len(lines) - 10), -1):
+            if start >= end:
+                continue
+            candidate = chr(10).join(lines[start:end])
             try:
                 ast.parse(candidate)
-                n = sum(1 for l in lines[i:j + 1] if l.strip())
-                if n > best_len:
-                    best_len = n
-                    best_pair = (i, j)
+                return candidate
             except SyntaxError:
                 continue
+
+    best_pair = (0, len(lines) - 1)
+    best_len = 0
+    # Full O(n²) only for very short texts
+    if len(lines) <= 30:
+        for i in range(len(lines)):
+            for j in range(i + 1, len(lines)):
+                candidate = chr(10).join(lines[i:j + 1])
+                try:
+                    ast.parse(candidate)
+                    n = sum(1 for l in lines[i:j + 1] if l.strip())
+                    if n > best_len:
+                        best_len = n
+                        best_pair = (i, j)
+                except SyntaxError:
+                    continue
 
     if best_len > 0:
         return chr(10).join(lines[best_pair[0]:best_pair[1] + 1])

@@ -1,0 +1,904 @@
+MBPP: 257 samples
+hell wrld
+hell wrld
+hell wrld
+hell wrld
+hell wrld
+hell wrld
+[[1, 1, 1, 1], [1, 2, 3], [4, 5]]
+[[1, 1, 1, 1], [1, 2, 3], [4, 5]]
+[[1, 1, 1, 1], [1, 2, 3], [4, 5]]
+[[1, 1, 1, 1], [1, 2, 3], [4, 5]]
+[[1, 1, 1, 1], [1, 2, 3], [4, 5]]
+[[1, 1, 1, 1], [1, 2, 3], [4, 5]]
+The volume of the triangular prism is: 50.0
+The volume of the triangular prism is: 50.0
+The volume of the triangular prism is: 50.0
+The volume of the triangular prism is: 50.0
+The volume of the triangular prism is: 50.0
+The volume of the triangular prism is: 50.0
+True
+False
+False
+True
+True
+False
+False
+True
+True
+False
+False
+True
+True
+False
+False
+True
+True
+False
+False
+True
+True
+False
+False
+True
+he wrd
+he wrd
+he wrd
+he wrd
+he wrd
+he wrd
+All test cases passed!
+All test cases passed!
+All test cases passed!
+All test cases passed!
+All test cases passed!
+True
+False
+True
+False
+True
+False
+True
+False
+True
+True
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+9534330
+9534330
+9534330
+9534330
+9534330
+9534330
+True
+True
+True
+True
+False
+False
+True
+True
+False
+False
+True
+True
+False
+False
+True
+True
+False
+False
+The 5th octagonal number is: 65
+Is 65 an octagonal number? False
+The 5th octagonal number is: 65
+Is 65 an octagonal number? False
+The 5th octagonal number is: 65
+Is 65 an octagonal number? False
+The 5th octagonal number is: 65
+Is 65 an octagonal number? False
+65
+True
+False
+65
+True
+False
+4
+4
+4
+4
+4
+4
+[('English', 75), ('Math', 85), ('Science', 90)]
+[('English', 75), ('Math', 85), ('Science', 90)]
+[(3, 75), (1, 85), (2, 90), (4, 95)]
+[(3, 75), (1, 85), (2, 90), (4, 95)]
+[('Science', 85), ('Math', 90), ('English', 95)]
+[('Science', 85), ('Math', 90), ('English', 95)]
+15
+15
+15
+15
+15
+15
+3
+True
+True
+False
+True
+True
+False
+True
+True
+False
+True
+True
+False
+True
+True
+True
+True
+True
+False
+True
+False
+True
+False
+True
+False
+[2, 3, 5, 6, 8]
+[2, 3, 5, 6, 8]
+[2, 3, 5, 6, 8]
+[2, 3, 5, 6, 8]
+[2, 3, 5, 6, 8]
+True
+True
+False
+False
+True
+True
+False
+False
+False
+5 can be expressed as a difference of two squares.
+5 can be expressed as a difference of two squares.
+True
+False
+True
+False
+True
+False
+True
+False
+[(2, 4), (8, 10)]
+[(2, 4), (8, 10)]
+[(2, 4), (8, 10)]
+[(2, 4), (8, 10)]
+[(2, 4), (8, 10)]
+[(2, 4), (8, 10)]
+22 is divisible by 11.
+22 is divisible by 11.
+22 is divisible by 11.
+22 is divisible by 11.
+22 is divisible by 11.
+22 is divisible by 11.
+True
+False
+The volume of the sphere with radius 5 is 523.5987755982989.
+The volume of the sphere with radius 5 is 523.5987755982989.
+The volume of the sphere with radius 5 is 523.5987755982989
+The volume of the sphere with radius 5 is 523.5987755982989
+The volume of the sphere with radius 5 is 523.5987755982989
+The volume of the sphere with radius 5 is 523.5987755982989
+m
+m
+u
+u
+m
+m
+5
+3
+3
+7
+7
+The surface area of the sphere with radius 5 is 314.1592653589793.
+The surface area of the sphere with radius 5 is 314.1592653589793.
+The surface area of the sphere with radius 5 is 314.1592653589793.
+The surface area of the sphere with radius 5 is 314.1592653589793.
+The surface area of the sphere with radius 5 is 314.1592653589793.
+The surface area of the sphere with radius 5 is 314.1592653589793.
+{'a': 1, 'b': 3, 'c': 4, 'd': 5}
+{'a': 1, 'b': 3, 'c': 4, 'd': 5}
+{'a': 1, 'b': 3, 'c': 4, 'd': 5}
+{'a': 1, 'b': 3, 'c': 4, 'd': 5}
+{'a': 1, 'b': 3, 'c': 4, 'd': 5}
+{'apple': 3, 'banana': 2, 'orange': 1}
+{'apple': 3, 'banana': 2, 'orange': 1}
+4
+4
+4
+4
+4
+4
+5
+True
+True
+True
+True
+True
+2
+2
+2
+3
+3
+1
+0
+0
+1
+0
+0
+1
+1
+1
+1
+{1: 2, 2: 3, 3: 3}
+8.0
+6.0
+6.0
+8.0
+8.0
+The 3th element is: 30
+The 3th element is: 30
+The 3th element is: 30
+The 3th element is: 30
+The 3th element is: 30
+The 3th element is: 30
+snakeCaseString
+snakeCaseString
+helloWorld
+snakeCaseExample
+
+singleword
+multipleUnderscores
+helloWorld
+snakeCaseExample
+
+singleword
+multipleUnderscores
+helloWorld
+
+snakeCaseExample
+helloWorld
+
+snakeCaseExample
+leadingUnderscore
+multipleUnderscores
+66
+66
+66
+66
+1506
+426
+2
+((1, 2, 5), (1, 2, 6), (3, 4, 5), (3, 4, 6))
+((1, 2, 5), (1, 2, 6), (3, 4, 5), (3, 4, 6))
+((1, 2, 5), (1, 2, 6), (3, 4, 5), (3, 4, 6))
+((1, 2, 5), (1, 2, 6), (3, 4, 5), (3, 4, 6))
+[(1, 2, 5, 6), (3, 4, 5, 6)]
+[(1, 2, 5, 6), (3, 4, 5, 6)]
+[0, 1, 2, 3, 4, 5, 6, 7, 8]
+[0, 1, 2, 3, 4, 5, 6, 7, 8]
+[0, 1, 2, 3, 4, 5, 6, 7, 8]
+[0, 1, 2, 3, 4, 5, 6, 7, 8]
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+2
+2
+2
+2
+2
+2
+[3]
+[3]
+True
+False
+True
+False
+True
+False
+123
+123
+123
+123
+123
+123
+[[1.0, 2.0, 'three'], [4.0, 5.5, None]]
+[[1.0, 2.0, 'three'], [4.0, 5.5, None]]
+[[1.0, 2.5, 'hello'], [3.0, 4.0, 5.5]]
+[[1.0, 2.5, 'hello'], [3.0, 4.0, 5.5]]
+['Hello', 'world', 'this', 'is', 'a', 'test']
+['Hello', 'world', 'this', 'is', 'a', 'test']
+['Hello', 'world', 'this', 'is', 'a', 'test']
+['Hello', 'world', 'this', 'is', 'a', 'test']
+['Hello', 'world', 'this', 'is', 'a', 'test']
+['Hello', 'world', 'this', 'is', 'a', 'test']
+4
+4
+5
+4
+4
+(30, (-5, 6))
+31626
+31626
+31626
+31626
+31626
+31626
+The angle of the complex number is: 0.7853981633974483
+The angle of the complex number is: 0.7853981633974483
+The angle of the complex number is: 0.7853981633974483
+The angle of the complex number is: 0.7853981633974483
+The angle of the complex number (1+1j) is 0.7853981633974483 radians.
+The angle of the complex number (1+1j) is 0.7853981633974483 radians.
+2
+2
+2
+2
+2
+12
+12
+12
+12
+12
+12
+6
+6
+6
+6
+6
+6
+['banana', 'cherry']
+['banana', 'cherry']
+['banana', 'cherry']
+['banana', 'cherry']
+['banana', 'cherry']
+True
+True
+True
+True
+True
+True
+3
+3
+3
+3
+3
+123
+123
+123
+123
+123
+-9
+-9
+-9
+-9
+-9
+-9
+45
+45
+45
+45
+45
+45
+0.6666666666666666
+0.0
+inf
+True
+False
+False
+True
+False
+False
+True
+True
+True
+True
+False
+True
+True
+True
+True
+True
+False
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+True
+31.41592653589793
+31.41592653589793
+31.41592653589793
+31.41592653589793
+31.41592653589793
+31.41592653589793
+[1, 2, 3, 4, 5, 6]
+[1, 2, 3, 4, 5, 6]
+[1, 2, 3, 4, 5, 6]
+[1, 2, 3, 4, 5, 6]
+1
+2
+1
+2
+1
+1
+1
+2
+2
+Number of lists in the tuple: 2
+Number of lists in the tuple: 2
+5
+(14, -7)
+(1, -1)
+(1, -1)
+Solution: x = 1, y = -1
+Solution: x = 1, y = -1
+30
+30
+30
+30
+30
+30
+The area of the polygon is: 27.52763840942347
+The area of the polygon is: 27.52763840942347
+The area of the polygon is: 64.95190528383291
+The area of the polygon is: 64.95190528383291
+The area of the polygon is: 43.01193501472417
+The area of the polygon is: 43.01193501472417
+False
+False
+False
+False
+False
+False
+False
+False
+5
+5
+5
+2
+9
+9
+20
+20
+20
+20
+20
+20
+2
+2
+2
+2
+The substring 'std' occurs 2 times.
+The substring 'std' occurs 2 times.
+True
+False
+True
+True
+True
+False
+True
+True
+True
+False
+True
+True
+True
+False
+True
+True
+False
+False
+False
+False
+Is 1 a majority element? True
+Is 1 a majority element? True
+2
+2
+2
+2
+2
+2
+aceg
+aceg
+aceg
+aceg
+aceg
+aceg
+Are all bits unset in the range [1, 3]? False
+Are all bits unset in the range [1, 3]? False
+False
+False
+[-1, -3, -5, 2, 4, 6]
+[-1, -3, -5, 2, 4, 6]
+[-1, -3, 2, 4, -5, 6]
+[-1, -3, 2, 4, -5, 6]
+[-1, -3, -5, 2, 4, 6]
+[-1, -3, -5, 2, 4, 6]
+Hello_World
+Hello_World
+Hello_World
+Hello_World
+Hello_World
+Hello_World
+[9, 7, 5]
+[9, 7, 5]
+[9, 7, 5]
+[9, 7, 5]
+[9, 7, 5]
+[9, 7, 5]
+Lateral Surface Area of the Cylinder: 314.1592653589793
+Lateral Surface Area of the Cylinder: 314.1592653589793
+Lateral Surface Area of the Cylinder: 314.1592653589793
+Lateral Surface Area of the Cylinder: 314.1592653589793
+Lateral Surface Area of the Cylinder: 314.1592653589793
+Lateral Surface Area of the Cylinder: 314.1592653589793
+27
+27
+27
+27
+27
+27
+0b10101010101010101010101010101010
+0b10101010101010101010101010101010
+0b10101010101010101010101010101110
+0b10101010101010101010101010101110
+0b10101010101010101010101010101010
+0b10101010101010101010101010101010
+{(1, 2): 3, (2, 3): 2, (3, 4): 1}
+{(1, 2): 3, (2, 3): 2, (3, 4): 1}
+6
+6
+6
+6
+6
+20
+20
+20
+20
+20
+20
+[1, 2, 4, 5]
+[1, 2, 4, 5]
+[1, 2, 4, 5]
+[1, 2, 4, 5]
+13
+13
+13
+13
+13
+13
+16
+16
+25
+25
+25
+25
+194
+194
+194
+194
+194
+The square root is: 5.0
+The square root is: 5.0
+5.0
+5.0
+5.0
+5.0
+7
+7
+7
+7
+7
+7
+[3, 4]
+[3, 4]
+[3, 4]
+[3, 4]
+[3, 4]
+[3, 4]
+The element 1 occurs 3 times in the tuple.
+The element 1 occurs 3 times in the tuple.
+The element 1 occurs 3 times in the tuple.
+The element 1 occurs 3 times in the tuple.
+The element 1 occurs 3 times in the tuple.
+The element 1 occurs 3 times in the tuple.
+['a', 'a', 'a', 1, 2, 3]
+['a', 1, 2, 3]
+[1, 'a', 2, 'a', 3]
+['a', 1, 'a', 2, 'a']
+[1, 'a', 2, 'a', 3]
+['a', 1, 'a', 2, 'a', 3]
+(5.0, 0.9272952180016122)
+(5.0, 0.9272952180016122)
+Polar coordinates: r = 1.4142135623730951, phi = 0.7853981633974483
+Polar coordinates: r = 1.4142135623730951, phi = 0.7853981633974483
+3
+3
+3
+3
+3
+3
+[('red', 'red'), ('red', 'green'), ('red', 'blue'), ('green', 'green'), ('green', 'blue'), ('blue', 'blue')]
+[('red', 'red'), ('red', 'green'), ('red', 'blue'), ('green', 'green'), ('green', 'blue'), ('blue', 'blue')]
+[('red', 'red'), ('red', 'green'), ('red', 'blue'), ('green', 'green'), ('green', 'blue'), ('blue', 'blue')]
+[('red', 'red'), ('red', 'green'), ('red', 'blue'), ('green', 'green'), ('green', 'blue'), ('blue', 'blue')]
+4
+4
+4
+4
+4
+4
+(3, 2, 3)
+(3, 2, 3)
+(3, 2, 3)
+(3, 2, 3)
+(3, 2, 3)
+(3, 2, 3)
+97
+97
+97
+97
+97
+97
+(5.0, 5.0, 6.0)
+(5.0, 5.0, None)
+([1, 2, 3], [4, 5])
+The dog's age in dog years is: 35
+The dog's age in dog years is: 35
+The dog's age in dog years is: 35
+The dog's age in dog years is: 35
+The dog's age in dog years is: 39
+The dog's age in dog years is: 39
+[[1, 2], [3, 4], [5, 6]]
+[[1, 2], [3, 4], [5, 6]]
+[[1, 2], [3, 4], [5]]
+[[1, 2], [3, 4], [5]]
+[[1, 2], [3, 4], [5]]
+[[1, 2], [3, 4], [5]]
+Lateral surface area of the cube with side length 5 is 100
+Lateral surface area of the cube with side length 5 is 100
+Lateral surface area of the cube: 100
+Lateral surface area of the cube: 100
+Lateral surface area of the cube: 100
+Lateral surface area of the cube: 100
+165
+165
+165
+165
+165
+165
+The 5th star number is: 45
+The 5th star number is: 45
+45
+45
+45
+45
+0
+0
+0
+0
+0
+0
+141600
+141600
+141600
+141600
+The sum of the fifth powers of the first 5 even natural numbers is: 141600
+The sum of the fifth powers of the first 5 even natural numbers is: 141600
+[2, 4, 6]
+[2, 4, 6]
+[2, 4, 6]
+[2, 4, 6]
+[2, 4, 6]
+[2, 4, 6]
+(4, 8, 12)
+(4, 8, 12)
+(4, 8, 12)
+(4, 8, 12)
+(4, 8, 12)
+(4, 8, 12)
+16
+Volume of the cylinder: 785.3981633974483
+Volume of the cylinder: 785.3981633974483
+785.3981633974483
+785.3981633974483
+The volume of the cylinder is: 785.3981633974483
+The volume of the cylinder is: 785.3981633974483
+{'b': 2, 'c': 3}
+{'b': 2, 'c': 3}
+{'b': 2, 'c': 3}
+{'b': 2, 'c': 3}
+{'b': 2, 'c': 3}
+{'b': 2, 'c': 3}
+1
+1
+1
+1
+2
+2
+85
+False
+False
+85
+False
+False
+85
+False
+False
+85
+False
+False
+85
+False
+False
+85
+False
+False
+(True, 2)
+True
+False
+True
+False
+True
+False
+True
+False
+True
+False
+[4, 8, 12]
+[4, 8, 12]
+True
+False
+True
+False
+True
+False
+False
+False
+False
+True
+False
+True
+False
+True
+False
+True
+False
+True
+True
+False
+False
+False
+False
+True
+False
+False
+True
+False
+False
+False
+True
+False
+False
+False
+False
+False
+False
+False
+2
+2
+2
+2
+18
+18
+220
+220
+220
+220
+220
+220
+[6, 7, 8, 9]
+[6, 7, 8, 9]
+180
+180
+180
+180
+180
+5
+5
+Quotient rounded down: 3
+5
+5
+The length of the third side is: 5.0
+The length of the third side is: 5.0
+The length of the third side in the non-right triangle is: 3.6055512754639887
+The hypotenuse is: 5.0
+The hypotenuse is: 5.0
+The other side is: 4.0
+5.0
+12
+28
+28
+28
+28
+Number of inversions are: 5
+Number of inversions are: 5
+Number of inversions are: 5
+Number of inversions are: 5
+Number of inversions are: 5
+Number of inversions are: 5
+15
+15
+11
+11
+11
+11
+20
+20
+20
+20
+5
+5
+5
+5
+4
+4
+5
+5
+['peach', 'plum']
+['peach', 'plum']
+['pear', 'peach']
+['pear', 'peach']
+['pear', 'peach']
+['pear', 'peach']
+12
+12
+12
+12
+12
+12
+(2, 3, 4)
+(2, 3, 4)
+[18, 15, 12]
+[18, 15, 12]
+[18, 15, 12]
+[18, 15, 12]
+[18, 15, 12]

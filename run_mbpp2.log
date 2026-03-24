@@ -1,0 +1,429 @@
+MBPP: 257 samples
+hell wrld
+hell wrld
+[[1, 1, 1, 1], [1, 2, 3], [4, 5]]
+[[1, 1, 1, 1], [1, 2, 3], [4, 5]]
+50
+True
+True
+True
+False
+False
+False
+he wrd
+All test cases passed!
+All test cases passed!
+True
+False
+True
+False
+False
+False
+False
+False
+9534330
+9534330
+True
+True
+The 5th octagonal number is: 65
+Is 35 an octagonal number? False
+The 5th octagonal number is: 65
+Is 104: False
+4
+4
+[('English', 75), ('Math', 85), ('Science', 90)]
+[('Science', 85), ('Math', 90), ('English', 95)]
+15
+15
+True
+True
+False
+True
+True
+False
+[2, 3, 5, 6, 8]
+[2, 3, 5, 6, 8]
+5 can be expressed as a difference of two squares.
+True
+True
+False
+False
+True
+[(2, 4), (8, 10)]
+[(2, 4), (4, 8)]
+22 is divisible by 11.
+22 is divisible by 11.
+The volume of the sphere with radius 5 is 523.5987755982989
+The volume of the sphere with radius 5 is 523.5987755982989
+m
+m
+7
+7
+The surface area of the sphere with radius 5 is 314.1592653589793
+The surface area of the sphere with radius 5 is 314.1592653589793
+{'a': 1, 'b': 3, 'c': 4, 'd': 5}
+{'a': 1, 'b': 3, 'c': 4, 'd': 5}
+4
+4
+5
+True
+The substring 'ex' is found in the list.
+2
+8.0
+30
+30
+thisIsATest
+snakeCaseString
+  50/257: 10 correct (20.0%)
+360
+2
+((1, 2, 5), (1, 2, 6), (3, 4, 5), (3, 4, 6))
+(1, 2, 3, 4, 5, 6)
+[0, 1, 2, 3, 4, 5, 6, 7, 8]
+[0, 1, 2, 3, 4, 5, 6, 7, 8]
+2
+2
+True
+False
+False
+False
+True
+False
+True
+False
+123
+123
+[[1.0, 2.5, 'hello'], [3.0, 4.0, 5.0]]
+[[1.0, 2.5, 'three', 4.0], [5.0, 6.0, 7.0, 'eight']]
+['Hello', 'world']
+['Hello', 'world']
+4
+5
+(30, (-5, 6))
+31626
+31626
+The angle of the complex number is: 0.7853981633974483
+The angle of the complex number is: 0.7853981633974483
+2
+2
+6
+['banana', 'cherry']
+['banana', 'cherry']
+The matrix is a magic square.
+True
+2
+3
+None
+123
+-6
+-9
+45
+45
+0.6666666666666666
+True
+False
+False
+True
+True
+False
+True
+False
+31.41592653589793
+31.41592653589793
+[1, 2, 3, 4, 5, 6]
+2
+2
+2
+(14, -7)
+(1, -1)
+30
+30
+27.52763840942347
+The area of the polygon is: 43.01193501472417
+False
+False
+False
+False
+5
+5
+2
+9
+20
+20
+2
+3
+True
+False
+True
+True
+False
+True
+Is 1 a majority element? True
+True
+2
+2
+  100/257: 16 correct (16.0%)
+False
+False
+[-1, -3, -5, 2, 4, 6]
+[-1, -3, -6, 2, 4, 5]
+Hello_World
+Hello_World
+Lateral Surface Area of the Cylinder: 314.1592653589793
+Lateral Surface Area of the Cylinder: 314.1592653589793
+27
+27
+0b10101010101010101010101010101010
+0b10101010101010101010101010101010
+{(1, 2): 3, (2, 3): 2, (3, 4): 1}
+{(1, 2): 3, (2, 3): 2, (3, 4): 1}
+{(1, 2): 3, (2, 3): 2, (3, 4): 1}
+6
+6
+20
+2
+[1, 2, 4, 5]
+[1, 2, 4, 5]
+13
+13
+25
+25
+194
+194
+5.0
+5.0
+7
+[3, 4]
+[3, 4]
+3
+['a', 'a', 'a', 1, 2, 3]
+Polar coordinates: r = 1.4142135623730951, theta = 0.7853981633974483
+3
+3
+[('red', 'red'), ('red', 'green'), ('red', 'blue'), ('green', 'green'), ('green', 'blue'), ('blue', 'blue')]
+[('red', 'red'), ('red', 'blue'), ('red', 'green'), ('blue', 'blue'), ('blue', 'green'), ('green', 'green')]
+4
+4
+(3, 2, 3)
+(3, 2, 3)
+97
+97
+(5.0, None, 6.0)
+(5.0, None, 6.0)
+([1, 2], [3, 4, 5])
+The dog's age in dog years is: 35
+[[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+[[1, 2], [3, 4], [5, 6]]
+36
+Lateral Surface Area of the Cube: 36
+165
+165
+74
+61
+141600
+141600
+[2, 4, 6]
+16
+785.3981633974483
+785.3981633974483
+{'b': 2, 'c': 3}
+{'b': 2, 'c': 3}
+2
+Index of first occurrence of 2: 1
+Count of 2: 2
+85
+False
+False
+85
+False
+False
+(True, 2)
+True
+False
+True
+True
+False
+False
+True
+False
+True
+True
+False
+  150/257: 24 correct (16.0%)
+True
+True
+18
+18
+220
+220
+180
+180
+The length of the hypotenuse is: 5.0
+The length of the hypotenuse is: 5.0
+The sum of divisors of 12 is 28.
+Number of inversions are: 5
+Number of inversions are: 5
+15
+15
+5
+252
+5
+5
+12
+2
+[18, 15, 12]
+[18, 15, 12]
+20
+26
+0b1111
+The volume of the cone is: 261.79938779914943
+The volume of the cone is: 261.79938779914943
+16
+16
+The 5th Lucas number is: 11
+['Element: 1', 'Element: 2', 'Element: 3']
+{'a': 1, 'b': 2, 'c': 3}
+{'a': 1, 'b': 2, 'c': None}
+12
+12
+True
+False
+True
+True
+w
+w
+False
+True
+False
+True
+False
+True
+False
+True
+The median is: 5
+2
+[6, 15, 24]
+(5, 7, 5)
+(5, 7, 5)
+3
+3
+((6, 8), (10, 12))
+((6, 8), (10, 12))
+3
+True
+False
+Element 3 exists in tuple: True
+Odd parity
+Even parity
+True
+False
+132
+-1
+132
+-1
+-5
+0
+helloWorld
+snakeCaseExample
+
+[2, 4, 6]
+[2, 4, 6]
+12
+12
+  200/257: 28 correct (14.0%)
+banana
+banana
+1800
+1800
+1, 2, 3
+1, 2, 3
+45.0
+The average of cubes from 1 to 5 is: 45.0
+('e', 'a', 'y')
+('e', 'a', 'y')
+2
+2
+[1, 3, 5]
+[1, 3, 5]
+15-10-2023
+05-10-2023
+((5, 7, 9), ((1, 4), (2, 5), (3, 6)))
+Directrix of the parabola: -0.25
+Directrix of the parabola: -0.125
+True
+6.0
+6.0
+True
+True
+The string 'aaabbb' matches the pattern.
+True
+True
+False
+5
+5
+[-2, -4]
+aceg
+aceg
+2
+2
+1234
+1234
+The surface area of the cube with side length 5 is 150.
+54
+-1
+-1
+[(2, 3), (5, 6), (8, 9)]
+[(2, 3), (5, 6), (8, 9)]
+(4, 10, 18)
+(4, 10, 18)
+{'a': 3, 'b': 2, 'c': 1}
+{2: 2, 4: 3}
+[1, 8, 27, 64]
+[1, 8, 27, 64]
+17
+15
+['apple']
+['apple']
+24
+The sum of even factors of 12 is: 24
+['lazy', 'hazy']
+['zebra', 'lazy', 'buzz']
+['olleh', 'dlrow', 'nohtyp']
+['olleh', 'dlrow', 'nohtyp']
+[3, 4, 5]
+This is a  string with   words.
+[1, 4, 6]
+[1, 4, 6]
+[(), (1,), (2,), (3,), (1, 2), (1, 3), (2, 3), (1, 2, 3)]
+{'a': 1, 'f': 2}
+{'a': 1, 'f': 2}
+720
+90
+(3, 5, 7)
+4
+True
+False
+False
+True
+True
+False
+False
+True
+  250/257: 34 correct (13.6%)
+(3,)
+(3,)
+Hello World
+Hello World
+{'banana': 1, 'apple': 2, 'cherry': 3}
+{'b': 1, 'c': 2, 'a': 3}
+6
+6
+0
+This       .
+This       .
+1
+1
+score: 13.23
+correct: 34/257
+cost: $0.6247
+time: 3325s

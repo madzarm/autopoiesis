@@ -143,10 +143,24 @@ def prim_vote(candidates: list[str]) -> dict:
             code_candidates.append(c)
             math_candidates.append(c)
 
-    # If we have code candidates, use best code candidate
-    # (prefer candidates with actual code structure)
+    # If we have code candidates, pick the CLEANEST one
+    # Shorter code candidates are usually cleaner (no explanation wrapper text)
+    # Also prefer candidates that start with code, not explanations
     if code_candidates and not math_candidates:
-        best = max(code_candidates, key=len)
+        def _code_quality(c):
+            """Score code candidate quality: prefer clean code over verbose explanations."""
+            score = 0
+            stripped = c.strip()
+            # Penalize candidates that start with natural language
+            if stripped.startswith(("Here", "The ", "This ", "I ", "Let me", "Sure")):
+                score -= 10
+            # Prefer candidates with code execution output (from generate_code)
+            if "#### " in c:
+                score += 5
+            # Prefer shorter (less wrapper text)
+            score -= len(c) / 1000
+            return score
+        best = max(code_candidates, key=_code_quality)
         return {"text": best, "confidence": 0.6}
 
     # If purely math, do majority vote on extracted numbers

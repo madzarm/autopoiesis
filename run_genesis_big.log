@@ -1,0 +1,9 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+═══ Genesis Evolution ═══
+Benchmark: gsm8k, Samples: 50
+Population: 8, Generations: 20
+
+── Initial Population ──
+  simple_cot                |  82.0% | $0.0025 | stages=1 | generate
+  cot_verify_repair         |  88.0% | $0.0066 | stages=3 | generate→verify→repair
+  multi_vote                |  86.0% | $0.0075 | stages=4 | generate→generate→generate→vote

@@ -1,0 +1,163 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+═══ Genesis Multi-Benchmark (Parallel) ═══
+Benchmarks: gsm8k=25, humaneval=15
+Population: 8, Generations: 15
+
+── Initial Population ──
+  random_6                  | avg= 87.3% | {'humaneval': 86.67, 'gsm8k': 88.0}
+  adaptive_depth            | avg= 61.3% | {'humaneval': 46.67, 'gsm8k': 76.0}
+  simple_cot                | avg= 74.0% | {'humaneval': 60.0, 'gsm8k': 88.0}
+  code_first                | avg= 50.0% | {'gsm8k': 80.0, 'humaneval': 20.0}
+  multi_vote                | avg= 44.0% | {'humaneval': 0.0, 'gsm8k': 88.0}
+  random_5                  | avg= 87.3% | {'humaneval': 86.67, 'gsm8k': 88.0}
+  random_7                  | avg= 86.7% | {'humaneval': 93.33, 'gsm8k': 80.0}
+  cot_verify_repair         | avg= 82.0% | {'gsm8k': 84.0, 'humaneval': 80.0}
+
+Best: random_6 = 87.34%
+
+── Generation 1/15 ──
+  [llm_evolve] llm_g1_6               | avg= 88.7% | {'gsm8k': 84.0, 'humaneval': 93.33} *** NEW BEST ***
+  [llm_evolve] llm_g1_4               | avg= 48.7% | {'gsm8k': 84.0, 'humaneval': 13.33}
+  [random    ] rand_g1_5              | avg= 77.3% | {'humaneval': 66.67, 'gsm8k': 88.0}
+  [mutation  ] mut_g1_3               | avg= 90.7% | {'humaneval': 93.33, 'gsm8k': 88.0} *** NEW BEST ***
+  [llm_evolve] llm_g1_7               | avg= 88.7% | {'humaneval': 93.33, 'gsm8k': 84.0}
+  [llm_evolve] llm_g1_2               | avg= 78.0% | {'humaneval': 80.0, 'gsm8k': 76.0}
+  Gen 1: best=90.7%, avg=80.8%, best_ever=90.7%
+
+── Generation 2/15 ──
+  [crossover ] cross_g2_7             | avg= 77.3% | {'gsm8k': 88.0, 'humaneval': 66.67}
+  [random    ] rand_g2_6              | avg= 87.3% | {'gsm8k': 88.0, 'humaneval': 86.67}
+  [mutation  ] mut_g2_4               | avg= 90.7% | {'gsm8k': 88.0, 'humaneval': 93.33}
+  [llm_evolve] llm_g2_5               | avg= 92.7% | {'gsm8k': 92.0, 'humaneval': 93.33} *** NEW BEST ***
+  [random    ] rand_g2_3              | avg= 87.3% | {'humaneval': 86.67, 'gsm8k': 88.0}
+  [mutation  ] mut_g2_2               | avg= 92.7% | {'gsm8k': 92.0, 'humaneval': 93.33}
+  Gen 2: best=92.7%, avg=88.4%, best_ever=92.7%
+
+── Generation 3/15 ──
+  [random    ] rand_g3_4              | avg= 85.3% | {'gsm8k': 84.0, 'humaneval': 86.67}
+  [mutation  ] mut_g3_5               | avg= 85.3% | {'humaneval': 86.67, 'gsm8k': 84.0}
+  [crossover ] cross_g3_2             | avg= 88.7% | {'humaneval': 93.33, 'gsm8k': 84.0}
+  [random    ] rand_g3_7              | avg= 80.7% | {'humaneval': 73.33, 'gsm8k': 88.0}
+  [llm_evolve] llm_g3_3               | avg= 84.0% | {'humaneval': 80.0, 'gsm8k': 88.0}
+  [random    ] rand_g3_6              | avg= 66.0% | {'humaneval': 40.0, 'gsm8k': 92.0}
+  Gen 3: best=92.7%, avg=84.4%, best_ever=92.7%
+
+── Generation 4/15 ──
+  [crossover ] cross_g4_7             | avg= 94.7% | {'gsm8k': 96.0, 'humaneval': 93.33} *** NEW BEST ***
+  [crossover ] cross_g4_6             | avg= 85.3% | {'gsm8k': 84.0, 'humaneval': 86.67}
+  [mutation  ] mut_g4_3               | avg= 80.0% | {'gsm8k': 80.0, 'humaneval': 80.0}
+  [llm_evolve] llm_g4_4               | avg= 78.7% | {'humaneval': 73.33, 'gsm8k': 84.0}
+  [mutation  ] mut_g4_2               | avg= 85.3% | {'gsm8k': 84.0, 'humaneval': 86.67}
+  [random    ] rand_g4_5              | avg= 83.3% | {'humaneval': 86.67, 'gsm8k': 80.0}
+  Gen 4: best=94.7%, avg=86.6%, best_ever=94.7%
+
+── Generation 5/15 ──
+  [random    ] rand_g5_5              | avg=  0.0% | {'humaneval': 0.0, 'gsm8k': 0.0}
+  [llm_evolve] llm_g5_7               | avg= 26.0% | {'humaneval': 20.0, 'gsm8k': 32.0}
+  [crossover ] cross_g5_4             | avg= 89.3% | {'humaneval': 86.67, 'gsm8k': 92.0}
+  [random    ] rand_g5_2              | avg= 85.3% | {'gsm8k': 84.0, 'humaneval': 86.67}
+  [mutation  ] mut_g5_3               | avg= 94.7% | {'gsm8k': 96.0, 'humaneval': 93.33}
+  [random    ] rand_g5_6              | avg= 87.3% | {'gsm8k': 88.0, 'humaneval': 86.67}
+  Gen 5: best=94.7%, avg=71.2%, best_ever=94.7%
+
+── Generation 6/15 ──
+  [random    ] rand_g6_4              | avg= 75.3% | {'gsm8k': 84.0, 'humaneval': 66.67}
+  [random    ] rand_g6_7              | avg= 86.7% | {'gsm8k': 80.0, 'humaneval': 93.33}
+  [mutation  ] mut_g6_5               | avg= 92.7% | {'gsm8k': 92.0, 'humaneval': 93.33}
+  [random    ] rand_g6_2              | avg= 94.0% | {'humaneval': 100.0, 'gsm8k': 88.0}
+  [llm_evolve] llm_g6_3               | avg= 49.3% | {'humaneval': 6.67, 'gsm8k': 92.0}
+  [llm_evolve] llm_g6_6               | avg= 92.7% | {'humaneval': 93.33, 'gsm8k': 92.0}
+  Gen 6: best=94.7%, avg=85.0%, best_ever=94.7%
+
+── Generation 7/15 ──
+  [random    ] rand_g7_2              | avg=  0.0% | {'humaneval': 0.0, 'gsm8k': 0.0}
+  [random    ] rand_g7_3              | avg=  0.0% | {'humaneval': 0.0, 'gsm8k': 0.0}
+  [random    ] rand_g7_6              | avg= 80.7% | {'humaneval': 73.33, 'gsm8k': 88.0}
+  [crossover ] cross_g7_4             | avg= 89.3% | {'gsm8k': 92.0, 'humaneval': 86.67}
+  [llm_evolve] llm_g7_7               | avg= 52.7% | {'humaneval': 13.33, 'gsm8k': 92.0}
+  [llm_evolve] llm_g7_5               | avg= 75.3% | {'humaneval': 66.67, 'gsm8k': 84.0}
+  Gen 7: best=94.7%, avg=60.9%, best_ever=94.7%
+
+── Generation 8/15 ──
+  [random    ] rand_g8_5              | avg= 86.7% | {'humaneval': 93.33, 'gsm8k': 80.0}
+  [mutation  ] mut_g8_3               | avg= 88.7% | {'humaneval': 93.33, 'gsm8k': 84.0}
+  [mutation  ] mut_g8_7               | avg= 92.7% | {'humaneval': 93.33, 'gsm8k': 92.0}
+  [llm_evolve] llm_g8_6               | avg= 85.3% | {'humaneval': 86.67, 'gsm8k': 84.0}
+  [random    ] rand_g8_2              | avg= 92.7% | {'humaneval': 93.33, 'gsm8k': 92.0}
+  [random    ] rand_g8_4              | avg= 81.3% | {'humaneval': 86.67, 'gsm8k': 76.0}
+  Gen 8: best=94.7%, avg=89.6%, best_ever=94.7%
+
+── Generation 9/15 ──
+  [mutation  ] mut_g9_6               | avg= 94.7% | {'gsm8k': 96.0, 'humaneval': 93.33}
+  [llm_evolve] llm_g9_3               | avg= 50.7% | {'humaneval': 13.33, 'gsm8k': 88.0}
+  [llm_evolve] llm_g9_7               | avg= 85.3% | {'gsm8k': 84.0, 'humaneval': 86.67}
+  [llm_evolve] llm_g9_2               | avg= 48.7% | {'gsm8k': 84.0, 'humaneval': 13.33}
+  [llm_evolve] llm_g9_4               | avg= 92.0% | {'gsm8k': 84.0, 'humaneval': 100.0}
+  [llm_evolve] llm_g9_5               | avg= 82.7% | {'humaneval': 73.33, 'gsm8k': 92.0}
+  Gen 9: best=94.7%, avg=80.4%, best_ever=94.7%
+
+── Generation 10/15 ──
+  [random    ] rand_g10_4             | avg=  0.0% | {'humaneval': 0.0, 'gsm8k': 0.0}
+  [crossover ] cross_g10_3            | avg= 94.7% | {'humaneval': 93.33, 'gsm8k': 96.0}
+  [crossover ] cross_g10_6            | avg= 91.3% | {'humaneval': 86.67, 'gsm8k': 96.0}
+  [crossover ] cross_g10_7            | avg= 86.7% | {'gsm8k': 80.0, 'humaneval': 93.33}
+  [random    ] rand_g10_2             | avg= 85.3% | {'humaneval': 86.67, 'gsm8k': 84.0}
+  [crossover ] cross_g10_5            | avg= 78.7% | {'gsm8k': 84.0, 'humaneval': 73.33}
+  Gen 10: best=94.7%, avg=78.2%, best_ever=94.7%
+
+── Generation 11/15 ──
+  [crossover ] cross_g11_5            | avg= 94.7% | {'humaneval': 93.33, 'gsm8k': 96.0}
+  [mutation  ] mut_g11_7              | avg= 94.7% | {'gsm8k': 96.0, 'humaneval': 93.33}
+  [crossover ] cross_g11_3            | avg= 92.7% | {'humaneval': 93.33, 'gsm8k': 92.0}
+  [crossover ] cross_g11_6            | avg= 94.7% | {'gsm8k': 96.0, 'humaneval': 93.33}
+  [mutation  ] mut_g11_4              | avg= 94.7% | {'gsm8k': 96.0, 'humaneval': 93.33}
+  [llm_evolve] llm_g11_2              | avg= 92.7% | {'humaneval': 93.33, 'gsm8k': 92.0}
+  Gen 11: best=94.7%, avg=94.2%, best_ever=94.7%
+
+── Generation 12/15 ──
+  [mutation  ] mut_g12_3              | avg= 94.7% | {'gsm8k': 96.0, 'humaneval': 93.33}
+  [crossover ] cross_g12_4            | avg= 94.7% | {'humaneval': 93.33, 'gsm8k': 96.0}
+  [random    ] rand_g12_5             | avg= 87.3% | {'humaneval': 86.67, 'gsm8k': 88.0}
+  [mutation  ] mut_g12_2              | avg= 94.7% | {'humaneval': 93.33, 'gsm8k': 96.0}
+  [mutation  ] mut_g12_6              | avg= 94.7% | {'humaneval': 93.33, 'gsm8k': 96.0}
+  [random    ] rand_g12_7             | avg= 90.7% | {'humaneval': 93.33, 'gsm8k': 88.0}
+  Gen 12: best=94.7%, avg=93.2%, best_ever=94.7%
+
+── Generation 13/15 ──
+  [mutation  ] mut_g13_3              | avg= 94.7% | {'humaneval': 93.33, 'gsm8k': 96.0}
+  [llm_evolve] llm_g13_6              | avg= 42.0% | {'gsm8k': 84.0, 'humaneval': 0.0}
+  [mutation  ] mut_g13_2              | avg= 94.7% | {'gsm8k': 96.0, 'humaneval': 93.33}
+  [llm_evolve] llm_g13_4              | avg= 90.7% | {'humaneval': 93.33, 'gsm8k': 88.0}
+  [llm_evolve] llm_g13_5              | avg= 89.3% | {'humaneval': 86.67, 'gsm8k': 92.0}
+  [random    ] rand_g13_7             | avg= 88.7% | {'humaneval': 93.33, 'gsm8k': 84.0}
+  Gen 13: best=94.7%, avg=86.2%, best_ever=94.7%
+
+── Generation 14/15 ──
+  [mutation  ] mut_g14_7              | avg= 94.7% | {'gsm8k': 96.0, 'humaneval': 93.33}
+  [llm_evolve] llm_g14_3              | avg= 48.7% | {'gsm8k': 84.0, 'humaneval': 13.33}
+  [llm_evolve] llm_g14_2              | avg= 54.7% | {'gsm8k': 96.0, 'humaneval': 13.33}
+  [llm_evolve] llm_g14_6              | avg= 48.7% | {'gsm8k': 84.0, 'humaneval': 13.33}
+  [llm_evolve] llm_g14_4              | avg= 48.0% | {'humaneval': 0.0, 'gsm8k': 96.0}
+  [llm_evolve] llm_g14_5              | avg= 72.0% | {'humaneval': 60.0, 'gsm8k': 84.0}
+  Gen 14: best=94.7%, avg=69.5%, best_ever=94.7%
+
+── Generation 15/15 ──
+  [mutation  ] mut_g15_3              | avg= 94.7% | {'humaneval': 93.33, 'gsm8k': 96.0}
+  [mutation  ] mut_g15_4              | avg= 94.7% | {'gsm8k': 96.0, 'humaneval': 93.33}
+  [crossover ] cross_g15_5            | avg= 91.3% | {'gsm8k': 96.0, 'humaneval': 86.67}
+  [random    ] rand_g15_6             | avg= 87.3% | {'humaneval': 86.67, 'gsm8k': 88.0}
+  [llm_evolve] llm_g15_7              | avg= 54.7% | {'gsm8k': 96.0, 'humaneval': 13.33}
+  [crossover ] cross_g15_2            | avg= 87.3% | {'humaneval': 86.67, 'gsm8k': 88.0}
+  Gen 15: best=94.7%, avg=87.4%, best_ever=94.7%
+
+════════════════════════════════════════════════════════════
+GENESIS MULTI-BENCHMARK COMPLETE
+════════════════════════════════════════════════════════════
+Best: cross_g4_7 = 94.66%
+Scores: {'gsm8k': 96.0, 'humaneval': 93.33}
+
+Genome:
+  1. generate(t=0.0) → STOP
+     Solve the problem step by step, showing your chain of thought. Give th...
+  2. verify(t=0.0) [if disagreement]
+     You are a creative thinker. Try an unusual approach....

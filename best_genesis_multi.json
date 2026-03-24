@@ -1,0 +1,25 @@
+{
+  "name": "cross_g4_7",
+  "model": "gpt-5.4-nano-2026-03-17",
+  "max_candidates": 4,
+  "stages": [
+    {
+      "action": "generate",
+      "temperature": 0.0,
+      "system_prompt": "Solve the problem step by step, showing your chain of thought. Give the final numeric answer after ####.",
+      "condition": "always",
+      "condition_threshold": 0.0,
+      "terminate_if_confident": true,
+      "confidence_threshold": 0.95
+    },
+    {
+      "action": "verify",
+      "temperature": 0.0,
+      "system_prompt": "You are a creative thinker. Try an unusual approach.",
+      "condition": "disagreement",
+      "condition_threshold": 0.8,
+      "terminate_if_confident": false,
+      "confidence_threshold": 0.95
+    }
+  ]
+}

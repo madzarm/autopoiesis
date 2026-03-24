@@ -1,18 +1,23 @@
 # Approach Scorecard
 
-| Approach | Search Space | Search Algo | GSM8K/30 | HE/20 | Cross-bench Avg | Evals | Status |
-|----------|-------------|-------------|----------|-------|-----------------|-------|--------|
-| genesis | linear pipeline | evolutionary | 96.7% | 95.0% | 43.0%* | 3 | parked |
-| dag_evolve | DAG graph | graph evolution | 96.7% | — | 46.0%* | 1 | parked |
-| mcts_morph | decision tree | MCTS/UCB1 | 93.3% | — | 74.5% | 1 | parked |
-| immune_qd | MAP-Elites grid | quality-diversity | 93.3% | — | 46.0%* | 1 | parked |
-| bayesian_config | 11-dim features | GP+EI | 93.3% | — | 46.0%* | 1 | parked |
-| llm_architect | configs | LLM-as-search | 96.7% | — | 85.5% | 1 | parked |
-| hybrid_mcts_evo | two-level | MCTS+evo | 96.7% | — | — | 1 | parked |
-| **adaptive_universal** | configs | **multi-bench** | 90.0% | 93.3% | **91.7%** | 1 | **winner** |
-| meta_ensemble | agent router | portfolio | — | — | running | 0 | exploring |
+## Cross-Benchmark Comparison (GSM8K/50 + HumanEval/20) — with fixed vote
 
-*0% HumanEval due to format-specific vote primitive
+| Approach | Search Space | Search Algo | GSM8K/50 | HE/20 | **Avg** | Stages | Status |
+|----------|-------------|-------------|----------|-------|---------|--------|--------|
+| **dag_evolve** | DAG graph | graph evolution | **92.0%** | 90.0% | **91.0%** | 5 | **winner** |
+| immune_qd | MAP-Elites grid | quality-diversity | 88.0% | 90.0% | 89.0% | 5 | strong |
+| bayesian_config | 11-dim features | GP+EI | 88.0% | 90.0% | 89.0% | 6 | strong |
+| adaptive_universal | configs | multi-bench search | 90.0%* | 93.3%* | 91.7%* | 2 | *math prompts |
+| mcts_morph | decision tree | MCTS/UCB1 | 84.0% | 90.0% | 87.0% | 2 | good |
+| baseline_cot | — | — | 78.0% | 95.0% | 86.5% | 1 | baseline |
+| genesis | linear pipeline | evolutionary | 82.0% | 90.0% | 86.0% | 3 | good |
+| llm_architect | configs | LLM-as-search | 82.0% | 90.0% | 86.0% | 2 | good |
+| baseline_code | — | — | 84.0% | 55.0% | 69.5% | 1 | baseline |
 
-## Key Insight
-Multi-benchmark optimization (Adaptive-Universal) is the only approach that avoids the format-specificity trap and achieves strong cross-benchmark generalization.
+*Adaptive-Universal used math-specific prompts for GSM8K, giving it an unfair advantage. Numbers not directly comparable.
+
+## Full Test Set Validation
+- Adaptive-Universal: GSM8K/1319 = 82.9%, HumanEval/164 = 90.2%
+
+## Key Finding
+The 0% HumanEval scores from the first comparison were caused by a format bug in `prim_vote` (extracted numbers, destroying code). After fixing vote to be task-aware, ALL approaches work cross-benchmark. Complex pipelines with verify+repair BEAT simple designs (91% vs 87%).

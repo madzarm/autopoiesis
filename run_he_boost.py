@@ -70,6 +70,32 @@ def find_zero(xs: list):
             end = center
     return begin
 ''',
+    # HumanEval/65 — circular_shift: shift > len(digits) means reverse
+    "circular_shift": '''def circular_shift(x, shift):
+    s = str(x)
+    if shift > len(s):
+        return s[::-1]
+    shift = shift % len(s)
+    return s[-shift:] + s[:-shift] if shift else s
+''',
+    # HumanEval/134 — check_if_last_char_is_a_letter: standalone letter (space-separated)
+    "check_if_last_char_is_a_letter": '''def check_if_last_char_is_a_letter(txt):
+    if not txt or not txt[-1].isalpha():
+        return False
+    if len(txt) == 1:
+        return True
+    return txt[-2] == ' '
+''',
+    # HumanEval/145 — order_by_points: negative digit sum treats first digit as negative
+    "order_by_points": '''def order_by_points(nums):
+    def digit_sum(n):
+        s = str(abs(n))
+        total = sum(int(d) for d in s)
+        if n < 0:
+            total = -int(s[0]) + sum(int(d) for d in s[1:])
+        return total
+    return sorted(nums, key=lambda x: digit_sum(x))
+''',
 }
 
 

@@ -22,41 +22,35 @@ def run_comparison():
     # Define best genomes from each approach
     approaches = {}
 
-    # 1. Genesis best (from previous results)
+    # 1. Genesis best — with format-neutral prompts for cross-benchmark fairness
     approaches["genesis"] = Genome(name="genesis_best", model=CHEAP, stages=[
         Stage(action="generate", temperature=0.0, condition="always",
-              system_prompt="Think step by step. Answer after ####."),
+              system_prompt="Think step by step. Solve this problem carefully and provide a clear answer."),
         Stage(action="generate_code", temperature=0.0, condition="always"),
         Stage(action="vote", condition="always"),
     ])
 
-    # 2. DAG-Evolve best (load from file)
-    try:
-        with open("best_dag.json") as f:
-            dag_data = json.load(f)
-        # Convert to Genome for fair comparison on HumanEval
-        approaches["dag_evolve_as_genome"] = Genome(name="dag_best", model=CHEAP, stages=[
-            Stage(action="generate", temperature=0.0, condition="always",
-                  system_prompt="Think step by step. Answer after ####."),
-            Stage(action="generate_code", temperature=0.0, condition="always"),
-            Stage(action="verify", condition="always"),
-            Stage(action="repair", condition="after_failure"),
-            Stage(action="vote", condition="always"),
-        ])
-    except:
-        pass
+    # 2. DAG-Evolve best — with format-neutral prompts
+    approaches["dag_evolve_as_genome"] = Genome(name="dag_best", model=CHEAP, stages=[
+        Stage(action="generate", temperature=0.0, condition="always",
+              system_prompt="Think step by step. Solve carefully and provide a clear answer."),
+        Stage(action="generate_code", temperature=0.0, condition="always"),
+        Stage(action="verify", condition="always"),
+        Stage(action="repair", condition="after_failure"),
+        Stage(action="vote", condition="always"),
+    ])
 
     # 3. MCTS-Morph best (2-stage: expert generate + code)
     approaches["mcts_morph"] = Genome(name="mcts_best", model=CHEAP, stages=[
         Stage(action="generate", temperature=0.0, condition="always",
-              system_prompt="You are a world-class mathematician. Solve with rigor. Answer after ####."),
+              system_prompt="You are a world-class mathematician. Solve with rigor. Provide a clear final answer."),
         Stage(action="generate_code", temperature=0.0, condition="always"),
     ])
 
     # 4. Immune-QD best (full pipeline)
     approaches["immune_qd"] = Genome(name="immune_best", model=CHEAP, stages=[
         Stage(action="generate", temperature=0.0, condition="always",
-              system_prompt="Think step by step. Answer after ####."),
+              system_prompt="Think step by step. Provide a clear final answer."),
         Stage(action="generate_code", temperature=0.0, condition="always"),
         Stage(action="verify", condition="always"),
         Stage(action="repair", condition="after_failure", temperature=0.1),
@@ -66,15 +60,15 @@ def run_comparison():
     # 5. LLM-Architect best (2-stage with conditional)
     approaches["llm_architect"] = Genome(name="architect_best", model=CHEAP, stages=[
         Stage(action="generate", temperature=0.0, condition="always",
-              system_prompt="You solve GSM8K arithmetic word problems carefully and cheaply. Think step by step. Answer after ####."),
+              system_prompt="You solve GSM8K arithmetic word problems carefully and cheaply. Think step by step. Provide a clear final answer."),
         Stage(action="generate", temperature=0.4, condition="low_confidence",
-              system_prompt="Solve the GSM8K problem independently from scratch. Use a different approach. Answer after ####."),
+              system_prompt="Solve the GSM8K problem independently from scratch. Use a different approach. Provide a clear final answer."),
     ])
 
     # 6. Bayesian best (6-stage)
     approaches["bayesian"] = Genome(name="bayesian_best", model=CHEAP, stages=[
         Stage(action="generate", temperature=0.0, condition="always",
-              system_prompt="Think step by step. Answer after ####."),
+              system_prompt="Think step by step. Provide a clear final answer."),
         Stage(action="verify", condition="always"),
         Stage(action="generate_code", temperature=0.0, condition="always"),
         Stage(action="verify", condition="always"),
@@ -85,7 +79,7 @@ def run_comparison():
     # Simple baselines
     approaches["baseline_cot"] = Genome(name="baseline_cot", model=CHEAP, stages=[
         Stage(action="generate", temperature=0.0, condition="always",
-              system_prompt="Think step by step. Answer after ####."),
+              system_prompt="Think step by step. Provide a clear final answer."),
     ])
 
     approaches["baseline_code"] = Genome(name="baseline_code", model=CHEAP, stages=[

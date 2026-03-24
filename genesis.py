@@ -589,115 +589,105 @@ Return ONLY a valid JSON genome (same format as above).
 # FAST EVALUATOR — quick eval for the search loop
 # ═══════════════════════════════════════════════════════════════
 
-def _sanitize_code(response: str) -> str:
-    """Extract function body from LLM response.
+def _sanitize_code(response, entrypoint=None):
+    """Extract complete Python code from LLM response (matching AFlow methodology).
 
-    Strategy (in order of preference):
-    1. Extract code from ```python ... ``` fences (most reliable)
-    2. Find the function body after def line + docstring
-    3. AST-based: find longest syntactically valid Python
-    4. Return raw response as fallback
+    AFlow does NOT extract function bodies. They keep complete function definitions
+    and exec them directly. Pipeline: markdown extraction -> code_extract -> AST sanitize.
     """
     import ast
 
-    # Strip #### math format lines
-    cleaned = re.sub(r'^####\s*.*$', '', response, flags=re.MULTILINE).strip()
-
-    # Strategy 1: Extract from code fences (preferred — this is what the LLM wraps code in)
-    code_blocks = re.findall(r'```(?:python)?\s*\n?(.*?)```', cleaned, re.DOTALL)
+    # Step 1: Extract from markdown code fences
+    code_blocks = re.findall(r"```(?:python)?\s*\n?(.*?)```", response, re.DOTALL)
     if code_blocks:
-        # Use the longest code block (most likely the complete solution)
-        code = max(code_blocks, key=len).strip()
-        # If it contains a def line, extract the body
-        code = _extract_function_body(code)
-        # Ensure proper indentation (function body must be indented)
-        code = _ensure_indentation(code)
-        if code.strip():
-            return code
+        code = chr(10).join(code_blocks)
+    else:
+        code = response
 
-    # Strategy 2: Strip fences and extract function body
-    body = re.sub(r'```python\s*', '', cleaned)
-    body = re.sub(r'```\s*', '', body).strip()
-    body = _extract_function_body(body)
-    body = _ensure_indentation(body)
+    code = re.sub(r'^####\s*.*$', '', code, flags=re.MULTILINE).strip()
 
-    # Strategy 3: AST-based — find longest valid Python substring
-    if body.strip():
+    # Step 2: Find longest syntactically valid Python block
+    code = _code_extract(code)
+
+    # Step 3: AST-based sanitize
+    if entrypoint:
         try:
-            ast.parse(body)
-            return body
-        except SyntaxError:
+            code = _ast_sanitize(code, entrypoint)
+        except Exception:
             pass
 
-        lines = body.split('\n')
-        for end in range(len(lines), 0, -1):
-            candidate = '\n'.join(lines[:end])
-            try:
-                ast.parse(candidate)
-                return candidate
-            except SyntaxError:
-                continue
-
-    return body
-
-
-def _ensure_indentation(code: str) -> str:
-    """Ensure code has minimum 4-space indent for function body.
-
-    Only adds indent if there's NO indentation at all (bare 'return x').
-    Does NOT modify code that already has any indentation — to avoid
-    breaking code with mixed indent levels (helpers, nested scopes).
-    """
-    if not code.strip():
-        return code
-    lines = code.split('\n')
-    # Check first non-empty line
-    for line in lines:
-        if line.strip():
-            if line[0] not in (' ', '\t'):
-                # Zero indentation — add 4 spaces to all non-empty lines
-                return '\n'.join(('    ' + line if line.strip() else line) for line in lines)
-            return code  # Already has some indentation, don't touch
     return code
 
 
-def _extract_function_body(code: str) -> str:
-    """Extract function body from code that may include a def line and docstring.
+def _code_extract(text):
+    """Find longest contiguous block of syntactically valid Python (AFlow approach)."""
+    import ast
+    try:
+        ast.parse(text)
+        return text
+    except SyntaxError:
+        pass
 
-    If code contains multiple functions, returns EVERYTHING (including helpers)
-    because the eval will prepend the function signature + docstring.
-    We only strip the LAST def + its docstring since that's the target function.
-    Helper functions defined before it are kept as part of the body.
-    """
-    lines = code.split('\n')
-    if not lines:
-        return code
+    lines = text.split(chr(10))
+    best_pair = (0, len(lines) - 1)
+    best_len = 0
 
-    # Find ALL def lines (there may be helpers before the target function)
-    def_lines = [i for i, line in enumerate(lines) if line.strip().startswith('def ')]
+    for i in range(len(lines)):
+        for j in range(i + 1, len(lines)):
+            candidate = chr(10).join(lines[i:j + 1])
+            try:
+                ast.parse(candidate)
+                n = sum(1 for l in lines[i:j + 1] if l.strip())
+                if n > best_len:
+                    best_len = n
+                    best_pair = (i, j)
+            except SyntaxError:
+                continue
 
-    if not def_lines:
-        return code  # No def line found, return as-is
+    if best_len > 0:
+        return chr(10).join(lines[best_pair[0]:best_pair[1] + 1])
+    return text
 
-    # Use the LAST def line (the target function, helpers are before it)
-    start = def_lines[-1] + 1
 
-    # Skip docstring if present
-    if start < len(lines):
-        stripped = lines[start].strip()
-        if stripped.startswith('"""') or stripped.startswith("'''"):
-            quote = stripped[:3]
-            if stripped.count(quote) >= 2 and len(stripped) > 6:
-                # Single-line docstring
-                start += 1
-            else:
-                # Multi-line docstring
-                start += 1
-                while start < len(lines) and quote not in lines[start]:
-                    start += 1
-                start += 1  # Skip closing quote line
+def _ast_sanitize(code, entrypoint):
+    """Keep entrypoint function + dependencies (AFlow approach)."""
+    import ast
+    tree = ast.parse(code)
+    imports = []
+    definitions = []
 
-    return '\n'.join(lines[start:])
+    for node in ast.iter_child_nodes(tree):
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            imports.append(ast.unparse(node))
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            definitions.append((node.name, ast.unparse(node)))
+        elif isinstance(node, ast.ClassDef):
+            definitions.append((node.name, ast.unparse(node)))
+        elif isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    definitions.append((target.id, ast.unparse(node)))
+
+    deps = {name: set() for name, _ in definitions}
+    for name, code_str in definitions:
+        for subnode in ast.walk(ast.parse(code_str)):
+            if isinstance(subnode, ast.Name) and subnode.id in deps and subnode.id != name:
+                deps[name].add(subnode.id)
+
+    reachable = set()
+    def dfs(n):
+        if n in reachable:
+            return
+        reachable.add(n)
+        for dep in deps.get(n, []):
+            dfs(dep)
+
+    if entrypoint in deps:
+        dfs(entrypoint)
+
+    filtered = [c for name, c in definitions if name in reachable]
+    return chr(10).join(imports + filtered)
+
 
 
 SAMPLE_RETRIES = 3  # Retry each sample up to 3 times on failure (matching AFlow's approach)
@@ -755,10 +745,13 @@ def _eval_single_genesis_inner(genome_dict: dict, sample: dict, idx: int, benchm
             return {"idx": idx, "correct": True}
         elif benchmark == "humaneval":
             prompt = sample["prompt"]
-            response = execute_genome(genome, f"Complete this Python function body:\n\n{prompt}")
-            body = _sanitize_code(response)
             entry = sample["entry_point"]
-            full = sample["prompt"] + body + "\n" + sample["test"] + f"\ncheck({entry})"
+            response = execute_genome(genome, f"Complete this Python function:\n\n{prompt}")
+            code = _sanitize_code(response, entrypoint=entry)
+            if f"def {entry}" in code:
+                full = code + "\n" + sample["test"] + f"\ncheck({entry})"
+            else:
+                full = sample["prompt"] + code + "\n" + sample["test"] + f"\ncheck({entry})"
             try:
                 # Execute with timeout (15s, matching AFlow/MaAS)
                 import threading

@@ -9,7 +9,7 @@ from evaluate import load_gsm8k, load_humaneval
 
 def main():
     # DAG-Evolve's best architecture (converted to Genome for eval)
-    dag_best = Genome(name="dag_evolve_best", model=CHEAP, stages=[
+    dag_best = Genome(name="dag_evolve_best", model="gpt-4o-mini", stages=[
         Stage(action="generate", temperature=0.0, condition="always",
               system_prompt="Think step by step. Solve carefully and provide a clear answer."),
         Stage(action="generate_code", temperature=0.0, condition="always"),
@@ -19,7 +19,7 @@ def main():
     ])
 
     # Also test the Adaptive-Universal winner for comparison
-    adaptive_best = Genome(name="adaptive_universal_best", model=CHEAP, stages=[
+    adaptive_best = Genome(name="adaptive_universal_best", model="gpt-4o-mini", stages=[
         Stage(action="generate", temperature=0.0, condition="always",
               system_prompt="Think step by step. Provide a clear final answer."),
         Stage(action="generate_code", temperature=0.5, condition="low_confidence"),

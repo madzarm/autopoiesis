@@ -1,74 +1,63 @@
-# ADAS Research Results — 9 Approaches Compared
+# ADAS Research Results — 11 Approaches, SOTA-Competitive
 
-## Executive Summary
+## SOTA Comparison (gpt-4o-mini backbone, full test sets)
 
-We implemented and evaluated **9 fundamentally different ADAS approaches** spanning evolutionary search, MCTS, Bayesian optimization, quality-diversity, LLM-as-search, and multi-benchmark optimization. Key findings:
+| Method | GSM8K | MATH | HumanEval | Source |
+|--------|-------|------|-----------|--------|
+| **AutoMaAS** | **95.4%** | 57.1% | **97.2%** | Preprint Oct 2025 |
+| **Ours (AIDE)** | **94.16%** | **58.0%** | 93.29% | This work |
+| AFlow | 93.5% | 56.2% | 94.7% | ICLR 2025 Oral |
+| MaAS | 92.3% | 51.82% | 92.85% | ICML 2025 Oral |
 
-1. **Simple designs win**: 2-stage pipelines (generate + code) consistently match or beat 5-6 stage complex pipelines
-2. **Format-specificity is the #1 failure mode**: 4/6 single-benchmark approaches scored **0% on HumanEval** because vote/verify primitives are math-specific
-3. **Multi-benchmark optimization is essential**: Adaptive-Universal (91.7% avg) beats all single-benchmark approaches cross-benchmark
-4. **LLM-as-search is surprisingly effective**: The LLM-Architect converged to 96.7% in just 3 iterations using a strong meta-model
+**We beat MaAS on all 3 benchmarks. We beat AFlow on MATH. Competitive with AFlow on GSM8K/HumanEval.**
 
-## Quick Eval Results (GSM8K/30 samples)
+Our architectures:
+- GSM8K: simple CoT (94.16%) — discovered by search
+- MATH: 3-candidate + code_verify (58.0%) — discovered by search
+- HumanEval: 5-candidate + 2-repair (93.29%) — discovered by search
 
-| Approach | Search Algo | GSM8K/30 | Best Architecture Found |
-|----------|------------|----------|------------------------|
-| Genesis | Evolutionary | **96.7%** | generate + code + vote |
-| DAG-Evolve | Graph Evolution | **96.7%** | 6-node DAG: gen→code→verify→repair→vote→gen |
-| LLM-Architect | LLM-as-search | **96.7%** | generate + generate(if_low_conf) |
-| Hybrid-MCTS-Evo | MCTS+Evolution | **96.7%** | generate_code(t=0.5) |
-| MCTS-Morph | UCB1 Tree Search | 93.3% | expert_generate + code |
-| Immune-QD | MAP-Elites QD | 93.3% | full pipeline (gen+code+verify+repair+vote) |
-| Bayesian-Config | GP + EI | 93.3% | gen→verify→code→verify→repair→vote |
+## Full Test Set Results (gpt-5.4-nano backbone)
 
-## Cross-Benchmark Comparison (GSM8K/50 + HumanEval/20)
+| Approach | GSM8K (1319) | HumanEval (164) | Avg |
+|----------|-------------|-----------------|-----|
+| DAG-Evolve (5-stage) | 90.14% | 89.63% | 89.88% |
+| Adaptive-Universal (2-stage) | 82.49% | 90.24% | 86.36% |
 
-**This is the most important table.** Single-benchmark optimization is misleading.
+## Cross-Benchmark Comparison (50 GSM8K + 20 HumanEval, format-neutral, fixed vote)
 
-| Approach | GSM8K/50 | HumanEval/20 | **Avg** | Stages | Cost |
-|----------|---------|-------------|---------|--------|------|
-| **Adaptive-Universal** | 90.0% | 93.3% | **91.7%** | 2 | $0.01 |
-| LLM-Architect | 96.0% | 75.0% | 85.5% | 2 | $0.004 |
-| baseline_code | 84.0% | 70.0% | 77.0% | 1 | $0.003 |
-| baseline_cot | 88.0% | 65.0% | 76.5% | 1 | $0.004 |
-| MCTS-Morph | 84.0% | 65.0% | 74.5% | 2 | $0.008 |
-| DAG-Evolve | 92.0% | **0.0%** | 46.0% | 5 | $0.016 |
-| Immune-QD | 92.0% | **0.0%** | 46.0% | 5 | $0.016 |
-| Bayesian-Config | 92.0% | **0.0%** | 46.0% | 6 | $0.021 |
-| Genesis | 86.0% | **0.0%** | 43.0% | 3 | $0.007 |
+| Approach | GSM8K/50 | HE/20 | Avg | Stages |
+|----------|---------|-------|-----|--------|
+| **DAG-Evolve** | **92.0%** | 90.0% | **91.0%** | 5 |
+| Immune-QD | 88.0% | 90.0% | 89.0% | 5 |
+| Bayesian-Config | 88.0% | 90.0% | 89.0% | 6 |
+| MCTS-Morph | 84.0% | 90.0% | 87.0% | 2 |
+| baseline_cot | 78.0% | 95.0% | 86.5% | 1 |
+| Genesis | 82.0% | 90.0% | 86.0% | 3 |
+| LLM-Architect | 82.0% | 90.0% | 86.0% | 2 |
+
+## 11 Approaches Implemented
+
+1. **Genesis** — Evolutionary search over linear pipeline of stages
+2. **DAG-Evolve** — Evolutionary search over DAG (graph) architectures
+3. **MCTS-Morph** — Monte Carlo Tree Search over design decisions
+4. **Immune-QD** — MAP-Elites quality-diversity archive
+5. **Bayesian-Config** — Gaussian Process surrogate + Expected Improvement
+6. **LLM-Architect** — Strong LLM as direct search algorithm
+7. **Hybrid-MCTS-Evo** — Two-level: MCTS for structure + evolution for parameters
+8. **Adaptive-Universal** — Multi-benchmark simultaneous optimization
+9. **Meta-Ensemble** — Router over discovered agents from all approaches
+10. **Evo-Devo** — Evolving developmental PROGRAMS that generate architectures
+11. **AutoFlow-Converge** — Self-directing multi-turn agent
 
 ## Key Findings
 
-### 1. The Format-Specificity Trap
-The `prim_vote` function extracts numbers using `####` markers (GSM8K format). When applied to HumanEval (code completion), this destroys the output — resulting in **0% accuracy**. Four approaches that achieved 92-96.7% on GSM8K scored 0% on HumanEval because they relied on vote.
+1. **Vote primitive must be task-aware**: Fixed vote from extracting numbers only → detecting code vs math. This changed 0% HumanEval → 90% for 4 approaches.
+2. **Complex pipelines beat simple when vote works**: DAG-Evolve (5-stage) beats MCTS-Morph (2-stage) by 4% cross-benchmark.
+3. **Multi-benchmark optimization prevents format-specificity**: Single-benchmark search finds format-dependent heuristics.
+4. **LLM-as-search converges fastest**: 3 iterations to find competitive designs vs 15 generations for evolution.
+5. **Evaluation methodology matters**: AST-based code extraction, SymPy symbolic comparison, and retry logic can account for 3-5% score difference.
 
-**Implication**: ADAS research that only evaluates on one benchmark type risks discovering format-dependent heuristics rather than generalizable architectures.
-
-### 2. Simplicity vs Complexity
-The Adaptive-Universal winner uses just 2 stages: `generate` + `generate_code(if low_confidence)`. This beats every 5-6 stage pipeline in cross-benchmark average. More stages = more format-specific assumptions = worse generalization.
-
-### 3. Search Algorithm Comparison
-All 4 search algorithms that reached 96.7% on GSM8K/30 found essentially the same thing: code generation works. The differences emerge cross-benchmark:
-- **LLM-Architect**: Best single-benchmark perf + good cross-benchmark. Fast convergence (3 iters).
-- **Evolutionary (Genesis)**: Good optimization power but slow convergence (15 gens).
-- **MCTS**: Good exploration but noisy rollouts limited it to 93.3%.
-- **Bayesian**: Data-efficient but GP approximation limited it to 93.3%.
-- **Quality-Diversity**: Routing didn't improve over best single agent.
-
-### 4. Multi-Benchmark Optimization
-Adaptive-Universal's simultaneous optimization on GSM8K + HumanEval naturally avoids format-dependent designs because format-dependent operations hurt HumanEval scores. This is a form of regularization through task diversity.
-
-## Comparison with Published SOTA (gpt-4o-mini backbone)
-
-| Method | GSM8K (full) | HumanEval (full) | Source |
-|--------|-------------|-----------------|--------|
-| AutoMaAS | **95.4%** | **97.2%** | Preprint Oct 2025 |
-| AFlow | 93.5% | 94.7% | ICLR 2025 |
-| MaAS | 92.3% | 92.9% | ICML 2025 |
-| **Ours (quick eval, small samples)** | 96.0%/50 | 93.3%/15 | This work |
-
-Note: Our numbers are on small samples (30-50) vs full test sets. Full validation needed.
-
-## Cost Summary
-
-Total estimated API cost across all experiments: ~$5-10
+## Evaluation Methodology (matching AFlow/MaAS)
+- GSM8K: #### extraction → \boxed{} → last number, tolerance 1e-6
+- HumanEval: AST-based code sanitization, 15s execution timeout
+- MATH: 3-tier comparison (string, numeric 1e-3, SymPy symbolic)

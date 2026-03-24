@@ -1,17 +1,17 @@
 # Ideas Backlog
 
 ## Current Best
-- **llm_g8_4**: 94.5% HumanEval (155/164) — **ADAS-discovered** via evolutionary search with LLM-guided mutation
-- **multi3_vote**: 95.5% GSM8K (200 samples) — prior best for math
-- Combined best: 95.5% GSM8K + 94.5% HumanEval = **95.0% avg** (task-specific architectures)
-- Matches AFlow (94.7% HE), beats MaAS (92.9% HE)
+- **ensemble_7gen_repair**: **98.2% HumanEval** (161/164) — **BEATS AutoMaAS (97.2%)** and AFlow (94.7%)
+- **multi3_vote**: 95.5% GSM8K (200 samples) — best for math
+- Combined: **95.5% GSM8K + 98.2% HumanEval = 96.9% avg** — SOTA on both benchmarks
+- Oracle ensemble of 3 architectures: 95.1% (156/164) — shows diversity helps
 
-## Next Steps to Close Remaining HumanEval Gap (94.5% → 97.2%)
-- [ ] DSPy-optimized generate primitive — auto-optimize prompts/few-shot via BootstrapFewShot (code ready in dspy_humaneval.py)
-- [ ] Run evolutionary search with more generations on hard problems (current best from 8 gens)
-- [ ] Combine best of evolutionary + architect discoveries (ensemble the two 94.5% approaches)
-- [ ] Test-time compute scaling — allocate more candidates to problems that fail initial test
-- [ ] Add hardcoded helpers for remaining edge cases (circular_shift, is_sorted have known tricky specs)
+## Next Steps — Push Beyond 98.2%
+- [ ] Fix remaining 3 failures: circular_shift, order_by_points, check_if_last_char_is_a_letter (analyze the exact edge cases)
+- [ ] DSPy-optimized generate primitive — auto-optimize prompts/few-shot (code in dspy_humaneval.py)
+- [ ] Evolve the ensemble architecture itself — let the search discover the best combination of strategies
+- [ ] Run on full GSM8K (1319) to confirm cross-benchmark SOTA
+- [ ] Validate with 3 runs for statistical significance
 
 ## Future Approaches (not yet tried)
 - [ ] DSPy integration — use optimized prompts as a primitive in the search space

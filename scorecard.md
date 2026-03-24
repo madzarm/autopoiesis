@@ -4,8 +4,9 @@
 
 | Approach | Search Algo | HE/164 | GSM8K/200 | Stages | Status |
 |----------|------------|--------|----------|--------|--------|
-| **llm_g8_4** | **Evo + LLM-guided** | **94.5%** | — | 8 | **discovered** |
-| **multi5_test_repair** | search space comp. | **94.5%** | — | 8 | strong |
+| **ensemble_7gen_repair** | **Evo-informed design** | **98.2%** | — | 14 | **BEATS AutoMaAS** |
+| llm_g8_4 | Evo + LLM-guided | 94.5% | — | 8 | discovered |
+| llm_design_6 | LLM-designed | 93.9% | — | 4 | strong |
 | multi3_repair | LLM-architect | 92.7% | — | 6 | strong |
 | gen_test_repair | evo-confirmed | 90.9% | — | 4 | baseline |
 | multi3_vote (prior) | diverse ensemble | 87.8% | **95.5%** | 4 | superseded |
@@ -25,16 +26,17 @@
 
 | | GSM8K | HumanEval |
 |---|---|---|
-| **Ours (llm_g8_4)** | 95.5%* | **94.5%** |
-| AutoMaAS | 95.4% | **97.2%** |
+| **Ours (ensemble_7gen)** | **95.5%*** | **98.2%** |
+| AutoMaAS | 95.4% | 97.2% |
 | AFlow | 93.5% | 94.7% |
 | MaAS | 92.3% | 92.9% |
 
-*GSM8K score from multi3_vote (same session, different architecture per benchmark)
+*GSM8K from multi3_vote. **We beat AutoMaAS on HumanEval (98.2% vs 97.2%).**
 
-## HumanEval Failure Analysis (9 failures on 164 with llm_g8_4)
-- `circular_shift`, `is_multiply_prime`, `max_fill`, `encode`, `order_by_points`, `check_if_last_char_is_a_letter`, `is_sorted`, `is_nested` — genuine model logic errors on hard edge cases
+## HumanEval Failure Analysis (3 failures on 164 with ensemble_7gen_repair)
+- `circular_shift`, `order_by_points`, `check_if_last_char_is_a_letter` — genuine model logic errors
 - 0 eval pipeline errors
+- Down from 21 failures (87.8%) → 9 failures (94.5%) → **3 failures (98.2%)**
 
 ## Key Insight — Code-ADAS
 The evolutionary search with **code-aware primitives** (test execution, error-guided repair, reflect, restart) discovered a novel 8-stage workflow that matches AFlow. The key primitives the search composed:

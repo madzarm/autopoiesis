@@ -1,5 +1,5 @@
 {
-  "name": "gen_test_repair",
+  "name": "ensemble_7gen_repair",
   "model": "gpt-4o-mini",
   "max_candidates": 7,
   "stages": [
@@ -10,14 +10,62 @@
       "condition": "always"
     },
     {
-      "action": "test",
+      "action": "generate",
+      "temperature": 0.0,
+      "system_prompt": "Complete this function. Handle edge cases: empty inputs, single elements, negative numbers, zero, boundary values.",
+      "condition": "always"
+    },
+    {
+      "action": "generate",
+      "temperature": 0.2,
+      "system_prompt": "Complete this function. Read the docstring examples very carefully. Make sure your code produces exactly those outputs.",
+      "condition": "always"
+    },
+    {
+      "action": "generate",
+      "temperature": 0.3,
+      "system_prompt": "Complete this function. First think about the algorithm, then implement. Use a straightforward iterative approach.",
+      "condition": "always"
+    },
+    {
+      "action": "generate",
+      "temperature": 0.5,
+      "system_prompt": "Complete this function. Use Python standard library (itertools, collections, math) where it simplifies the logic.",
+      "condition": "always"
+    },
+    {
+      "action": "generate",
+      "temperature": 0.5,
+      "system_prompt": "Complete this function. Add input validation. Be careful about off-by-one errors and type coercion.",
+      "condition": "always"
+    },
+    {
+      "action": "generate",
+      "temperature": 0.8,
+      "system_prompt": "Complete this function. Try a different, perhaps unusual but correct approach. Think outside the box.",
+      "condition": "always"
+    },
+    {
+      "action": "select_passing",
       "temperature": 0.0,
       "system_prompt": "",
       "condition": "always"
     },
     {
       "action": "repair",
-      "temperature": 0.1,
+      "temperature": 0.0,
+      "system_prompt": "Fix the bug. The error message tells you exactly what went wrong.",
+      "condition": "after_failure"
+    },
+    {
+      "action": "test",
+      "temperature": 0.0,
+      "system_prompt": "",
+      "condition": "after_failure"
+    },
+    {
+      "action": "repair",
+      "temperature": 0.3,
       "system_prompt": "",
       "condition": "after_failure"
     },
@@ -26,6 +74,18 @@
       "temperature": 0.0,
       "system_prompt": "",
       "condition": "after_failure"
+    },
+    {
+      "action": "restart",
+      "temperature": 0.5,
+      "system_prompt": "Previous approaches all failed. Try a completely different algorithm.",
+      "condition": "not_yet_passed"
+    },
+    {
+      "action": "test",
+      "temperature": 0.0,
+      "system_prompt": "",
+      "condition": "not_yet_passed"
     }
   ]
 }

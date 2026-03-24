@@ -902,3 +902,337 @@ Number of inversions are: 5
 [18, 15, 12]
 [18, 15, 12]
 [18, 15, 12]
+[18, 15, 12]
+20
+20
+20
+11
+11
+11
+11
+26
+26
+Volume of the cone: 261.79938779914943
+Volume of the cone: 261.79938779914943
+Volume of the cone: 261.79938779914943
+Volume of the cone: 261.79938779914943
+Volume of the cone: 261.79938779914943
+Volume of the cone: 261.79938779914943
+16
+16
+16
+16
+16
+16
+11
+11
+11
+11
+11
+11
+['Element: 1', 'Element: 2', 'Element: 3']
+['Element: 1', 'Element: 2', 'Element: 3']
+['Element: 1', 'Element: 2', 'Element: 3']
+['Element: 1', 'Element: 2', 'Element: 3']
+['Element: 1', 'Element: 2', 'Element: 3']
+['Element: 1', 'Element: 2', 'Element: 3']
+{'a': {'b': {'x': 1}, 'c': {'y': 2}}, 'd': {'value': 3}}
+{'a': {'b': {'x': 1}, 'c': {'y': 2}}, 'd': {'value': 3}}
+{'a': {'b': {'c': 1, 'd': 2}}, 'e': 3}
+{'a': {'b': {'c': 1, 'd': 2}}, 'e': 3}
+[6, 7, 8, 9]
+[6, 7, 8, 9]
+[6, 7, 8, 9]
+[6, 7, 8, 9]
+[6, 7, 8, 9]
+True
+False
+True
+False
+w
+w
+The median is: 2
+The median is: 2
+2
+2
+[6, 15, 24]
+[6, 15, 24]
+[6, 15, 24]
+[6, 15, 24]
+[6, 15, 24, 6, 15]
+(5, 7, 5)
+(5, 7, 5)
+(5, 7, 5)
+(5, 7, 5)
+(5, 7, 5)
+(5, 7, 5)
+3
+3
+3
+((6, 8), (10, 12))
+((6, 8), (10, 12))
+((6, 8), (10, 12))
+((6, 8), (10, 12))
+((6, 8), (10, 12))
+((6, 8), (10, 12))
+The minimum value is: 10
+The minimum value is: 10
+5
+True
+True
+3 exists in the tuple.
+3 exists in the tuple.
+3 exists in the tuple.
+3 exists in the tuple.
+Odd parity
+Even parity
+Even parity
+Odd parity
+5 has odd parity.
+5 has odd parity.
+5 has odd parity.
+5 has odd parity.
+132
+-1
+132
+-1
+132
+-1
+132
+-1
+132
+-1
+132
+-1
+0
+-2
+-2
+snakeCaseString
+snakeCaseString
+snakeCaseString
+snakeCaseString
+helloWorld
+
+helloWorld
+
+snakeCaseExample
+[2, 4, 6]
+[2, 4, 6]
+[2, 4, 6]
+[2, 4, 6]
+[2, 4, 6]
+[2, 4, 6]
+True
+False
+True
+12
+12
+((9, 5), 45)
+((9, 5), 45)
+((4, 3), 12)
+((4, 3), 12)
+1
+1
+1
+None
+None
+1
+1
+None
+None
+1
+banana
+banana
+banana
+None
+None
+banana
+None
+None
+243
+243
+345
+513
+1800
+1800
+1800
+1800
+1800
+1800
+1, 2, 3
+1, 2, 3
+1, 2, 3
+1, 2, 3
+1, 2, 3
+1, 2, 3
+The average of cubes from 1 to 5 is: 45.0
+The average of cubes from 1 to 5 is: 45.0
+The average of cubes from 1 to 5 is: 45.0
+The average of cubes from 1 to 5 is: 45.0
+The average of cubes from 1 to 5 is: 45.0
+The average of cubes from 1 to 5 is: 45.0
+['e', 'a', 'y']
+['e', 'a', 'y']
+['e', 'a', 'y']
+['e', 'a', 'y']
+('e', 'a', 'y')
+('e', 'a', 'y')
+3
+2
+[1, 3, 5]
+[1, 3, 5]
+[1, 3, 5]
+[1, 3, 5]
+[1, 3, 5]
+[1, 3, 5]
+05-10-2023
+05-10-2023
+15-10-2023
+15-10-2023
+05-10-2023
+05-10-2023
+((1, 2, 3), ((1, 4), (2, 5), (3, 6)))
+((1, 2, 3), ((1, 4), (2, 5), (3, 6)))
+Directrix: 2.875
+Directrix: 2.875
+The directrix of the parabola is: 2.875
+The directrix of the parabola is: 2.875
+-0.25
+True
+True
+True
+True
+Median length of the trapezium: 6.0
+Median length of the trapezium: 6.0
+Median length of the trapezium: 6.0
+Median length of the trapezium: 6.0
+The median length of the trapezium is: 6.0
+The median length of the trapezium is: 6.0
+True
+True
+True
+5
+5
+5
+5
+5
+5
+[-2, -4]
+[-2, -4]
+[-2, -4]
+[-2, -4]
+[-2, -4]
+[-2, -4]
+ace
+ace
+eape
+eape
+Hlo ol!
+Hlo ol!
+2
+2
+2
+2
+2
+2
+1234
+1234
+1234
+1234
+1234
+NLTK library is not installed. Please install it by running: pip install nltk
+NLTK is not installed. Please install it using 'pip install nltk'.
+nltk module is not installed. Please install it using 'pip install nltk'.
+The surface area of the cube with side length 5 is 150.
+The surface area of the cube with side length 5 is 150.
+150
+150
+The surface area of the cube with side length 3 is 54.
+The surface area of the cube with side length 3 is 54.
+0.6
+0.6
+0.0
+0.6
+0.0
+0.6
+0.0
+0.6
+0.0
+-1
+-1
+-1
+-1
+-1
+None
+-1
+None
+[(2, 3, 4), (7,), (10, 11, 12, 13)]
+[(2, 3, 4), (7,), (10, 11, 12, 13)]
+[(2, 3), (5, 6), (8, 9)]
+[(2, 3), (5, 6), (8, 9)]
+[(2, 3), (5, 6)]
+(4, 10, 18)
+(4, 10, 18)
+(4, 10, 18)
+(4, 10, 18)
+(4, 10, 18)
+(4, 10, 18)
+{2: 2, 4: 3, 5: 0}
+{2: 2, 4: 3, 5: 0}
+{2: 2, 4: 3, 5: 0}
+{2: 2, 4: 3, 5: 0}
+{2: 2, 4: 3, 5: 0}
+{2: 2, 4: 3, 5: 0}
+[1, 8, 27, 64]
+[1, 8, 27, 64]
+[1, 8, 27, 64]
+[1, 8, 27, 64]
+[1, 8, 27, 64]
+[1, 8, 27, 64]
+['apple']
+['apple']
+['apple']
+['apple']
+['apple']
+['apple']
+Loss amount: 50
+24
+24
+24
+24
+24
+24
+['zebra', 'lazy', 'zoo']
+['zebra', 'lazy', 'zoo']
+['lazy', 'hazy']
+['lazy', 'hazy']
+['zebra', 'lazy', 'maze']
+['zebra', 'lazy', 'maze']
+True
+False
+False
+True
+Month must be between 1 and 12.
+True
+False
+True
+Month must be between 1 and 12
+True
+False
+False
+True
+True
+False
+False
+True
+['olleh', 'dlrow', 'nohtyp']
+['olleh', 'dlrow', 'nohtyp']
+['olleh', 'dlrow', 'nohtyp']
+['olleh', 'dlrow', 'nohtyp']
+['olleh', 'dlrow', 'nohtyp']
+['olleh', 'dlrow', 'nohtyp']
+[4, 3]
+[4, 3]
+[3, 4, 5]
+[3, 4, 5]
+[4, 3]

@@ -1,0 +1,10 @@
+MBPP: 257 samples
+  50/257: 45 correct (90.0%)
+  100/257: 90 correct (90.0%)
+  150/257: 133 correct (88.7%)
+  200/257: 175 correct (87.5%)
+  250/257: 217 correct (86.8%)
+score: 87.16
+correct: 224/257
+cost: $0.4595
+time: 2335s

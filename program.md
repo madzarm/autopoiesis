@@ -409,6 +409,14 @@ If you believe you've created a method that beats published SOTA:
 
 ---
 
+## PERFORMANCE RULES
+
+- **ALWAYS parallelize evaluation**: Use ThreadPoolExecutor or concurrent.futures for all benchmark evaluations. Never evaluate samples sequentially when they can run in parallel. Target 16 concurrent threads minimum.
+- **Fast iteration**: Use small eval sets (20-30 samples) during search, validate winners on larger sets (200+).
+- **Run multiple experiments in parallel**: When testing different approaches, launch them as background tasks simultaneously.
+
+---
+
 ## FAILURE MODES TO WATCH FOR
 
 - **Overfitting to one benchmark**: Rotate benchmarks. Don't only optimize for GSM8K.

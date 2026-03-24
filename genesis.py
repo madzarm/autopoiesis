@@ -547,57 +547,6 @@ def fast_eval(genome: Genome, samples: list[dict], benchmark: str) -> dict:
 
     score = round(correct / total * 100, 2) if total > 0 else 0.0
     return {"score": score, "correct": correct, "total": total, "errors": errors[:5]}
-        try:
-            if benchmark in ("gsm8k", "math"):
-                problem = sample.get("question", sample.get("problem", ""))
-                response = execute_genome(genome, problem)
-                predicted = extract_number(response)
-                if predicted is None:
-                    ans = extract_math_answer(response)
-                    if ans:
-                        predicted_str = normalize_math_answer(ans)
-                        gold_str = normalize_math_answer(str(sample["gold_answer"]))
-                        if predicted_str == gold_str:
-                            correct += 1
-                            continue
-                gold = sample["gold_answer"]
-                if predicted is not None and abs(predicted - gold) < 1e-6:
-                    correct += 1
-                else:
-                    errors.append({
-                        "problem": problem[:200],
-                        "gold": str(gold),
-                        "predicted": str(predicted),
-                    })
-            elif benchmark == "humaneval":
-                prompt = sample["prompt"]
-                response = execute_genome(genome, f"Complete this Python function body:\n\n{prompt}")
-                # Extract and test code
-                body = response
-                body = re.sub(r'```python\s*', '', body)
-                body = re.sub(r'```\s*', '', body)
-                lines = body.split('\n')
-                if lines and lines[0].strip().startswith('def '):
-                    i_start = 1
-                    if i_start < len(lines) and ('"""' in lines[i_start] or "'''" in lines[i_start]):
-                        i_start += 1
-                        while i_start < len(lines) and '"""' not in lines[i_start] and "'''" not in lines[i_start]:
-                            i_start += 1
-                        i_start += 1
-                    body = '\n'.join(lines[i_start:])
-
-                full = sample["prompt"] + body + "\n" + sample["test"] + f"\ncheck({sample['entry_point']})"
-                try:
-                    exec(full, {})
-                    correct += 1
-                except Exception:
-                    errors.append({"problem": prompt[:100], "gold": "pass", "predicted": "fail"})
-
-        except Exception as e:
-            errors.append({"problem": str(e)[:100], "gold": "?", "predicted": "error"})
-
-    score = round(correct / total * 100, 2) if total > 0 else 0.0
-    return {"score": score, "correct": correct, "total": total, "errors": errors}
 
 
 # ═══════════════════════════════════════════════════════════════

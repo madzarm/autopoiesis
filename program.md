@@ -216,6 +216,7 @@ Implement your system in Python. Structure:
 ├── program.md          # This file
 ├── design.md           # Your design document (multiple approaches)
 ├── scorecard.md        # Approach comparison scorecard
+├── backlog.md          # Ideas queue — always being updated, especially while evals run
 ├── sota_baselines.md   # Target numbers to beat
 ├── results.tsv         # Experiment log (untracked by git)
 ├── approaches/         # Each approach gets its own directory
@@ -531,6 +532,69 @@ Every ~10 experiments (or whenever you feel stuck), execute this:
 
 ### General principle
 When writing any evaluation, search, or experiment code: **before writing a loop, ask whether the iterations are independent.** If they are, use concurrent execution. Sequential-by-default is the single biggest performance mistake in this codebase.
+
+### 🚨 NEVER BLOCK ON A LONG-RUNNING TASK — THIS IS CRITICAL
+
+**You must NEVER sit idle waiting for an experiment to finish.** No `sleep 600 && grep`. No staring at a background task. Every minute you spend blocked is a minute you could be discovering something new.
+
+The pattern is:
+
+```
+1. Launch experiment as background task:
+   python run_experiment.py --approach X > run_X.log 2>&1 &
+
+2. IMMEDIATELY start doing something else:
+   - Design the next approach
+   - Research a new paper
+   - Implement a different approach
+   - Launch ANOTHER experiment in parallel
+   - Update design.md with new ideas
+   - Review results.tsv for patterns
+
+3. Check on background tasks periodically (quick, non-blocking):
+   grep -E "COMPLETE|FINAL|ERROR" run_X.log 2>/dev/null || echo "still running"
+
+4. When a task finishes, harvest results and log them.
+```
+
+**Concrete rules:**
+- If an eval will take more than 2 minutes, it MUST run in background. No exceptions.
+- While any eval is running in background, you should be doing productive work — not sleeping.
+- You can and should run 2–3 experiments simultaneously on different approaches.
+- The ideal state is: approach A eval running in background, you're implementing approach B, approach C eval also running in background. You are always working.
+- Quick `grep` checks on background tasks are fine (< 5 seconds). Blocking waits are not.
+
+**What to do while experiments run — the Ideas Backlog:**
+
+Maintain a file called `backlog.md` (committed to git). This is your running queue of ideas, ordered by how novel/promising they feel. While experiments run in background, you should be:
+
+1. **Adding to the backlog** — new approach ideas, new search algorithms, biological analogies, cross-pollination from papers
+2. **Refining backlog entries** — sketch pseudocode, think through feasibility, estimate what benchmarks it would help on
+3. **Re-researching** — scrape new papers, read adjacent fields, look for techniques nobody has tried in ADAS
+4. **Implementing the next backlog item** — start coding the next approach so it's ready to eval the moment a slot opens up
+5. **Reviewing results** — look at results.tsv, update the scorecard, identify patterns across approaches
+
+The backlog format:
+```markdown
+# Ideas Backlog
+
+## High Priority (novel + feasible)
+- [ ] MCTS over DAG search space — combines AFlow's search with richer topology
+- [ ] Immune repertoire routing — pool of specialists, classifier routes problems
+
+## Medium Priority (interesting but unclear)
+- [ ] Swarm rules — evolve local interaction rules, emergent global behavior
+- [ ] Morphogenetic positional encoding — agent role determined by graph position
+
+## Low Priority / Long-shot
+- [ ] Co-evolutionary species — multiple agent types evolve symbiotically
+- [ ] Program synthesis search — search over architecture-GENERATING programs
+
+## Tried and Parked
+- [x] Genesis evo-devo pipelines — works but linear pipeline is limited search space
+```
+
+**Update the backlog constantly.** Every time you read a paper, add ideas. Every time an experiment gives you a new insight, add or reorder ideas. The backlog is your strategic brain — the experiments are your hands. Both should always be busy.
 
 ---
 

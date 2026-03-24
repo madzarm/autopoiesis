@@ -1,24 +1,156 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 ═══ DAG-Evolve ═══
 Benchmark: gsm8k, Samples: 30, Pop: 8, Gens: 15
 ── Initial ──
-  dag_cot                   |  83.3% | nodes=1 edges=0
-  dag_fanout_vote           |  83.3% | nodes=4 edges=3
+  dag_cot                   |  86.7% | nodes=1 edges=0
+  dag_fanout_vote           |  86.7% | nodes=4 edges=3
   dag_verify_repair         |  73.3% | nodes=3 edges=3
   dag_diamond               |  86.7% | nodes=4 edges=4
-  dag_wide                  |  86.7% | nodes=5 edges=4
-  dag_cot_mut               |  83.3% | nodes=1 edges=0
-  dag_fanout_vote_mut       |  83.3% | nodes=4 edges=3
-  dag_fanout_vote_mut       |  83.3% | nodes=4 edges=3
-Best: dag_diamond = 86.67%
+  dag_wide                  |  83.3% | nodes=5 edges=4
+  dag_verify_repair_mut     |  86.7% | nodes=3 edges=3
+  dag_fanout_vote_mut       |  86.7% | nodes=4 edges=3
+  dag_cot_mut               |  16.7% | nodes=2 edges=0
+Best: dag_cot = 86.67%
 
 ── Gen 1/15 ──
-  [rand ] rand_g1_4              |   0.0% | n=1 e=0
-  [rand ] rand_g1_5              |  83.3% | n=1 e=0
-  [rand ] rand_g1_7              |  86.7% | n=4 e=3
-  [cross] cross_g1_2             |  86.7% | n=4 e=3
-  [mut  ] mut_g1_3               |  86.7% | n=4 e=4
-  [llm  ] llm_g1_6               |  63.3% | n=5 e=7
-  Gen 1: best=86.7%, avg=72.5%, best_ever=86.7%
+  [mut  ] mut_g1_3               |   0.0% | n=2 e=1
+  [mut  ] mut_g1_7               |  86.7% | n=1 e=0
+  [mut  ] mut_g1_5               |  76.7% | n=1 e=0
+  [rand ] rand_g1_6              |  86.7% | n=6 e=6
+  [mut  ] mut_g1_2               |  76.7% | n=4 e=4
+  [rand ] rand_g1_4              |  86.7% | n=5 e=5
+  Gen 1: best=86.7%, avg=73.3%, best_ever=86.7%
 
 ── Gen 2/15 ──
+  [mut  ] mut_g2_4               |  83.3% | n=1 e=0
+  [mut  ] mut_g2_7               |  86.7% | n=1 e=0
+  [rand ] rand_g2_5              |  83.3% | n=4 e=4
+  [cross] cross_g2_6             |  90.0% | n=6 e=4 ***
+  [rand ] rand_g2_2              |  90.0% | n=5 e=5
+  [llm  ] llm_g2_3               |  93.3% | n=7 e=10 ***
+  Gen 2: best=93.3%, avg=87.5%, best_ever=93.3%
+
+── Gen 3/15 ──
+  [mut  ] mut_g3_5               |  73.3% | n=1 e=0
+  [rand ] rand_g3_7              |  83.3% | n=4 e=3
+  [llm  ] llm_g3_6               |  76.7% | n=4 e=4
+  [cross] cross_g3_2             |  86.7% | n=5 e=3
+  [llm  ] llm_g3_3               |  96.7% | n=6 e=8 ***
+  [llm  ] llm_g3_4               |  80.0% | n=12 e=16
+  Gen 3: best=96.7%, avg=85.0%, best_ever=96.7%
+
+── Gen 4/15 ──
+  [cross] cross_g4_6             |  86.7% | n=6 e=3
+  [mut  ] mut_g4_2               |  90.0% | n=7 e=10
+  [rand ] rand_g4_5              |  66.7% | n=4 e=5
+  [llm  ] llm_g4_3               |  90.0% | n=9 e=14
+  [llm  ] llm_g4_4               |  80.0% | n=7 e=9
+  [llm  ] llm_g4_7               |  86.7% | n=7 e=10
+  Gen 4: best=96.7%, avg=86.3%, best_ever=96.7%
+
+── Gen 5/15 ──
+  [cross] cross_g5_7             |  96.7% | n=6 e=4
+  [cross] cross_g5_4             |  96.7% | n=6 e=6
+  [cross] cross_g5_3             |  93.3% | n=8 e=12
+  [cross] cross_g5_5             |  93.3% | n=6 e=6
+  [mut  ] mut_g5_6               |  96.7% | n=7 e=10
+  [llm  ] llm_g5_2               |  70.0% | n=7 e=9
+  Gen 5: best=96.7%, avg=92.1%, best_ever=96.7%
+
+── Gen 6/15 ──
+  [rand ] rand_g6_6              |  76.7% | n=2 e=1
+  [rand ] rand_g6_3              |  73.3% | n=4 e=3
+  [cross] cross_g6_5             |  83.3% | n=7 e=8
+  [llm  ] llm_g6_7               |  90.0% | n=8 e=9
+  [mut  ] mut_g6_2               |  93.3% | n=6 e=8
+  [llm  ] llm_g6_4               |  83.3% | n=7 e=12
+  Gen 6: best=96.7%, avg=86.7%, best_ever=96.7%
+
+── Gen 7/15 ──
+  [rand ] rand_g7_7              |  86.7% | n=5 e=3
+  [rand ] rand_g7_3              |  86.7% | n=5 e=4
+  [rand ] rand_g7_2              |  83.3% | n=3 e=3
+  [mut  ] mut_g7_5               |  96.7% | n=6 e=4
+  [mut  ] mut_g7_4               |  96.7% | n=7 e=9
+  [llm  ] llm_g7_6               |  96.7% | n=8 e=10
+  Gen 7: best=96.7%, avg=92.5%, best_ever=96.7%
+
+── Gen 8/15 ──
+  [rand ] rand_g8_3              |  86.7% | n=4 e=5
+  [mut  ] mut_g8_6               |  96.7% | n=6 e=9
+  [mut  ] mut_g8_2               |  93.3% | n=6 e=8
+  [mut  ] mut_g8_4               |  96.7% | n=8 e=11
+  [llm  ] llm_g8_5               |  93.3% | n=7 e=9
+  [llm  ] llm_g8_7               |  73.3% | n=8 e=10
+  Gen 8: best=96.7%, avg=91.7%, best_ever=96.7%
+
+── Gen 9/15 ──
+  [rand ] rand_g9_5              |  86.7% | n=2 e=0
+  [cross] cross_g9_4             |  96.7% | n=6 e=7
+  [cross] cross_g9_2             |  96.7% | n=6 e=8
+  [llm  ] llm_g9_6               |  80.0% | n=6 e=9
+  [llm  ] llm_g9_7               |  90.0% | n=7 e=10
+  [llm  ] llm_g9_3               |  86.7% | n=8 e=11
+  Gen 9: best=96.7%, avg=91.3%, best_ever=96.7%
+
+── Gen 10/15 ──
+  [rand ] rand_g10_4             |   0.0% | n=1 e=0
+  [rand ] rand_g10_7             |  80.0% | n=2 e=1
+  [rand ] rand_g10_6             |  86.7% | n=1 e=0
+  [rand ] rand_g10_2             |  83.3% | n=1 e=0
+  [rand ] rand_g10_5             |  86.7% | n=4 e=3
+  [cross] cross_g10_3            |  96.7% | n=6 e=7
+  Gen 10: best=96.7%, avg=78.3%, best_ever=96.7%
+
+── Gen 11/15 ──
+  [rand ] rand_g11_4             |  86.7% | n=4 e=4
+  [cross] cross_g11_5            |  96.7% | n=4 e=4
+  [llm  ] llm_g11_2              |  90.0% | n=7 e=11
+  [llm  ] llm_g11_7              |  90.0% | n=8 e=9
+  [cross] cross_g11_3            |  86.7% | n=4 e=3
+  [llm  ] llm_g11_6              |  90.0% | n=7 e=9
+  Gen 11: best=96.7%, avg=91.7%, best_ever=96.7%
+
+── Gen 12/15 ──
+  [rand ] rand_g12_4             |  86.7% | n=3 e=3
+  [rand ] rand_g12_6             |  83.3% | n=4 e=5
+  [cross] cross_g12_5            |  96.7% | n=6 e=4
+  [llm  ] llm_g12_3              |  76.7% | n=8 e=10
+  [llm  ] llm_g12_7              |  60.0% | n=9 e=12
+  [llm  ] llm_g12_2              |  80.0% | n=8 e=13
+  Gen 12: best=96.7%, avg=84.6%, best_ever=96.7%
+
+── Gen 13/15 ──
+  [cross] cross_g13_2            |  86.7% | n=5 e=3
+  [rand ] rand_g13_6             |  90.0% | n=4 e=4
+  [cross] cross_g13_4            |  93.3% | n=4 e=4
+  [cross] cross_g13_5            |  96.7% | n=6 e=7
+  [llm  ] llm_g13_3              |  86.7% | n=11 e=13
+  [llm  ] llm_g13_7              |  83.3% | n=11 e=16
+  Gen 13: best=96.7%, avg=91.3%, best_ever=96.7%
+
+── Gen 14/15 ──
+  [cross] cross_g14_6            |  83.3% | n=5 e=5
+  [cross] cross_g14_5            |  76.7% | n=5 e=5
+  [cross] cross_g14_4            |  96.7% | n=6 e=4
+  [cross] cross_g14_2            |  80.0% | n=5 e=5
+  [mut  ] mut_g14_3              |  86.7% | n=7 e=5
+  [llm  ] llm_g14_7              |  73.3% | n=7 e=9
+  Gen 14: best=96.7%, avg=86.3%, best_ever=96.7%
+
+── Gen 15/15 ──
+  [cross] cross_g15_4            |  96.7% | n=6 e=4
+  [cross] cross_g15_6            |  83.3% | n=7 e=8
+  [llm  ] llm_g15_5              |  83.3% | n=7 e=7
+  [llm  ] llm_g15_2              |  90.0% | n=8 e=9
+  [llm  ] llm_g15_3              |  86.7% | n=11 e=16
+  [llm  ] llm_g15_7              |  83.3% | n=7 e=10
+  Gen 15: best=96.7%, avg=89.6%, best_ever=96.7%
+
+══════════════════════════════════════════════════
+DAG-EVOLVE COMPLETE: llm_g3_3 = 96.67%
+  g1: generate(t=0.0) (root)
+  code: generate_code(t=0.0) ←g1
+  v1: verify(t=0.0) ←g1,code
+  r1: repair(t=0.0) ←g1,v1
+  merge: vote(t=0.0) ←g1,r1
+  n0: generate(t=0.0) ←merge [OUTPUT]

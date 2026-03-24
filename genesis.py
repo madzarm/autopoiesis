@@ -623,8 +623,27 @@ def _sanitize_code(response: str) -> str:
     return body
 
 
+SAMPLE_RETRIES = 3  # Retry each sample up to 3 times on failure (matching AFlow's approach)
+
+
 def _eval_single_genesis(genome_dict: dict, sample: dict, idx: int, benchmark: str) -> dict:
-    """Evaluate a single sample with a genome. Thread-safe."""
+    """Evaluate a single sample with a genome. Thread-safe. Retries on API failures."""
+    for attempt in range(SAMPLE_RETRIES):
+        result = _eval_single_genesis_inner(genome_dict, sample, idx, benchmark)
+        if result.get("correct") or attempt == SAMPLE_RETRIES - 1:
+            return result
+        # Only retry if the failure looks like an API/transient error
+        problem = result.get("problem", "")
+        if any(s in str(problem).lower() for s in ["timeout", "connection", "rate", "error", "none"]):
+            import time
+            time.sleep(1 * (attempt + 1))
+            continue
+        return result  # Non-transient failure, don't retry
+    return result
+
+
+def _eval_single_genesis_inner(genome_dict: dict, sample: dict, idx: int, benchmark: str) -> dict:
+    """Inner evaluation logic for a single sample."""
     genome = Genome.from_dict(genome_dict)
     try:
         if benchmark == "gsm8k":

@@ -352,6 +352,21 @@ Return ONLY valid JSON (same format).
 # ═══════════════════════════════════════════════════════════════
 
 def _eval_single_dag(dag_dict, sample, idx, benchmark):
+    """Evaluate a single sample with retry on transient failures."""
+    for attempt in range(3):
+        result = _eval_single_dag_inner(dag_dict, sample, idx, benchmark)
+        if result.get("correct") or attempt == 2:
+            return result
+        problem = result.get("problem", "")
+        if any(s in str(problem).lower() for s in ["timeout", "connection", "rate", "error", "none"]):
+            import time
+            time.sleep(1 * (attempt + 1))
+            continue
+        return result
+    return result
+
+
+def _eval_single_dag_inner(dag_dict, sample, idx, benchmark):
     dag = DAGGenome.from_dict(dag_dict)
     try:
         if benchmark == "gsm8k":

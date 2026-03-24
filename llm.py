@@ -44,7 +44,11 @@ def estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
     return (input_tokens * costs["input"] + output_tokens * costs["output"]) / 1_000_000
 
 
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(min=2, max=30))
+@retry(
+    stop=stop_after_attempt(5),
+    wait=wait_exponential(min=2, max=60),
+    retry=lambda retry_state: _should_retry(retry_state),
+)
 def call_llm(
     prompt: str,
     system: str = "",
@@ -54,6 +58,12 @@ def call_llm(
     json_mode: bool = False,
 ) -> dict:
     """Call the LLM and return response with metadata.
+
+    Retries up to 5 times with exponential backoff on:
+    - API errors (network, 500, 503)
+    - Rate limits (429) — with longer backoff
+    - Empty responses
+    - Timeouts
 
     Returns:
         dict with keys: content, model, input_tokens, output_tokens, cost_usd
@@ -72,6 +82,7 @@ def call_llm(
     kwargs = {
         "model": model,
         "messages": messages,
+        "timeout": 120,  # 2-minute timeout per call
     }
 
     if uses_new_api:
@@ -96,18 +107,43 @@ def call_llm(
     usage = response.usage
     cost = estimate_cost(model, usage.prompt_tokens, usage.completion_tokens)
 
+    content = response.choices[0].message.content
+    if not content:
+        raise ValueError("Empty response from API")
+
     with _cost_lock:
         _total_cost += cost
         _call_count += 1
 
     return {
-        "content": response.choices[0].message.content,
+        "content": content,
         "model": model,
         "input_tokens": usage.prompt_tokens,
         "output_tokens": usage.completion_tokens,
         "cost_usd": cost,
         "elapsed_s": elapsed,
     }
+
+
+def _should_retry(retry_state):
+    """Determine if we should retry based on the exception type."""
+    exc = retry_state.outcome.exception()
+    if exc is None:
+        return False  # Success, don't retry
+    exc_str = str(type(exc).__name__) + ": " + str(exc)
+    # Always retry on these
+    if any(s in exc_str.lower() for s in ["rate_limit", "429", "timeout", "connection",
+                                           "server_error", "500", "502", "503", "529",
+                                           "empty response", "overloaded"]):
+        return True
+    # Retry on generic API errors
+    if "APIError" in type(exc).__name__ or "APIConnectionError" in type(exc).__name__:
+        return True
+    # Don't retry on auth errors, invalid requests, etc.
+    if any(s in exc_str.lower() for s in ["authentication", "401", "403", "invalid"]):
+        return False
+    # Default: retry on unknown errors
+    return True
 
 
 def get_session_cost() -> float:

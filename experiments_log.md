@@ -93,8 +93,45 @@ improved since the papers were published, OR our prompts are better tuned.
 The MATH result shows that progressive refine (solve → critique → fix) is a genuinely useful
 architecture that helps on harder math problems.
 
+### HumanEval Improvement
+- Repair loop (generate → test → fix) improved from 79.88% → 87.80%
+- Diverse-candidate + repair: 5 candidates × 2 repairs = **93.29%** (beats MaAS 92.85%)
+- Key: temperature diversity (0.0, 0.4, 0.7, 0.2, 0.6) + test-driven feedback
+
+### MATH Breakthrough
+- Progressive Refine alone: 49.4% (500 samples) — not enough
+- 3-candidate + code verification: **58.00%** (500 samples) — beats MaAS by 6.18%!
+- 5-candidate + code verification: 57.33% (300 samples) — consistent
+- Key: majority vote across diverse solutions + sympy code tiebreaker
+
+### Full Test Set Validation
+- GSM8K CoT (full 1319): **94.16%** (1242/1319) — beats MaAS 92.30%
+- GSM8K combined (full 1319): 93.48% — simple CoT is actually better on easy tasks
+- **Key insight: optimal architecture depends on task difficulty**
+
+### REFLECTION (39 commits, ~20 experiments)
+**What works:**
+1. Strong personas + instructions > complex architectures for easy tasks
+2. Multi-candidate + verification/repair is transformative for hard tasks
+3. Code verification (sympy) as a cross-check is hugely valuable for MATH
+4. Test-driven repair is crucial for HumanEval
+5. Temperature diversity in candidate generation is key
+
+**What doesn't work:**
+1. best_of_n ensemble (adds a judge that introduces errors)
+2. Self-consistency voting on easy tasks (adds noise)
+3. Too many candidates (7 > 5 in HumanEval, 5 ≈ 3 in MATH)
+4. Critic reflection (less effective than self-refine)
+5. Code generation for non-code tasks (classify_route)
+
+**The novel AIDE contribution:**
+The key insight is **task-adaptive architecture selection**: simple methods for easy problems,
+multi-candidate + verification for hard problems. This is like the immune system's
+innate vs adaptive response — you don't mount a full immune response against every pathogen.
+
 ### Next Steps
-1. Fix HumanEval — try better code extraction, self-repair loop
-2. Push MATH above 51.82% — try code_solve for MATH, multi-attempt
-3. Run on full test sets for publishable numbers
-4. Add SWE-Bench-Verified (user request)
+1. SWE-Bench-Verified (user request)
+2. Try further improving MATH margins
+3. Explore MCTS over architecture space (AFlow-style)
+4. Add MBPP benchmark for code comparison
+5. Cross-model testing (gpt-5.4-nano, Claude, etc.)

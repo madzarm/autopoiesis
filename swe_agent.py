@@ -91,46 +91,81 @@ If it has issues, respond with: REJECT: <reason>""",
 }
 
 
+# Global repo cache directory — avoids re-cloning the same repo
+_REPO_CACHE_DIR = os.path.join(tempfile.gettempdir(), "swe_repo_cache")
+
+
 def clone_repo(repo: str, base_commit: str, work_dir: str) -> str:
-    """Clone repo at specific commit into work_dir. Returns repo path."""
+    """Clone repo at specific commit into work_dir. Uses cache when possible."""
     repo_path = os.path.join(work_dir, repo.replace("/", "__"))
     if os.path.exists(repo_path):
         shutil.rmtree(repo_path)
 
-    # Clone from GitHub — try shallow first, fetch commit if needed
     url = f"https://github.com/{repo}.git"
+    cache_path = os.path.join(_REPO_CACHE_DIR, repo.replace("/", "__"))
 
-    # First try: clone with depth=1 at the specific commit
+    # Try to use cached repo
+    if os.path.exists(cache_path):
+        # Copy from cache and checkout the right commit
+        shutil.copytree(cache_path, repo_path, symlinks=True)
+        # Reset any changes from previous use
+        subprocess.run(["git", "checkout", "--", "."], cwd=repo_path,
+                       capture_output=True, timeout=30)
+        subprocess.run(["git", "clean", "-fd"], cwd=repo_path,
+                       capture_output=True, timeout=30)
+        # Fetch the specific commit
+        subprocess.run(
+            ["git", "fetch", "--depth", "1", "origin", base_commit],
+            cwd=repo_path, capture_output=True, text=True, timeout=120
+        )
+        checkout = subprocess.run(
+            ["git", "checkout", base_commit],
+            cwd=repo_path, capture_output=True, text=True, timeout=30
+        )
+        if checkout.returncode == 0:
+            return repo_path
+        # If checkout failed, try unshallow
+        subprocess.run(["git", "fetch", "--unshallow"],
+                       cwd=repo_path, capture_output=True, timeout=300)
+        checkout = subprocess.run(
+            ["git", "checkout", base_commit],
+            cwd=repo_path, capture_output=True, text=True, timeout=30
+        )
+        if checkout.returncode == 0:
+            return repo_path
+        # Cache is stale, remove and re-clone
+        shutil.rmtree(repo_path, ignore_errors=True)
+
+    # Fresh clone
     result = subprocess.run(
         ["git", "clone", "--depth", "1", url, repo_path],
         capture_output=True, text=True, timeout=180
     )
-
     if result.returncode != 0:
-        # Clone failed entirely
         raise RuntimeError(f"git clone failed: {result.stderr[:200]}")
 
     # Fetch the specific commit
-    fetch_result = subprocess.run(
+    subprocess.run(
         ["git", "fetch", "--depth", "1", "origin", base_commit],
         cwd=repo_path, capture_output=True, text=True, timeout=120
     )
-
-    checkout_result = subprocess.run(
+    checkout = subprocess.run(
         ["git", "checkout", base_commit],
         cwd=repo_path, capture_output=True, text=True, timeout=30
     )
+    if checkout.returncode != 0:
+        subprocess.run(["git", "fetch", "--unshallow"],
+                       cwd=repo_path, capture_output=True, timeout=300)
+        subprocess.run(["git", "checkout", base_commit],
+                       cwd=repo_path, capture_output=True, timeout=30)
 
-    if checkout_result.returncode != 0:
-        # If checkout fails, try fetching more history
-        subprocess.run(
-            ["git", "fetch", "--unshallow"],
-            cwd=repo_path, capture_output=True, timeout=300
-        )
-        subprocess.run(
-            ["git", "checkout", base_commit],
-            cwd=repo_path, capture_output=True, timeout=30
-        )
+    # Save to cache (first time only)
+    os.makedirs(_REPO_CACHE_DIR, exist_ok=True)
+    if not os.path.exists(cache_path):
+        try:
+            shutil.copytree(repo_path, cache_path, symlinks=True)
+        except Exception:
+            pass  # Non-critical — caching is best-effort
 
     return repo_path
 

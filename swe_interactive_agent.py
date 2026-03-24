@@ -39,7 +39,8 @@ You have access to a bash shell in the repository directory. You can run any com
 - `find_file <filename>` — Find files matching a name pattern
 - `search <pattern>` — Search for a pattern in Python files (grep)
 - `view_file <path> [start_line] [end_line]` — View a file with line numbers
-- `edit_file <path> <start_line> <end_line>` — Replace lines start_line through end_line. Content follows on the next lines until END_EDIT marker.
+- `str_replace <path>` — Replace exact text in a file. Format on next lines: OLD_TEXT, then separator `---`, then NEW_TEXT, then `END_REPLACE`
+- `edit_file <path> <start_line> <end_line>` — Replace lines. Content follows until END_EDIT.
 - `create_patch` — Generate a git diff of all changes made
 - `run_tests <test_path>` — Run specific tests
 - `bash <command>` — Run any bash command
@@ -62,7 +63,18 @@ Respond with a SINGLE command per turn. Format:
 ```
 COMMAND_NAME arguments
 ```
-Or for edit_file:
+For str_replace (PREFERRED for editing):
+```
+str_replace path/to/file.py
+OLD_TEXT
+exact text to find
+---
+NEW_TEXT
+replacement text
+END_REPLACE
+```
+
+For edit_file (use str_replace instead when possible):
 ```
 edit_file path/to/file.py START END
 new line 1
@@ -146,6 +158,9 @@ def execute_command(cmd_str: str, repo_path: str, timeout: int = 30) -> str:
 
             return f"[{filepath}] ({len(all_lines)} lines total)\n{numbered}"
 
+        elif cmd_name == "str_replace":
+            return _handle_str_replace(cmd_args, cmd_str, repo_path)
+
         elif cmd_name == "edit_file":
             return _handle_edit(cmd_args, cmd_str, repo_path)
 
@@ -195,6 +210,67 @@ def execute_command(cmd_str: str, repo_path: str, timeout: int = 30) -> str:
         return f"[command timed out after {timeout}s]"
     except Exception as e:
         return f"[error: {str(e)}]"
+
+
+def _handle_str_replace(cmd_args: str, full_cmd: str, repo_path: str) -> str:
+    """Handle str_replace — find exact text and replace it. More robust than line editing."""
+    lines = full_cmd.split("\n")
+    filepath = lines[0].split(None, 1)[1].strip() if len(lines[0].split(None, 1)) > 1 else ""
+
+    if not filepath:
+        return "[error: str_replace requires a file path]"
+
+    full_path = os.path.join(repo_path, filepath)
+    if not os.path.exists(full_path):
+        return f"[file not found: {filepath}]"
+
+    # Parse OLD_TEXT and NEW_TEXT sections
+    old_text = []
+    new_text = []
+    section = None
+    for line in lines[1:]:
+        stripped = line.strip()
+        if stripped == "OLD_TEXT":
+            section = "old"
+            continue
+        elif stripped == "---":
+            section = "transition"
+            continue
+        elif stripped == "NEW_TEXT":
+            section = "new"
+            continue
+        elif stripped == "END_REPLACE":
+            break
+
+        if section == "old" or (section is None and not old_text):
+            old_text.append(line)
+        elif section in ("new", "transition"):
+            new_text.append(line)
+            section = "new"
+
+    old_str = "\n".join(old_text)
+    new_str = "\n".join(new_text)
+
+    if not old_str:
+        return "[error: OLD_TEXT section is empty]"
+
+    with open(full_path, "r", errors="replace") as f:
+        content = f.read()
+
+    if old_str not in content:
+        # Try with stripped whitespace matching
+        stripped_old = old_str.strip()
+        if stripped_old in content:
+            content = content.replace(stripped_old, new_str.strip(), 1)
+        else:
+            return f"[error: OLD_TEXT not found in {filepath}. Make sure you copy the exact text including whitespace.]"
+    else:
+        content = content.replace(old_str, new_str, 1)
+
+    with open(full_path, "w") as f:
+        f.write(content)
+
+    return f"[str_replace: replaced text in {filepath} ({len(old_str)} chars → {len(new_str)} chars)]"
 
 
 def _handle_edit(cmd_args: str, full_cmd: str, repo_path: str) -> str:
@@ -260,7 +336,7 @@ def parse_command_from_response(response: str) -> str:
         return code_match.group(1).strip()
 
     # Look for known command names at start of lines
-    known_cmds = ["find_file", "search", "view_file", "edit_file",
+    known_cmds = ["find_file", "search", "view_file", "str_replace", "edit_file",
                   "create_patch", "run_tests", "bash"]
     for line in response.split("\n"):
         stripped = line.strip()
@@ -272,6 +348,12 @@ def parse_command_from_response(response: str) -> str:
                     end_idx = response.find("END_EDIT", idx)
                     if end_idx != -1:
                         return response[idx:end_idx + len("END_EDIT")]
+                # For str_replace, capture everything until END_REPLACE
+                if cmd == "str_replace":
+                    idx = response.find(stripped)
+                    end_idx = response.find("END_REPLACE", idx)
+                    if end_idx != -1:
+                        return response[idx:end_idx + len("END_REPLACE")]
                 return stripped
 
     return ""
@@ -366,7 +448,20 @@ def solve_interactive(instance: dict, config: dict = None,
             if len(output) > 4000:
                 output = output[:2000] + "\n...[truncated]...\n" + output[-2000:]
 
-            messages.append({"role": "user", "content": f"Command output:\n```\n{output}\n```\n\nContinue. When you're done with your fix, run `create_patch` to generate the final diff."})
+            # Smart wrap-up: nudge agent to finish if it has edits and is running low
+            has_edits = any("edit" in t.get("command", "").lower() or
+                           "str_replace" in t.get("command", "").lower()
+                           for t in trajectory)
+            turns_left = max_turns - turn - 1
+
+            if has_edits and turns_left <= 3:
+                suffix = "\n\n⚠️ You have made edits and only have {} turns left. Run `create_patch` NOW to save your work.".format(turns_left)
+            elif has_edits and turns_left <= 7:
+                suffix = "\n\nYou've made edits. When ready, run `create_patch` to generate the final diff."
+            else:
+                suffix = "\n\nContinue. When you're done with your fix, run `create_patch` to generate the final diff."
+
+            messages.append({"role": "user", "content": f"Command output:\n```\n{output}\n```{suffix}"})
 
             # Context window management: if messages get too long, summarize early turns
             total_chars = sum(len(m["content"]) for m in messages)

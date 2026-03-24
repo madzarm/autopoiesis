@@ -1,0 +1,7 @@
+=== HumanEval Combined (gpt-4o-mini, n=164) ===
+Published: MaAS=92.85%, AFlow=90.9%
+
+  3cand_0repair        |  84.15% | $0.0878 | 320s | 138/164
+  3cand_1repair        |  92.68% | $0.1239 | 471s | 152/164
+  3cand_2repair        |  92.68% | $0.1475 | 607s | 152/164
+  5cand_2repair        |  93.29% | $0.1901 | 700s | 153/164

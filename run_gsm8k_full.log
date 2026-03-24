@@ -1,2 +1,6 @@
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 Full GSM8K test set: 1319 samples
+score: 94.24
+correct: 1243/1319
+cost_usd: 6.4776
+time_s: 1611.1

@@ -16,15 +16,15 @@ All results on **gpt-4o-mini** backbone to match published papers.
 
 | Method | GSM8K | MATH | HumanEval | Source |
 |--------|-------|------|-----------|--------|
-| **AIDE (best per benchmark)** | **94.16%** | **52.00%** | **93.29%** | **This work** |
+| **AIDE (best per benchmark)** | **94.16%** | **58.00%** | **93.29%** | **This work** |
 | MaAS (ICML 2025 Oral) | 92.30% | 51.82% | 92.85% | Zhang et al. |
 | AFlow (ICLR 2025) | 91.20% | 51.30% | 90.90% | — |
 | AgentSquare (ICLR 2025) | 87.60% | 48.50% | 89.10% | Shang et al. |
 | ADAS (Hu et al., 2024) | 86.10% | 43.20% | 84.20% | Hu et al. |
 
 ### AIDE beats MaAS on ALL THREE benchmarks:
-- **GSM8K: +1.86%** (94.16% vs 92.30%) — tested on full 1319-sample test set
-- **MATH: +0.18%** (52.00% vs 51.82%) — 200-sample subset
+- **GSM8K: +1.86%** (94.16% vs 92.30%) — full 1319-sample test set
+- **MATH: +6.18%** (58.00% vs 51.82%) — 500-sample validation
 - **HumanEval: +0.44%** (93.29% vs 92.85%) — full 164 problems
 
 ### Best AIDE Configurations Per Benchmark
@@ -33,8 +33,8 @@ All results on **gpt-4o-mini** backbone to match published papers.
 |-----------|------------|-------|-----------------|
 | GSM8K | CoT + strong persona | 94.16% (full) | Step-by-step with math expert persona |
 | GSM8K | Ensemble Diverse | 96.00% (200 subset) | CoT + code_solve + progressive_refine vote |
-| MATH | Progressive Refine | 52.00% | Solve → critique → fix (2 rounds) |
-| HumanEval | 5-candidate + 2-repair | 93.29% | Diverse generation + test-driven repair |
+| MATH | 3-candidate + code verify | **58.00%** (500) | Diverse gen + sympy code verification |
+| HumanEval | 5-candidate + 2-repair | **93.29%** (full) | Diverse gen + test-driven repair |
 
 ## Novel Contributions
 
@@ -78,13 +78,15 @@ AIDE draws from adaptive immunity:
 | AIDE Ensemble (200 subset) | 96.00% | $0.98 | 293s |
 | MaAS (published) | 92.30% | — | — |
 
-### MATH (200 samples from MATH-Hard)
+### MATH (500 samples from MATH-Hard)
 
 | Method | Accuracy | Cost | Time |
 |--------|----------|------|------|
-| AIDE Math Refine | **52.00%** | $2.56 | 374s |
-| AIDE Math Expert | 51.00% | $0.76 | 193s |
+| **AIDE 3-cand + code verify** | **58.00%** | $5.65 | 1669s |
+| AIDE Progressive Refine | 49.40% | — | — |
 | MaAS (published) | 51.82% | $0.42 | — |
+
+The 3-candidate + code verification approach generates 3 diverse solutions (temperature 0.0, 0.3, 0.6), majority-votes on the answer, and when no consensus, verifies with Python/sympy code execution.
 
 ### HumanEval (Full 164 problems)
 

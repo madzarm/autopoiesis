@@ -114,7 +114,16 @@ def prim_repair(problem: str, answer_text: str, feedback: str, model: str,
 
 
 def prim_vote(candidates: list[str]) -> dict:
-    """Majority vote across candidate answers."""
+    """Majority vote across candidate answers.
+
+    Task-aware: detects whether candidates are math answers or code.
+    For math: extracts numbers and picks majority.
+    For code/other: picks the longest candidate (most complete answer).
+    """
+    if not candidates:
+        return {"text": "", "confidence": 0.3}
+
+    # Try math extraction first
     answers = []
     for c in candidates:
         num = extract_number(c)
@@ -124,12 +133,18 @@ def prim_vote(candidates: list[str]) -> dict:
             ans = extract_math_answer(c)
             if ans:
                 answers.append(normalize_math_answer(ans))
-    if not answers:
-        return {"text": candidates[0] if candidates else "", "confidence": 0.3}
-    counter = Counter(answers)
-    best, count = counter.most_common(1)[0]
-    confidence = count / len(answers)
-    return {"text": f"#### {best}", "confidence": confidence}
+
+    # If we got math answers from most candidates, do majority vote
+    if len(answers) >= len(candidates) // 2 + 1:
+        counter = Counter(answers)
+        best, count = counter.most_common(1)[0]
+        confidence = count / len(answers)
+        return {"text": f"#### {best}", "confidence": confidence}
+
+    # Otherwise, this is likely code or free-form text — pick the longest
+    # candidate as the most complete response (don't force number extraction)
+    best = max(candidates, key=len)
+    return {"text": best, "confidence": 0.5}
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -554,8 +569,11 @@ def _eval_single_genesis(genome_dict: dict, sample: dict, idx: int, benchmark: s
             prompt = sample["prompt"]
             response = execute_genome(genome, f"Complete this Python function body:\n\n{prompt}")
             body = response
+            # Strip code fences
             body = re.sub(r'```python\s*', '', body)
             body = re.sub(r'```\s*', '', body)
+            # Strip #### math answer format if vote accidentally returned it
+            body = re.sub(r'^####\s*.*$', '', body, flags=re.MULTILINE).strip()
             lines = body.split('\n')
             if lines and lines[0].strip().startswith('def '):
                 i_s = 1

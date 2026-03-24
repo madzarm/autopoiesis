@@ -369,6 +369,8 @@ def _eval_single_dag(dag_dict, sample, idx, benchmark):
             response = execute_dag(dag, f"Complete this Python function body:\n\n{prompt}")
             body = re.sub(r'```python\s*', '', response)
             body = re.sub(r'```\s*', '', body)
+            # Strip #### math answer format if vote accidentally returned it
+            body = re.sub(r'^####\s*.*$', '', body, flags=re.MULTILINE).strip()
             lines = body.split('\n')
             if lines and lines[0].strip().startswith('def '):
                 i = 1

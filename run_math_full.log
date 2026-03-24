@@ -1,0 +1,6 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+MATH: 500 samples
+score: 49.4
+correct: 247/500
+cost_usd: 6.3522
+time_s: 1335.5

@@ -1,0 +1,5 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+score: 90.85
+correct: 149/164
+cost: $0.2035
+time: 749s

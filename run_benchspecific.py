@@ -77,6 +77,18 @@ GSM8K_WORKFLOWS = {
         Stage(action="generate", temperature=0.0, condition="always",
               system_prompt="Think step by step. Put your final numerical answer after ####."),
     ]),
+    "multi3_vote": Genome(name="multi3_gsm", model=MODEL, stages=[
+        Stage(action="generate", temperature=0.0, condition="always",
+              system_prompt="Think step by step. Put answer after ####."),
+        Stage(action="generate", temperature=0.3, condition="always",
+              system_prompt="Solve carefully, check your work. Answer after ####."),
+        Stage(action="generate_code", temperature=0.0, condition="always"),
+        Stage(action="vote", condition="always"),
+    ]),
+    "fused_single": Genome(name="fused_gsm", model=MODEL, stages=[
+        Stage(action="generate", temperature=0.0, condition="always",
+              system_prompt="Solve step by step. Verify your answer. Fix if wrong. Put final answer after ####."),
+    ]),
 }
 
 # ═══════════════════════════════════════════════════════════════
@@ -137,6 +149,19 @@ HE_WORKFLOWS = {
     "cot_baseline": Genome(name="cot_he", model=MODEL, stages=[
         Stage(action="generate", temperature=0.0, condition="always",
               system_prompt="Complete this Python function. Write clean, correct code."),
+    ]),
+    "multi3_vote": Genome(name="multi3_he", model=MODEL, stages=[
+        Stage(action="generate", temperature=0.0, condition="always",
+              system_prompt="Complete this Python function. Write clean, correct code."),
+        Stage(action="generate", temperature=0.5, condition="always",
+              system_prompt="Complete this function. Try a different algorithmic approach."),
+        Stage(action="generate", temperature=0.8, condition="always",
+              system_prompt="Complete this function creatively. Think of edge cases."),
+        Stage(action="vote", condition="always"),
+    ]),
+    "fused_single": Genome(name="fused_he", model=MODEL, stages=[
+        Stage(action="generate", temperature=0.0, condition="always",
+              system_prompt="Complete this function. Write code, mentally test with examples, fix bugs. Return only correct code."),
     ]),
 }
 

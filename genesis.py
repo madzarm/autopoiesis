@@ -479,13 +479,74 @@ Return ONLY a valid JSON genome (same format as above).
 # FAST EVALUATOR — quick eval for the search loop
 # ═══════════════════════════════════════════════════════════════
 
-def fast_eval(genome: Genome, samples: list[dict], benchmark: str) -> dict:
-    """Fast evaluation of a genome on a sample set."""
-    correct = 0
-    total = len(samples)
-    errors = []
+def _eval_single_genesis(genome_dict: dict, sample: dict, idx: int, benchmark: str) -> dict:
+    """Evaluate a single sample with a genome. Thread-safe."""
+    genome = Genome.from_dict(genome_dict)
+    try:
+        if benchmark in ("gsm8k", "math"):
+            problem = sample.get("question", sample.get("problem", ""))
+            response = execute_genome(genome, problem)
+            predicted = extract_number(response)
+            if predicted is None:
+                ans = extract_math_answer(response)
+                if ans:
+                    predicted_str = normalize_math_answer(ans)
+                    gold_str = normalize_math_answer(str(sample["gold_answer"]))
+                    if predicted_str == gold_str:
+                        return {"idx": idx, "correct": True}
+            gold = sample["gold_answer"]
+            is_correct = predicted is not None and abs(predicted - gold) < 1e-6
+            if not is_correct:
+                return {"idx": idx, "correct": False,
+                        "problem": problem[:200], "gold": str(gold), "predicted": str(predicted)}
+            return {"idx": idx, "correct": True}
+        elif benchmark == "humaneval":
+            prompt = sample["prompt"]
+            response = execute_genome(genome, f"Complete this Python function body:\n\n{prompt}")
+            body = response
+            body = re.sub(r'```python\s*', '', body)
+            body = re.sub(r'```\s*', '', body)
+            lines = body.split('\n')
+            if lines and lines[0].strip().startswith('def '):
+                i_s = 1
+                if i_s < len(lines) and ('"""' in lines[i_s] or "'''" in lines[i_s]):
+                    i_s += 1
+                    while i_s < len(lines) and '"""' not in lines[i_s] and "'''" not in lines[i_s]:
+                        i_s += 1
+                    i_s += 1
+                body = '\n'.join(lines[i_s:])
+            full = sample["prompt"] + body + "\n" + sample["test"] + f"\ncheck({sample['entry_point']})"
+            try:
+                exec(full, {})
+                return {"idx": idx, "correct": True}
+            except Exception:
+                return {"idx": idx, "correct": False, "problem": prompt[:100]}
+    except Exception as e:
+        return {"idx": idx, "correct": False, "problem": str(e)[:100]}
+    return {"idx": idx, "correct": False}
 
-    for i, sample in enumerate(samples):
+
+def fast_eval(genome: Genome, samples: list[dict], benchmark: str) -> dict:
+    """Fast PARALLEL evaluation of a genome on a sample set."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    total = len(samples)
+    genome_dict = genome.to_dict()
+    details = []
+
+    with ThreadPoolExecutor(max_workers=min(16, total)) as executor:
+        futures = {
+            executor.submit(_eval_single_genesis, genome_dict, s, i, benchmark): i
+            for i, s in enumerate(samples)
+        }
+        for future in as_completed(futures):
+            details.append(future.result())
+
+    correct = sum(1 for d in details if d.get("correct", False))
+    errors = [d for d in details if not d.get("correct", False) and "problem" in d]
+
+    score = round(correct / total * 100, 2) if total > 0 else 0.0
+    return {"score": score, "correct": correct, "total": total, "errors": errors[:5]}
         try:
             if benchmark in ("gsm8k", "math"):
                 problem = sample.get("question", sample.get("problem", ""))

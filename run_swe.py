@@ -32,7 +32,7 @@ from datetime import datetime
 sys.path.insert(0, "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages")
 
 from datasets import load_dataset
-from swe_llm import get_session_stats, reset_cost_tracking, SONNET
+from swe_llm import get_session_stats, reset_cost_tracking, AGENT_MODEL
 from swe_agent import solve_instance, DEFAULT_CONFIG
 from swe_interactive_agent import solve_interactive, DEFAULT_INTERACTIVE_CONFIG
 from swe_eval import format_predictions, quick_proxy_eval, save_results
@@ -157,7 +157,7 @@ def run_meta_evolve(instances: list, work_dir: str = None,
     evolver = MetaEvolver(
         population_size=pop_size,
         evolution_depth=evo_depth,
-        meta_model=SONNET,
+        meta_model=AGENT_MODEL,
     )
 
     results = []
@@ -207,7 +207,7 @@ def run_evolve(instances: list, work_dir: str = None,
     controller = EvolutionController(
         population_size=pop_size,
         evolution_depth=evo_depth,
-        meta_model=SONNET,  # Use Sonnet as meta-model too (cheaper)
+        meta_model=AGENT_MODEL,  # Use Sonnet as meta-model too (cheaper)
     )
 
     results = []

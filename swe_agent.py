@@ -16,14 +16,14 @@ import subprocess
 import tempfile
 import shutil
 from typing import Optional
-from swe_llm import call_llm, call_llm_multi_turn, SONNET
+from swe_llm import call_llm, call_llm_multi_turn, AGENT_MODEL
 
 
 # ── Agent Configuration (evolvable) ─────────────────────────────────────────
 
 DEFAULT_CONFIG = {
     "name": "baseline_agentless",
-    "model": SONNET,
+    "model": AGENT_MODEL,
     "temperature": 0.0,
     "max_tokens": 8192,
 
@@ -218,7 +218,7 @@ Problem statement:
 
     resp = call_llm(
         prompt=prompt,
-        model=config.get("model", SONNET),
+        model=config.get("model", AGENT_MODEL),
         temperature=config.get("temperature", 0.0),
         max_tokens=config.get("max_tokens", 4096),
     )
@@ -281,7 +281,7 @@ Relevant source code:
 
     resp = call_llm(
         prompt=prompt,
-        model=config.get("model", SONNET),
+        model=config.get("model", AGENT_MODEL),
         temperature=config.get("temperature", 0.0),
         max_tokens=config.get("max_tokens", 8192),
     )
@@ -348,7 +348,7 @@ diff --git a/path/to/file.py b/path/to/file.py
 
     resp = call_llm(
         prompt=prompt,
-        model=config.get("model", SONNET),
+        model=config.get("model", AGENT_MODEL),
         temperature=0.0,
         max_tokens=config.get("max_tokens", 8192),
     )
@@ -372,7 +372,7 @@ Generated patch:
 
     resp = call_llm(
         prompt=prompt,
-        model=config.get("model", SONNET),
+        model=config.get("model", AGENT_MODEL),
         temperature=0.0,
         max_tokens=2048,
     )

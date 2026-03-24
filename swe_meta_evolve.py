@@ -225,6 +225,12 @@ def analyze_trajectory(trajectory: list, instance: dict, result: dict) -> dict:
         analysis["failure_type"] = "no_trajectory"
         return analysis
 
+    # Quick success check
+    if result.get("model_patch", "").strip():
+        analysis["success"] = True
+        if "diff --git" in result["model_patch"]:
+            analysis["failure_type"] = "none"  # Not a failure
+
     # Check for common failure patterns
     commands = [t.get("command", "") for t in trajectory]
     outputs = [t.get("output", "") for t in trajectory]
@@ -238,8 +244,10 @@ def analyze_trajectory(trajectory: list, instance: dict, result: dict) -> dict:
 
     # Pattern 2: Found file but never edited
     view_cmds = [c for c in commands if c.startswith("view_file")]
-    edit_cmds = [c for c in commands if c.startswith("edit_file")]
-    if view_cmds and not edit_cmds:
+    edit_cmds = [c for c in commands if any(c.startswith(e) for e in
+                 ("edit_file", "str_replace", "bash sed", "bash echo"))]
+    has_patch = bool(result.get("model_patch", "").strip())
+    if view_cmds and not edit_cmds and not has_patch:
         analysis["patterns"].append("viewed_but_no_edit")
         analysis["failure_type"] = "no_edit_made"
 
@@ -286,7 +294,7 @@ class MetaEvolver:
     """
 
     def __init__(self, population_size: int = 5, evolution_depth: int = 3,
-                 meta_model: str = SONNET):
+                 meta_model: str = AGENT_MODEL):
         self.population_size = population_size
         self.evolution_depth = evolution_depth
         self.meta_model = meta_model

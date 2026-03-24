@@ -26,7 +26,7 @@ import hashlib
 from typing import Optional
 from collections import defaultdict
 
-from swe_llm import call_llm, SONNET, OPUS, get_session_stats
+from swe_llm import call_llm, SONNET, AGENT_MODEL, get_session_stats
 from swe_agent import solve_instance, DEFAULT_CONFIG
 
 
@@ -37,7 +37,7 @@ SEED_CONFIGS = [
     {
         "name": "agentless_simple",
         "description": "Single-agent localize-then-repair pipeline",
-        "model": SONNET,
+        "model": AGENT_MODEL,
         "temperature": 0.0,
         "max_tokens": 8192,
         "localize_strategy": "file_then_function",
@@ -53,7 +53,7 @@ SEED_CONFIGS = [
     {
         "name": "multi_candidate_3",
         "description": "Generate 3 candidates at different temperatures, validate",
-        "model": SONNET,
+        "model": AGENT_MODEL,
         "temperature": 0.0,
         "max_tokens": 8192,
         "localize_strategy": "file_then_function",
@@ -70,7 +70,7 @@ SEED_CONFIGS = [
     {
         "name": "cot_deep_analysis",
         "description": "Deep chain-of-thought analysis before patching",
-        "model": SONNET,
+        "model": AGENT_MODEL,
         "temperature": 0.0,
         "max_tokens": 8192,
         "localize_strategy": "file_then_function",
@@ -122,7 +122,7 @@ Output format:
     {
         "name": "grep_localize",
         "description": "Use keyword grep to find relevant code, then repair",
-        "model": SONNET,
+        "model": AGENT_MODEL,
         "temperature": 0.0,
         "max_tokens": 8192,
         "localize_strategy": "grep_based",
@@ -156,7 +156,7 @@ Return JSON:
     {
         "name": "plan_then_implement",
         "description": "First plan the fix, then implement it in a second call",
-        "model": SONNET,
+        "model": AGENT_MODEL,
         "temperature": 0.0,
         "max_tokens": 8192,
         "localize_strategy": "file_then_function",

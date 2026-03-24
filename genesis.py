@@ -610,6 +610,8 @@ def _sanitize_code(response: str) -> str:
         code = max(code_blocks, key=len).strip()
         # If it contains a def line, extract the body
         code = _extract_function_body(code)
+        # Ensure proper indentation (function body must be indented)
+        code = _ensure_indentation(code)
         if code.strip():
             return code
 
@@ -617,6 +619,7 @@ def _sanitize_code(response: str) -> str:
     body = re.sub(r'```python\s*', '', cleaned)
     body = re.sub(r'```\s*', '', body).strip()
     body = _extract_function_body(body)
+    body = _ensure_indentation(body)
 
     # Strategy 3: AST-based — find longest valid Python substring
     if body.strip():
@@ -636,6 +639,25 @@ def _sanitize_code(response: str) -> str:
                 continue
 
     return body
+
+
+def _ensure_indentation(code: str) -> str:
+    """Ensure code has proper indentation for a function body.
+
+    If the code has no indentation (starts at column 0), add 4-space indent.
+    This handles cases where the LLM outputs 'return x' instead of '    return x'.
+    """
+    if not code.strip():
+        return code
+    lines = code.split('\n')
+    # Check if the first non-empty line has indentation
+    for line in lines:
+        if line.strip():
+            if not line.startswith((' ', '\t')):
+                # No indentation — add 4 spaces to all non-empty lines
+                return '\n'.join(('    ' + line if line.strip() else line) for line in lines)
+            break
+    return code
 
 
 def _extract_function_body(code: str) -> str:

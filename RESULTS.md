@@ -16,10 +16,10 @@ All results on **gpt-4o-mini** backbone to match published papers.
 
 | Method | GSM8K | MATH | HumanEval | Source |
 |--------|-------|------|-----------|--------|
-| **AIDE Ensemble** | **96.00%** | — | — | This work |
-| **AIDE CoT** | **95.50%** | 50.50% | — | This work |
-| **AIDE Math Refine** | **94.50%** | **52.00%** | — | This work |
-| AIDE Code Expert | — | — | 87.20% | This work |
+| **AIDE Ensemble** | **96.00%** (200) | — | — | This work |
+| **AIDE CoT** | **94.16%** (1319) | 50.50% | — | This work, full test set |
+| **AIDE Math Refine** | 94.50% (200) | **52.00%** | — | This work |
+| **AIDE Repair Loop** | — | — | **87.80%** | This work |
 | MaAS (ICML 2025) | 92.30% | 51.82% | **92.85%** | Zhang et al. |
 | AFlow (ICLR 2025) | 91.20% | 51.30% | 90.90% | — |
 | AgentSquare (ICLR 2025) | 87.60% | 48.50% | 89.10% | Shang et al. |

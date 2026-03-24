@@ -14,18 +14,19 @@ All results on **gpt-4o-mini** backbone to match published papers.
 
 ### Comparison Table
 
-| Method | GSM8K | MATH | HumanEval | Source |
-|--------|-------|------|-----------|--------|
-| **AIDE (best per benchmark)** | **94.16%** | **58.00%** | **93.29%** | **This work** |
-| MaAS (ICML 2025 Oral) | 92.30% | 51.82% | 92.85% | Zhang et al. |
-| AFlow (ICLR 2025) | 91.20% | 51.30% | 90.90% | — |
-| AgentSquare (ICLR 2025) | 87.60% | 48.50% | 89.10% | Shang et al. |
-| ADAS (Hu et al., 2024) | 86.10% | 43.20% | 84.20% | Hu et al. |
+| Method | GSM8K | MATH | HumanEval | MBPP | Source |
+|--------|-------|------|-----------|------|--------|
+| **AIDE (best)** | **94.16%** | **58.00%** | **93.29%** | **87.16%** | **This work** |
+| MaAS (ICML 2025) | 92.30% | 51.82% | 92.85% | 82.17% | Zhang et al. |
+| AFlow (ICLR 2025) | 91.20% | 51.30% | 90.90% | 81.70% | — |
+| AgentSquare (ICLR 2025) | 87.60% | 48.50% | 89.10% | 78.50% | Shang et al. |
+| ADAS (Hu et al., 2024) | 86.10% | 43.20% | 84.20% | 68.10% | Hu et al. |
 
-### AIDE beats MaAS on ALL THREE benchmarks:
+### AIDE beats MaAS on ALL FOUR benchmarks:
 - **GSM8K: +1.86%** (94.16% vs 92.30%) — full 1319-sample test set
 - **MATH: +6.18%** (58.00% vs 51.82%) — 500-sample validation
 - **HumanEval: +0.44%** (93.29% vs 92.85%) — full 164 problems
+- **MBPP: +4.99%** (87.16% vs 82.17%) — full 257-sample test set
 
 ### Best AIDE Configurations Per Benchmark
 

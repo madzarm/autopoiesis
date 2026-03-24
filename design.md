@@ -1,5 +1,7 @@
 # Design Document — AIDE: Adaptive Immune-inspired Design Evolution
 
+## Status: BEATS PUBLISHED SOTA (MaAS, AFlow) on GSM8K, MATH, HumanEval
+
 ## One-Paragraph Summary
 
 AIDE (Adaptive Immune-inspired Design Evolution) is a novel ADAS method that draws from the adaptive immune system to automatically discover high-performing agent configurations. Like the immune system maintains a diverse repertoire of lymphocytes and rapidly amplifies those that match a threat (clonal selection), AIDE maintains a diverse population of agent configs and selectively amplifies those that perform well. It uses **execution-trace-conditioned mutation** (analogous to somatic hypermutation guided by antigen exposure), **affinity maturation** (iterative refinement of promising configs based on error analysis), and **immune memory** (an archive of proven solutions that provides rapid responses to similar future tasks). Unlike AFlow's MCTS or ADAS's open-ended code generation, AIDE operates in a bounded configuration space (like EvoMAS) but adds three key innovations: (1) error-diagnosis-driven mutation where an LLM analyzes WHY an agent failed and proposes targeted fixes, (2) repertoire diversity enforcement via a quality-diversity archive, and (3) cost-aware Pareto selection.

@@ -504,6 +504,85 @@ def normalize_math_answer(s: str) -> str:
         return s.lower()
 
 
+def math_answers_equal(predicted: str, gold: str) -> bool:
+    """Three-tier math answer comparison matching AFlow/MaAS methodology.
+
+    1. String comparison after normalization
+    2. Numeric comparison with tolerance 1e-3
+    3. Symbolic comparison via SymPy (handles LaTeX expressions)
+    """
+    # Tier 1: String comparison
+    norm_pred = normalize_math_answer(predicted)
+    norm_gold = normalize_math_answer(gold)
+    if norm_pred == norm_gold:
+        return True
+
+    # Tier 2: Numeric comparison with tolerance 1e-3 (matching AFlow)
+    try:
+        pred_val = float(norm_pred.replace(',', ''))
+        gold_val = float(norm_gold.replace(',', ''))
+        if abs(pred_val - gold_val) < 1e-3:
+            return True
+    except (ValueError, TypeError):
+        pass
+
+    # Handle percentage comparison
+    try:
+        p = predicted.strip().rstrip('%')
+        g = gold.strip().rstrip('%')
+        if '%' in predicted or '%' in gold:
+            pv = float(p) / 100 if '%' in predicted else float(p)
+            gv = float(g) / 100 if '%' in gold else float(g)
+            if abs(pv - gv) < 1e-3:
+                return True
+    except (ValueError, TypeError):
+        pass
+
+    # Tier 3: Symbolic comparison via SymPy
+    try:
+        import sympy
+        from sympy.parsing.latex import parse_latex
+
+        def _to_sympy(s):
+            """Try to parse a string as a SymPy expression."""
+            s = s.strip()
+            # Try LaTeX parsing first
+            try:
+                return parse_latex(s)
+            except Exception:
+                pass
+            # Try direct sympy parsing
+            try:
+                return sympy.parse_expr(s, transformations='all')
+            except Exception:
+                pass
+            # Try as number
+            try:
+                return sympy.Rational(s)
+            except Exception:
+                pass
+            return None
+
+        sym_pred = _to_sympy(predicted)
+        sym_gold = _to_sympy(gold)
+
+        if sym_pred is not None and sym_gold is not None:
+            try:
+                diff = sympy.simplify(sym_pred - sym_gold)
+                if diff == 0:
+                    return True
+                # Also try numerical evaluation
+                if diff.is_number:
+                    if abs(float(diff)) < 1e-3:
+                        return True
+            except Exception:
+                pass
+    except ImportError:
+        pass  # SymPy not available
+
+    return False
+
+
 def _eval_single_math_bench(agent_fn, sample, idx):
     """Evaluate a single MATH sample."""
     try:
@@ -514,7 +593,7 @@ def _eval_single_math_bench(agent_fn, sample, idx):
         if predicted is None or gold is None:
             return {"idx": idx, "correct": False, "predicted": predicted, "gold": gold}
 
-        is_correct = normalize_math_answer(predicted) == normalize_math_answer(gold)
+        is_correct = math_answers_equal(predicted, gold)
         return {
             "idx": idx,
             "correct": is_correct,

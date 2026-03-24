@@ -590,41 +590,42 @@ Return ONLY a valid JSON genome (same format as above).
 # ═══════════════════════════════════════════════════════════════
 
 def _sanitize_code(response: str) -> str:
-    """Extract function body from LLM response, matching AFlow/MaAS methodology.
+    """Extract function body from LLM response.
 
-    Tries AST-based extraction first (finds longest valid Python), then falls
-    back to regex-based extraction.
+    Strategy (in order of preference):
+    1. Extract code from ```python ... ``` fences (most reliable)
+    2. Find the function body after def line + docstring
+    3. AST-based: find longest syntactically valid Python
+    4. Return raw response as fallback
     """
     import ast
 
-    # Strip code fences and math format
-    body = re.sub(r'```python\s*', '', response)
-    body = re.sub(r'```\s*', '', body)
-    body = re.sub(r'^####\s*.*$', '', body, flags=re.MULTILINE).strip()
+    # Strip #### math format lines
+    cleaned = re.sub(r'^####\s*.*$', '', response, flags=re.MULTILINE).strip()
 
-    # Try to find the function body by removing the def line and docstring
-    lines = body.split('\n')
-    if lines and lines[0].strip().startswith('def '):
-        i_s = 1
-        # Skip docstring
-        if i_s < len(lines) and ('"""' in lines[i_s] or "'''" in lines[i_s]):
-            i_s += 1
-            while i_s < len(lines) and '"""' not in lines[i_s] and "'''" not in lines[i_s]:
-                i_s += 1
-            i_s += 1
-        body = '\n'.join(lines[i_s:])
+    # Strategy 1: Extract from code fences (preferred — this is what the LLM wraps code in)
+    code_blocks = re.findall(r'```(?:python)?\s*\n?(.*?)```', cleaned, re.DOTALL)
+    if code_blocks:
+        # Use the longest code block (most likely the complete solution)
+        code = max(code_blocks, key=len).strip()
+        # If it contains a def line, extract the body
+        code = _extract_function_body(code)
+        if code.strip():
+            return code
 
-    # Try AST-based validation: find longest substring that parses as valid Python
-    # (matching AFlow's sanitize approach)
+    # Strategy 2: Strip fences and extract function body
+    body = re.sub(r'```python\s*', '', cleaned)
+    body = re.sub(r'```\s*', '', body).strip()
+    body = _extract_function_body(body)
+
+    # Strategy 3: AST-based — find longest valid Python substring
     if body.strip():
         try:
-            # Quick check if the whole body is valid
             ast.parse(body)
             return body
         except SyntaxError:
             pass
 
-        # Try progressively shorter substrings from the start
         lines = body.split('\n')
         for end in range(len(lines), 0, -1):
             candidate = '\n'.join(lines[:end])
@@ -635,6 +636,39 @@ def _sanitize_code(response: str) -> str:
                 continue
 
     return body
+
+
+def _extract_function_body(code: str) -> str:
+    """Extract function body from code that may include a def line and docstring."""
+    lines = code.split('\n')
+    if not lines:
+        return code
+
+    # Find the def line
+    start = 0
+    for i, line in enumerate(lines):
+        if line.strip().startswith('def '):
+            start = i + 1
+            break
+    else:
+        return code  # No def line found, return as-is
+
+    # Skip docstring if present
+    if start < len(lines):
+        stripped = lines[start].strip()
+        if stripped.startswith('"""') or stripped.startswith("'''"):
+            quote = stripped[:3]
+            if stripped.count(quote) >= 2 and len(stripped) > 6:
+                # Single-line docstring
+                start += 1
+            else:
+                # Multi-line docstring
+                start += 1
+                while start < len(lines) and quote not in lines[start]:
+                    start += 1
+                start += 1  # Skip closing quote line
+
+    return '\n'.join(lines[start:])
 
 
 SAMPLE_RETRIES = 3  # Retry each sample up to 3 times on failure (matching AFlow's approach)

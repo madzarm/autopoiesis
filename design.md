@@ -25,11 +25,21 @@
 - **Hypothesized advantage**: Better exploration via UCB1. Natural pruning of bad branches. Design decisions are compositional — "add verification" works across different base designs.
 - **Risk**: MCTS rollouts (random completions) may be too noisy for agent design.
 
-## Approach 4 (future): Immune-QD — Quality-Diversity Repertoire
-- **Search space**: Archive of diverse specialist agents indexed by behavioral descriptors
-- **Search algo**: MAP-Elites / Quality-Diversity — maintain a grid of agents that are diverse along chosen dimensions (cost, complexity, reasoning style) while maximizing performance
-- **Novelty**: Instead of finding ONE best agent, maintain a REPERTOIRE of diverse specialists. At inference time, route each problem to the best-matching specialist based on problem features.
-- **Deferred**: Will implement after approaches 2 and 3
+## Approach 4: Immune-QD — Quality-Diversity Repertoire (IMPLEMENTED)
+- **Search space**: MAP-Elites archive indexed by (cost_bin, strategy_type) — 15 niches
+- **Search algo**: Quality-Diversity with clonal selection, somatic hypermutation (error-diagnosis-driven targeted mutation), niche targeting, and crossover
+- **Novelty**: Instead of finding ONE best agent, maintain a REPERTOIRE of diverse specialists. At inference time, route each problem to the best-matching specialist based on problem features. Biological analogy: immune repertoire with antigen-antibody matching.
+- **Key difference from Genesis/DAG/MCTS**: Optimizes for DIVERSITY, not just best score. The archive IS the solution — a portfolio of specialists, not a single champion.
+- **Hypothesized advantage**: Robust to problem diversity. Different problems get different agents. Routing can outperform any single best agent.
+- **Risk**: Routing heuristic may be too simple. Niche granularity may be wrong.
+
+## Approach 5: Bayesian-Config — GP Surrogate Optimization (IMPLEMENTED)
+- **Search space**: Continuous feature encoding of agent configs (11-dimensional)
+- **Search algo**: Bayesian Optimization with Gaussian Process surrogate + Expected Improvement acquisition
+- **Novelty**: Pure function optimization — no population, no tree, no archive. Each evaluation updates a global probabilistic model. Most data-efficient approach. Completely different paradigm from evolutionary/MCTS/QD.
+- **Key difference from all others**: Mathematical — uses a statistical surrogate model to predict which configs will score well, then evaluates the most promising. AutoML-inspired.
+- **Hypothesized advantage**: Data-efficient (good with few evaluations). Global model of config space. Natural uncertainty quantification via GP variance.
+- **Risk**: Feature encoding may lose important information. GP may not capture complex config interactions. 11-dim feature space may be too coarse.
 
 ## Previous (pre-refactor)
 AIDE: Adaptive Immune-inspired Design Evolution

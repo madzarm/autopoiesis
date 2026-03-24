@@ -1,0 +1,769 @@
+#!/usr/bin/env python3
+"""Genesis — Genotype-Expression Network for Evolving Scalable Inference Strategies.
+
+A genuinely novel ADAS approach: instead of searching for fixed agent architectures,
+Genesis evolves "genomes" — conditional programs that construct different computation
+graphs depending on the problem being solved.
+
+KEY NOVELTY:
+1. Phenotypic plasticity — one genome, many behaviors depending on the problem
+2. Adaptive depth — easy problems exit early, hard problems trigger more compute
+3. Confidence routing — intermediate results determine next steps
+4. The search evolves STRATEGIES (programs that build programs), not architectures
+
+This is to agent architecture search what evo-devo is to traditional evolution:
+we search over developmental programs, not organisms directly.
+"""
+
+import json
+import re
+import random
+import time
+import copy
+from dataclasses import dataclass, field
+from typing import Optional
+from collections import Counter
+
+from llm import call_llm, STRONG, MID, CHEAP, get_session_cost, reset_cost_tracking
+from evaluate import extract_number, extract_math_answer, normalize_math_answer
+
+
+# ═══════════════════════════════════════════════════════════════
+# PRIMITIVES — the atomic operations a genome can invoke
+# ═══════════════════════════════════════════════════════════════
+
+def prim_generate(problem: str, model: str, temperature: float = 0.0,
+                  system: str = "", max_tokens: int = 2048) -> dict:
+    """Generate a response. Returns {text, confidence}."""
+    if not system:
+        system = "You are a precise problem solver. Think step by step."
+    result = call_llm(prompt=problem, system=system, model=model,
+                      temperature=temperature, max_tokens=max_tokens)
+    text = result["content"]
+    # Estimate confidence: does it contain a clear answer marker?
+    has_answer = "####" in text or "\\boxed" in text or "```" in text
+    confidence = 0.8 if has_answer else 0.4
+    return {"text": text, "confidence": confidence}
+
+
+def prim_generate_code(problem: str, model: str, temperature: float = 0.0) -> dict:
+    """Generate Python code to solve the problem."""
+    result = call_llm(
+        prompt=f"Write Python code to solve this. Print ONLY the final answer.\n\n{problem}",
+        system="Expert Python programmer. Write clean code.",
+        model=model, temperature=temperature, max_tokens=1024)
+    text = result["content"]
+    # Extract and execute code
+    code_match = re.search(r'```python\s*(.*?)\s*```', text, re.DOTALL)
+    code = code_match.group(1) if code_match else text
+    try:
+        import io, contextlib
+        stdout = io.StringIO()
+        safe_globals = {"__builtins__": {
+            'print': print, 'range': range, 'len': len, 'int': int, 'float': float,
+            'str': str, 'list': list, 'dict': dict, 'set': set, 'tuple': tuple,
+            'abs': abs, 'min': min, 'max': max, 'sum': sum, 'round': round,
+            'sorted': sorted, 'enumerate': enumerate, 'zip': zip, 'map': map,
+            'True': True, 'False': False, 'None': None, 'pow': pow, 'divmod': divmod,
+        }}
+        import math
+        safe_globals['math'] = math
+        try:
+            import sympy
+            safe_globals['sympy'] = sympy
+            for n in ['sqrt','Rational','simplify','solve','symbols','Symbol','factor',
+                       'expand','pi','gcd','lcm','binomial','factorial']:
+                if hasattr(sympy, n):
+                    safe_globals[n] = getattr(sympy, n)
+        except ImportError:
+            pass
+        with contextlib.redirect_stdout(stdout):
+            exec(code, safe_globals)
+        output = stdout.getvalue().strip()
+        if output:
+            return {"text": f"#### {output.split(chr(10))[-1]}", "confidence": 0.95,
+                    "code_output": output}
+    except Exception as e:
+        pass
+    return {"text": text, "confidence": 0.3}
+
+
+def prim_verify(problem: str, answer_text: str, model: str) -> dict:
+    """Verify an answer. Returns {correct_prob, feedback}."""
+    result = call_llm(
+        prompt=(f"Problem: {problem}\n\nProposed answer:\n{answer_text}\n\n"
+                "Is this answer correct? Check the reasoning and calculations. "
+                "Reply with CORRECT or INCORRECT and explain why."),
+        system="You are a careful verifier.",
+        model=model, temperature=0.0, max_tokens=512)
+    text = result["content"].upper()
+    correct_prob = 0.8 if "CORRECT" in text and "INCORRECT" not in text else 0.2
+    return {"correct_prob": correct_prob, "feedback": result["content"]}
+
+
+def prim_repair(problem: str, answer_text: str, feedback: str, model: str,
+                temperature: float = 0.1) -> dict:
+    """Repair an answer based on feedback."""
+    result = call_llm(
+        prompt=(f"Problem: {problem}\n\nPrevious answer:\n{answer_text}\n\n"
+                f"Feedback: {feedback}\n\n"
+                "Fix the errors. Put your corrected answer after #### or in \\boxed{}."),
+        system="Fix the identified errors precisely.",
+        model=model, temperature=temperature, max_tokens=2048)
+    return {"text": result["content"], "confidence": 0.7}
+
+
+def prim_vote(candidates: list[str]) -> dict:
+    """Majority vote across candidate answers."""
+    answers = []
+    for c in candidates:
+        num = extract_number(c)
+        if num is not None:
+            answers.append(str(num))
+        else:
+            ans = extract_math_answer(c)
+            if ans:
+                answers.append(normalize_math_answer(ans))
+    if not answers:
+        return {"text": candidates[0] if candidates else "", "confidence": 0.3}
+    counter = Counter(answers)
+    best, count = counter.most_common(1)[0]
+    confidence = count / len(answers)
+    return {"text": f"#### {best}", "confidence": confidence}
+
+
+# ═══════════════════════════════════════════════════════════════
+# GENOME — the evolved program that produces adaptive behavior
+# ═══════════════════════════════════════════════════════════════
+
+@dataclass
+class Stage:
+    """One stage of the adaptive pipeline."""
+    action: str  # "generate", "generate_code", "verify", "repair", "vote"
+    temperature: float = 0.0
+    system_prompt: str = ""
+    # Activation condition
+    condition: str = "always"  # "always", "low_confidence", "disagreement", "after_failure"
+    condition_threshold: float = 0.7
+    # Termination check
+    terminate_if_confident: bool = False
+    confidence_threshold: float = 0.9
+
+
+@dataclass
+class Genome:
+    """A genome that encodes an adaptive inference strategy.
+
+    The genome is a sequence of conditional stages. At inference time,
+    stages are executed in order, but stages with conditions may be skipped.
+    This produces different computation graphs for different problems.
+    """
+    name: str = "unnamed"
+    stages: list = field(default_factory=list)
+    model: str = CHEAP
+    max_candidates: int = 5  # Max candidates to keep in pool
+
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "model": self.model,
+            "max_candidates": self.max_candidates,
+            "stages": [
+                {
+                    "action": s.action,
+                    "temperature": s.temperature,
+                    "system_prompt": s.system_prompt,
+                    "condition": s.condition,
+                    "condition_threshold": s.condition_threshold,
+                    "terminate_if_confident": s.terminate_if_confident,
+                    "confidence_threshold": s.confidence_threshold,
+                }
+                for s in self.stages
+            ],
+        }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Genome":
+        stages = [Stage(**s) for s in d.get("stages", [])]
+        return cls(
+            name=d.get("name", "unnamed"),
+            model=d.get("model", CHEAP),
+            max_candidates=d.get("max_candidates", 5),
+            stages=stages,
+        )
+
+
+# ═══════════════════════════════════════════════════════════════
+# INTERPRETER — executes a genome on a problem
+# ═══════════════════════════════════════════════════════════════
+
+def execute_genome(genome: Genome, problem: str) -> str:
+    """Execute a genome on a problem, producing an adaptive computation graph.
+
+    This is the "developmental process" — the genome unfolds into different
+    computation patterns depending on intermediate results.
+    """
+    candidates = []  # Pool of candidate answers
+    best_confidence = 0.0
+    best_answer = ""
+    verification_feedback = ""
+    had_failure = False
+
+    for stage in genome.stages:
+        # Check activation condition
+        if not _check_condition(stage, best_confidence, candidates, had_failure):
+            continue
+
+        # Execute the action
+        if stage.action == "generate":
+            result = prim_generate(
+                problem, genome.model,
+                temperature=stage.temperature,
+                system=stage.system_prompt,
+            )
+            candidates.append(result["text"])
+            if result["confidence"] > best_confidence:
+                best_confidence = result["confidence"]
+                best_answer = result["text"]
+
+        elif stage.action == "generate_code":
+            result = prim_generate_code(problem, genome.model, temperature=stage.temperature)
+            candidates.append(result["text"])
+            if result["confidence"] > best_confidence:
+                best_confidence = result["confidence"]
+                best_answer = result["text"]
+
+        elif stage.action == "verify":
+            if best_answer:
+                result = prim_verify(problem, best_answer, genome.model)
+                if result["correct_prob"] < 0.5:
+                    had_failure = True
+                    verification_feedback = result["feedback"]
+                    best_confidence = min(best_confidence, 0.5)
+                else:
+                    best_confidence = max(best_confidence, result["correct_prob"])
+
+        elif stage.action == "repair":
+            if best_answer and (had_failure or verification_feedback):
+                result = prim_repair(
+                    problem, best_answer, verification_feedback,
+                    genome.model, temperature=stage.temperature,
+                )
+                candidates.append(result["text"])
+                if result["confidence"] > best_confidence:
+                    best_confidence = result["confidence"]
+                    best_answer = result["text"]
+                had_failure = False
+
+        elif stage.action == "vote":
+            if len(candidates) >= 2:
+                result = prim_vote(candidates)
+                best_answer = result["text"]
+                best_confidence = result["confidence"]
+
+        # Trim candidate pool
+        if len(candidates) > genome.max_candidates:
+            candidates = candidates[-genome.max_candidates:]
+
+        # Check termination
+        if stage.terminate_if_confident and best_confidence >= stage.confidence_threshold:
+            break
+
+    return best_answer
+
+
+def _check_condition(stage: Stage, confidence: float, candidates: list, had_failure: bool) -> bool:
+    """Check whether a stage should activate."""
+    if stage.condition == "always":
+        return True
+    elif stage.condition == "low_confidence":
+        return confidence < stage.condition_threshold
+    elif stage.condition == "disagreement":
+        if len(candidates) < 2:
+            return False
+        # Check if last two candidates agree
+        nums = []
+        for c in candidates[-2:]:
+            n = extract_number(c)
+            if n is not None:
+                nums.append(n)
+        if len(nums) == 2:
+            return abs(nums[0] - nums[1]) > 1e-6
+        return True  # Can't compare, assume disagreement
+    elif stage.condition == "after_failure":
+        return had_failure
+    return True
+
+
+# ═══════════════════════════════════════════════════════════════
+# EVOLUTIONARY SEARCH — evolves genomes
+# ═══════════════════════════════════════════════════════════════
+
+# The actions and conditions available for mutation
+ACTIONS = ["generate", "generate_code", "verify", "repair", "vote"]
+CONDITIONS = ["always", "low_confidence", "disagreement", "after_failure"]
+SYSTEM_PROMPTS = [
+    "",
+    "You are a precise mathematician. Think step by step. Answer after ####.",
+    "You are an expert problem solver. Be rigorous and check your work.",
+    "You are a careful reasoner. Break the problem into parts.",
+    "You are a creative thinker. Try an unusual approach.",
+    "You are a coding expert. Solve with clear logic.",
+    "Solve step by step. Double-check arithmetic. Answer after ####.",
+    "Think about edge cases. Be thorough. Answer after ####.",
+]
+
+
+def random_stage() -> Stage:
+    """Generate a random stage."""
+    action = random.choice(ACTIONS)
+    return Stage(
+        action=action,
+        temperature=random.choice([0.0, 0.1, 0.3, 0.5, 0.7]),
+        system_prompt=random.choice(SYSTEM_PROMPTS),
+        condition=random.choice(CONDITIONS),
+        condition_threshold=random.choice([0.5, 0.6, 0.7, 0.8, 0.9]),
+        terminate_if_confident=random.random() < 0.3,
+        confidence_threshold=random.choice([0.8, 0.85, 0.9, 0.95]),
+    )
+
+
+def random_genome(name: str = "random", n_stages: int = None) -> Genome:
+    """Generate a random genome."""
+    if n_stages is None:
+        n_stages = random.randint(2, 6)
+    stages = [random_stage() for _ in range(n_stages)]
+    # Ensure at least one generate stage
+    if not any(s.action == "generate" for s in stages):
+        stages[0] = Stage(action="generate", condition="always")
+    return Genome(name=name, stages=stages, model=CHEAP)
+
+
+def mutate_genome(genome: Genome) -> Genome:
+    """Mutate a genome — change one aspect."""
+    new = Genome(
+        name=genome.name + "_mut",
+        model=genome.model,
+        max_candidates=genome.max_candidates,
+        stages=[copy.deepcopy(s) for s in genome.stages],
+    )
+
+    mutation_type = random.choice([
+        "add_stage", "remove_stage", "modify_stage",
+        "swap_stages", "modify_condition", "modify_prompt",
+    ])
+
+    if mutation_type == "add_stage" and len(new.stages) < 8:
+        pos = random.randint(0, len(new.stages))
+        new.stages.insert(pos, random_stage())
+
+    elif mutation_type == "remove_stage" and len(new.stages) > 2:
+        idx = random.randint(0, len(new.stages) - 1)
+        # Don't remove the only generate stage
+        if new.stages[idx].action == "generate" and \
+           sum(1 for s in new.stages if s.action == "generate") <= 1:
+            pass
+        else:
+            new.stages.pop(idx)
+
+    elif mutation_type == "modify_stage":
+        idx = random.randint(0, len(new.stages) - 1)
+        field = random.choice(["action", "temperature", "condition"])
+        if field == "action":
+            new.stages[idx].action = random.choice(ACTIONS)
+        elif field == "temperature":
+            new.stages[idx].temperature = random.choice([0.0, 0.1, 0.3, 0.5, 0.7])
+        elif field == "condition":
+            new.stages[idx].condition = random.choice(CONDITIONS)
+
+    elif mutation_type == "swap_stages" and len(new.stages) >= 2:
+        i, j = random.sample(range(len(new.stages)), 2)
+        new.stages[i], new.stages[j] = new.stages[j], new.stages[i]
+
+    elif mutation_type == "modify_condition":
+        idx = random.randint(0, len(new.stages) - 1)
+        new.stages[idx].condition_threshold = random.choice([0.5, 0.6, 0.7, 0.8, 0.9])
+        new.stages[idx].terminate_if_confident = random.random() < 0.3
+
+    elif mutation_type == "modify_prompt":
+        idx = random.randint(0, len(new.stages) - 1)
+        new.stages[idx].system_prompt = random.choice(SYSTEM_PROMPTS)
+
+    return new
+
+
+def crossover_genomes(parent1: Genome, parent2: Genome) -> Genome:
+    """Crossover two genomes — take stages from both parents."""
+    # Single-point crossover
+    cut1 = random.randint(1, len(parent1.stages))
+    cut2 = random.randint(1, len(parent2.stages))
+
+    child_stages = (
+        [copy.deepcopy(s) for s in parent1.stages[:cut1]] +
+        [copy.deepcopy(s) for s in parent2.stages[cut2:]]
+    )
+
+    # Ensure at least one generate and not too long
+    if not any(s.action == "generate" for s in child_stages):
+        child_stages.insert(0, Stage(action="generate", condition="always"))
+    if len(child_stages) > 8:
+        child_stages = child_stages[:8]
+
+    return Genome(
+        name=f"cross_{parent1.name}_{parent2.name}",
+        model=parent1.model,
+        max_candidates=random.choice([parent1.max_candidates, parent2.max_candidates]),
+        stages=child_stages,
+    )
+
+
+def llm_evolve_genome(
+    genome: Genome,
+    score: float,
+    error_examples: list[dict],
+    model: str = MID,
+) -> Genome:
+    """Use LLM to intelligently evolve a genome based on error analysis.
+
+    This is the META-EVOLUTION: the LLM acts as a "developmental biologist"
+    that understands the genome→phenotype mapping and proposes targeted changes.
+    """
+    genome_json = json.dumps(genome.to_dict(), indent=2)
+
+    error_str = ""
+    for ex in error_examples[:3]:
+        error_str += f"- Problem: {ex.get('problem', '')[:150]}\n"
+        error_str += f"  Expected: {ex.get('gold', '')}, Got: {ex.get('predicted', '')}\n"
+
+    prompt = f"""You are evolving an agent genome that scored {score:.1f}%.
+
+## Current Genome
+{genome_json}
+
+## How Genomes Work
+Each genome has stages executed in order. Each stage has:
+- action: "generate" (LLM response), "generate_code" (Python), "verify", "repair", "vote"
+- condition: "always", "low_confidence", "disagreement", "after_failure"
+- temperature: 0.0-0.7
+- system_prompt: instructions for the LLM
+- terminate_if_confident: stop early if confident
+
+The genome expresses different behavior for different problems (phenotypic plasticity).
+
+## Errors Made
+{error_str if error_str else "No specific errors available."}
+
+## Task
+Modify the genome to fix these errors. Think about:
+- Are we generating enough diverse candidates?
+- Should we add verification for certain conditions?
+- Is the pipeline too long (wasting compute on easy problems)?
+- Should we add code-based solving for math problems?
+- Are the system prompts effective?
+
+Return ONLY a valid JSON genome (same format as above).
+"""
+
+    result = call_llm(prompt=prompt, system="Expert agent architect. Return valid JSON.",
+                      model=model, temperature=0.7, max_tokens=4096, json_mode=True)
+
+    try:
+        data = json.loads(result["content"])
+        data["model"] = CHEAP
+        return Genome.from_dict(data)
+    except Exception:
+        return mutate_genome(genome)
+
+
+# ═══════════════════════════════════════════════════════════════
+# FAST EVALUATOR — quick eval for the search loop
+# ═══════════════════════════════════════════════════════════════
+
+def fast_eval(genome: Genome, samples: list[dict], benchmark: str) -> dict:
+    """Fast evaluation of a genome on a sample set."""
+    correct = 0
+    total = len(samples)
+    errors = []
+
+    for i, sample in enumerate(samples):
+        try:
+            if benchmark in ("gsm8k", "math"):
+                problem = sample.get("question", sample.get("problem", ""))
+                response = execute_genome(genome, problem)
+                predicted = extract_number(response)
+                if predicted is None:
+                    ans = extract_math_answer(response)
+                    if ans:
+                        predicted_str = normalize_math_answer(ans)
+                        gold_str = normalize_math_answer(str(sample["gold_answer"]))
+                        if predicted_str == gold_str:
+                            correct += 1
+                            continue
+                gold = sample["gold_answer"]
+                if predicted is not None and abs(predicted - gold) < 1e-6:
+                    correct += 1
+                else:
+                    errors.append({
+                        "problem": problem[:200],
+                        "gold": str(gold),
+                        "predicted": str(predicted),
+                    })
+            elif benchmark == "humaneval":
+                prompt = sample["prompt"]
+                response = execute_genome(genome, f"Complete this Python function body:\n\n{prompt}")
+                # Extract and test code
+                body = response
+                body = re.sub(r'```python\s*', '', body)
+                body = re.sub(r'```\s*', '', body)
+                lines = body.split('\n')
+                if lines and lines[0].strip().startswith('def '):
+                    i_start = 1
+                    if i_start < len(lines) and ('"""' in lines[i_start] or "'''" in lines[i_start]):
+                        i_start += 1
+                        while i_start < len(lines) and '"""' not in lines[i_start] and "'''" not in lines[i_start]:
+                            i_start += 1
+                        i_start += 1
+                    body = '\n'.join(lines[i_start:])
+
+                full = sample["prompt"] + body + "\n" + sample["test"] + f"\ncheck({sample['entry_point']})"
+                try:
+                    exec(full, {})
+                    correct += 1
+                except Exception:
+                    errors.append({"problem": prompt[:100], "gold": "pass", "predicted": "fail"})
+
+        except Exception as e:
+            errors.append({"problem": str(e)[:100], "gold": "?", "predicted": "error"})
+
+    score = round(correct / total * 100, 2) if total > 0 else 0.0
+    return {"score": score, "correct": correct, "total": total, "errors": errors}
+
+
+# ═══════════════════════════════════════════════════════════════
+# SEED GENOMES — starting population with diverse strategies
+# ═══════════════════════════════════════════════════════════════
+
+SEED_GENOMES = [
+    # Simple CoT
+    Genome(name="simple_cot", model=CHEAP, stages=[
+        Stage(action="generate", condition="always", temperature=0.0,
+              system_prompt="Think step by step. Answer after ####.",
+              terminate_if_confident=True, confidence_threshold=0.9),
+    ]),
+    # CoT + Verify + Repair
+    Genome(name="cot_verify_repair", model=CHEAP, stages=[
+        Stage(action="generate", condition="always", temperature=0.0,
+              system_prompt="Solve step by step. Answer after ####."),
+        Stage(action="verify", condition="always"),
+        Stage(action="repair", condition="after_failure", temperature=0.1,
+              terminate_if_confident=True, confidence_threshold=0.85),
+    ]),
+    # Multi-candidate vote
+    Genome(name="multi_vote", model=CHEAP, stages=[
+        Stage(action="generate", condition="always", temperature=0.0,
+              system_prompt="Think step by step. Answer after ####."),
+        Stage(action="generate", condition="always", temperature=0.3,
+              system_prompt="Solve carefully. Answer after ####."),
+        Stage(action="generate", condition="always", temperature=0.6,
+              system_prompt="Be creative in your approach. Answer after ####."),
+        Stage(action="vote", condition="always"),
+    ]),
+    # Code-first with fallback
+    Genome(name="code_first", model=CHEAP, stages=[
+        Stage(action="generate_code", condition="always", temperature=0.0,
+              terminate_if_confident=True, confidence_threshold=0.9),
+        Stage(action="generate", condition="low_confidence", condition_threshold=0.7,
+              temperature=0.0, system_prompt="Solve step by step. Answer after ####."),
+        Stage(action="vote", condition="always"),
+    ]),
+    # Adaptive depth
+    Genome(name="adaptive_depth", model=CHEAP, stages=[
+        Stage(action="generate", condition="always", temperature=0.0,
+              system_prompt="Solve precisely. Answer after ####.",
+              terminate_if_confident=True, confidence_threshold=0.95),
+        Stage(action="generate", condition="low_confidence", condition_threshold=0.8,
+              temperature=0.3, system_prompt="Try a different approach. Answer after ####."),
+        Stage(action="generate_code", condition="disagreement", temperature=0.0),
+        Stage(action="vote", condition="always"),
+        Stage(action="verify", condition="low_confidence", condition_threshold=0.7),
+        Stage(action="repair", condition="after_failure"),
+    ]),
+]
+
+
+# ═══════════════════════════════════════════════════════════════
+# MAIN EVOLUTION LOOP
+# ═══════════════════════════════════════════════════════════════
+
+def run_genesis(
+    benchmark: str = "gsm8k",
+    n_samples: int = 20,
+    population_size: int = 8,
+    generations: int = 15,
+    elite_size: int = 2,
+    seed: int = 42,
+):
+    """Run the Genesis evolutionary search."""
+    from evaluate import load_gsm8k, load_humaneval
+
+    # Load small eval set for fast iteration
+    if benchmark == "gsm8k":
+        all_samples = load_gsm8k(n=n_samples, seed=seed)
+    elif benchmark == "humaneval":
+        all_samples = load_humaneval(n=n_samples, seed=seed)
+    else:
+        raise ValueError(f"Unknown benchmark: {benchmark}")
+
+    print(f"═══ Genesis Evolution ═══")
+    print(f"Benchmark: {benchmark}, Samples: {len(all_samples)}")
+    print(f"Population: {population_size}, Generations: {generations}")
+    print()
+
+    # Initialize population
+    population = []
+    init_genomes = SEED_GENOMES[:population_size]
+    while len(init_genomes) < population_size:
+        init_genomes.append(random_genome(f"random_{len(init_genomes)}"))
+
+    # Evaluate initial population
+    print("── Initial Population ──")
+    for genome in init_genomes:
+        reset_cost_tracking()
+        result = fast_eval(genome, all_samples, benchmark)
+        cost = get_session_cost()
+        population.append({
+            "genome": genome,
+            "score": result["score"],
+            "cost": cost,
+            "errors": result["errors"],
+            "n_stages": len(genome.stages),
+        })
+        stages_str = "→".join(s.action for s in genome.stages)
+        conds = [s.condition for s in genome.stages if s.condition != "always"]
+        print(f"  {genome.name:25s} | {result['score']:5.1f}% | ${cost:.4f} | "
+              f"stages={len(genome.stages)} | {stages_str}")
+
+    best_ever = max(population, key=lambda x: x["score"])
+    print(f"\nBest: {best_ever['genome'].name} = {best_ever['score']}%")
+
+    # Evolution loop
+    for gen in range(generations):
+        print(f"\n── Generation {gen+1}/{generations} ──")
+
+        # Sort by score
+        population.sort(key=lambda x: x["score"], reverse=True)
+
+        # Keep elites
+        new_pop = population[:elite_size]
+
+        # Generate children
+        while len(new_pop) < population_size:
+            roll = random.random()
+
+            if roll < 0.35:
+                # LLM-guided evolution (the novel part!)
+                parent = random.choice(population[:4])
+                child_genome = llm_evolve_genome(
+                    parent["genome"],
+                    parent["score"],
+                    parent.get("errors", []),
+                )
+                child_genome.name = f"llm_g{gen+1}_{len(new_pop)}"
+                method = "llm_evolve"
+
+            elif roll < 0.55:
+                # Random mutation
+                parent = random.choice(population[:4])
+                child_genome = mutate_genome(parent["genome"])
+                child_genome.name = f"mut_g{gen+1}_{len(new_pop)}"
+                method = "mutation"
+
+            elif roll < 0.75:
+                # Crossover
+                p1, p2 = random.sample(population[:5], 2)
+                child_genome = crossover_genomes(p1["genome"], p2["genome"])
+                child_genome.name = f"cross_g{gen+1}_{len(new_pop)}"
+                method = "crossover"
+
+            else:
+                # Random exploration
+                child_genome = random_genome(f"rand_g{gen+1}_{len(new_pop)}")
+                method = "random"
+
+            child_genome.model = CHEAP
+
+            # Evaluate
+            reset_cost_tracking()
+            try:
+                result = fast_eval(child_genome, all_samples, benchmark)
+                cost = get_session_cost()
+                entry = {
+                    "genome": child_genome,
+                    "score": result["score"],
+                    "cost": cost,
+                    "errors": result["errors"],
+                    "n_stages": len(child_genome.stages),
+                }
+                new_pop.append(entry)
+
+                marker = ""
+                if result["score"] > best_ever["score"]:
+                    best_ever = entry
+                    marker = " *** NEW BEST ***"
+
+                stages_str = "→".join(s.action for s in child_genome.stages)
+                print(f"  [{method:10s}] {child_genome.name:25s} | {result['score']:5.1f}% | "
+                      f"${cost:.4f} | stages={len(child_genome.stages)}{marker}")
+
+            except Exception as e:
+                print(f"  [{method:10s}] CRASHED: {str(e)[:80]}")
+                new_pop.append({
+                    "genome": child_genome, "score": 0.0, "cost": 0,
+                    "errors": [], "n_stages": len(child_genome.stages),
+                })
+
+        population = new_pop
+
+        scores = [p["score"] for p in population]
+        print(f"  Gen {gen+1}: best={max(scores):.1f}%, avg={sum(scores)/len(scores):.1f}%, "
+              f"best_ever={best_ever['score']:.1f}%")
+
+    # Final
+    print(f"\n{'═'*60}")
+    print(f"GENESIS EVOLUTION COMPLETE")
+    print(f"{'═'*60}")
+    print(f"Best genome: {best_ever['genome'].name}")
+    print(f"Score: {best_ever['score']}%")
+    print(f"Stages: {len(best_ever['genome'].stages)}")
+    print(f"\nGenome structure:")
+    for i, s in enumerate(best_ever["genome"].stages):
+        cond = f" [if {s.condition}" + (f"<{s.condition_threshold}" if s.condition != "always" else "") + "]"
+        term = " → STOP if confident" if s.terminate_if_confident else ""
+        print(f"  {i+1}. {s.action}(t={s.temperature}){cond}{term}")
+        if s.system_prompt:
+            print(f"     prompt: {s.system_prompt[:60]}...")
+
+    # Save best genome
+    with open("best_genesis_genome.json", "w") as f:
+        json.dump(best_ever["genome"].to_dict(), f, indent=2)
+
+    return best_ever
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--benchmark", default="gsm8k")
+    parser.add_argument("--n", type=int, default=20, help="Samples for fast eval")
+    parser.add_argument("--pop", type=int, default=8)
+    parser.add_argument("--gens", type=int, default=15)
+    parser.add_argument("--seed", type=int, default=42)
+    args = parser.parse_args()
+
+    run_genesis(
+        benchmark=args.benchmark,
+        n_samples=args.n,
+        population_size=args.pop,
+        generations=args.gens,
+        seed=args.seed,
+    )

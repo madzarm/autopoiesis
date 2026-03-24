@@ -1,0 +1,24 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+═══ DAG-Evolve ═══
+Benchmark: gsm8k, Samples: 30, Pop: 8, Gens: 15
+── Initial ──
+  dag_cot                   |  83.3% | nodes=1 edges=0
+  dag_fanout_vote           |  83.3% | nodes=4 edges=3
+  dag_verify_repair         |  73.3% | nodes=3 edges=3
+  dag_diamond               |  86.7% | nodes=4 edges=4
+  dag_wide                  |  86.7% | nodes=5 edges=4
+  dag_cot_mut               |  83.3% | nodes=1 edges=0
+  dag_fanout_vote_mut       |  83.3% | nodes=4 edges=3
+  dag_fanout_vote_mut       |  83.3% | nodes=4 edges=3
+Best: dag_diamond = 86.67%
+
+── Gen 1/15 ──
+  [rand ] rand_g1_4              |   0.0% | n=1 e=0
+  [rand ] rand_g1_5              |  83.3% | n=1 e=0
+  [rand ] rand_g1_7              |  86.7% | n=4 e=3
+  [cross] cross_g1_2             |  86.7% | n=4 e=3
+  [mut  ] mut_g1_3               |  86.7% | n=4 e=4
+  [llm  ] llm_g1_6               |  63.3% | n=5 e=7
+  Gen 1: best=86.7%, avg=72.5%, best_ever=86.7%
+
+── Gen 2/15 ──

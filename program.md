@@ -14,6 +14,41 @@ As a concrete example: the user might leave you running while they sleep. If eac
 
 ---
 
+## ⚠️ DISCOVERY DISCIPLINE — READ THIS BEFORE EVERY DECISION
+
+This is the most important section. It overrides your instinct to polish.
+
+### The Trap You Will Fall Into
+
+You will build something, see a promising number, and then spend hours tuning it — running it on more samples, tweaking prompts, adjusting temperatures, validating on larger sets, running ablations. **This is the eval-tuning trap.** It feels productive. It is not. You are an ADAS researcher, not a prompt engineer. Your job is to discover novel *architectures and search algorithms*, not to squeeze 2% more out of a fixed design by tweaking inference parameters.
+
+### Hard Rules
+
+1. **MAX 3 eval runs per approach before moving on.** One quick eval (20–30 samples) to see if the idea has signal. One confirmation eval (50–100 samples) if the signal is promising. One cross-benchmark check. Then MOVE ON to the next fundamentally different approach. Full-benchmark validation happens only during dedicated comparison phases (see Phase 5).
+
+2. **"Fundamentally different" means the SEARCH ALGORITHM or SEARCH SPACE changed.** Changing a prompt, adjusting temperature, adding a retry loop, or increasing candidate count is NOT a new approach — it's tuning the same approach. A new approach means: different search space representation (DAGs vs. linear pipelines vs. trees vs. graphs), different optimization algorithm (MCTS vs. evolutionary vs. Bayesian vs. RL vs. quality-diversity), different agent composition paradigm (static vs. adaptive vs. emergent), or a genuinely new architectural idea.
+
+3. **Maintain a portfolio of 3–5 competing approaches.** Never have only one approach in flight. Each approach gets its own git tag and its own section in results.tsv. Your goal is to explore the *space of possible ADAS methods*, not to hill-climb on a single one.
+
+4. **Every 5th experiment must be a completely new approach.** Not a variation. Not a tweak. Something architecturally different that you haven't tried before. If you've been evolving pipeline configs, try graph-based agent networks. If you've been doing evolutionary search, try MCTS or Bayesian optimization. If all your agents are single-model, try genuine multi-agent systems with communication.
+
+5. **Ask yourself before every experiment: "Is this discovery or is this polishing?"** If polishing, stop. Go build something new. You can always come back and polish winners later during the comparison phase.
+
+### What Counts as Discovery vs. Polishing
+
+| Discovery (DO THIS) | Polishing (STOP DOING THIS) |
+|---|---|
+| New search space representation (DAG, hypergraph, typed module slots) | Running the same approach on more samples |
+| New search algorithm (MCTS, MAP-Elites, CMA-ES, RL-based) | Tweaking prompts or temperatures |
+| New agent composition paradigm (swarm, immune repertoire, evo-devo) | Adding retry/repair loops to existing pipeline |
+| Cross-pollination from a different field entirely | Validating on 200 samples after already testing on 30 |
+| New way of using execution traces to guide search | Running ablations before you have 3+ approaches to compare |
+| New archive/memory structure (skill graphs, Pareto fronts) | Increasing candidate count from 5 to 7 |
+| Combining two approaches that haven't been combined before | Running the same experiment on a different benchmark |
+| Trying a representation no ADAS paper has used | Making the eval harness slightly faster |
+
+---
+
 ## PHASE 0 — ENVIRONMENT SETUP
 
 Before anything else, prepare your workspace.
@@ -126,13 +161,13 @@ After research, create a file `sota_baselines.md` that records the best known nu
 
 ---
 
-## PHASE 2 — DESIGN YOUR NOVEL APPROACH
+## PHASE 2 — DESIGN MULTIPLE APPROACHES (Not Just One)
 
-After deep research, synthesize a novel ADAS method. Here are principles to guide your design:
+After deep research, design **at least 3 fundamentally different** ADAS approaches. Do not just pick your favorite and start coding. Sketch all of them first, then implement them one at a time in rapid succession.
 
 ### 2.1 Key Insights to Combine
 
-Your approach should draw from the **best ideas** across all papers and fuse them into something original:
+Your approaches should draw from the **best ideas** across all papers and recombine them in original ways:
 
 1. **Modular search space** (from AgentSquare) — agents are composed of standardized modules (Planning, Reasoning, Tool Use, Memory) with uniform interfaces
 2. **Tree-structured search** (from AFlow) — MCTS-style exploration beats random evolutionary search for structured spaces
@@ -145,7 +180,7 @@ Your approach should draw from the **best ideas** across all papers and fuse the
 
 ### 2.2 What "Novel" Means
 
-Your approach must be **genuinely new** — not just reimplementing AFlow or ADAS. Novelty can come from:
+Your approaches must be **genuinely new** — not just reimplementing AFlow or ADAS. Novelty can come from:
 - A new search algorithm (e.g., combining MCTS with execution-trace-guided mutations)
 - A new search space representation (e.g., hierarchical configs with typed module slots)
 - A new evaluation strategy (e.g., multi-objective with cost + accuracy + latency + robustness)
@@ -153,18 +188,21 @@ Your approach must be **genuinely new** — not just reimplementing AFlow or ADA
 - Cross-pollination from non-ADAS fields (e.g., program synthesis, AutoML, meta-learning, biological evolution)
 - **Biological inspiration** — immune system dynamics, neural Darwinism, epigenetics, swarm intelligence
 
-### 2.3 Write a Design Doc
-Before coding, write `design.md` with:
-- Your method name
+### 2.3 Write a Design Doc with Multiple Approaches
+Before coding, write `design.md` with **at least 3 approach sketches**:
+
+For each approach:
+- Method name
 - One-paragraph summary
-- Key innovations (what's new vs. prior work)
+- What dimension of novelty it explores (search algo? search space? agent representation? archive structure?)
+- Key difference from prior work
 - Search space definition
 - Search algorithm pseudocode
-- Evaluation strategy
-- Hypothesized advantages
-- Computational budget considerations
+- Hypothesized advantages and risks
 
-Commit this: `git commit -m "design: initial approach — [YOUR_METHOD_NAME]"`
+Then pick the one that feels most novel and start there. But **you will build all of them**.
+
+Commit: `git commit -m "design: 3 approaches sketched — [NAME1], [NAME2], [NAME3]"`
 
 ---
 
@@ -176,18 +214,22 @@ Implement your system in Python. Structure:
 ```
 ~/adas-research/
 ├── program.md          # This file
-├── design.md           # Your design document
+├── design.md           # Your design document (multiple approaches)
+├── scorecard.md        # Approach comparison scorecard
 ├── sota_baselines.md   # Target numbers to beat
 ├── results.tsv         # Experiment log (untracked by git)
-├── llm.py              # OpenRouter client utility
-├── search.py           # Your search algorithm (MCTS, evolutionary, hybrid, etc.)
-├── agents.py           # Agent representation (configs, modules, composition)
-├── evaluate.py         # Evaluation harness — runs benchmarks, returns scores
-├── run_experiment.py   # Main entry point — runs one full search cycle
-├── archive.py          # Archive / memory of discovered designs
+├── approaches/         # Each approach gets its own directory
+│   ├── approach_1/     # e.g., genesis (evo-devo genome pipelines)
+│   ├── approach_2/     # e.g., immune (quality-diversity repertoire)
+│   └── approach_3/     # e.g., mcts_dag (MCTS over DAG workflows)
+├── llm.py              # OpenAI client utility
+├── evaluate.py         # SHARED evaluation harness — runs benchmarks, returns scores
+├── run_experiment.py   # Main entry point — takes approach name + config
 ├── utils.py            # Helpers
 └── benchmarks/         # Pulled evaluation data and scripts
 ```
+
+The key insight: **the evaluation harness is shared, the approaches are separate.** This lets you rapidly compare fundamentally different approaches on the same benchmarks with the same scoring.
 
 ### 3.2 Start Simple
 First, implement the **simplest possible version** that works end-to-end:
@@ -209,74 +251,154 @@ Record these in `results.tsv`. These are your **internal baselines**.
 
 ---
 
-## PHASE 4 — THE EXPERIMENT LOOP
+## PHASE 4 — THE DISCOVERY LOOP
 
-This is where you live. **Forever.**
+This is where you live. **Forever.** But your primary mode is **exploration**, not exploitation.
 
 ### The Loop
 
 ```
-LOOP FOREVER:
-    1. Check git state: current branch, last commit, last experiment result
-    2. Decide what to try next (see Decision Framework below)
-    3. Implement the change in code
-    4. git add -A && git commit -m "exp: [SHORT_DESCRIPTION]"
-    5. Run the experiment:
-       python run_experiment.py > run.log 2>&1
-       (redirect everything — do NOT flood your context with output)
-    6. Read results:
-       grep -E "^(benchmark|score|cost|time|error)" run.log | head -30
-    7. If grep output is empty or shows crash:
-       tail -n 80 run.log
-       Attempt to fix. If stuck after 3 attempts, git reset and try something else.
-    8. Log to results.tsv
-    9. If score IMPROVED over previous best:
-       → KEEP the commit. You have advanced.
-       → Update sota_baselines.md if you've beaten any published number.
-       → Consider: can you push this further in the same direction?
-    10. If score is EQUAL or WORSE:
-       → git reset --hard HEAD~1  (rollback to previous good state)
-       → Try a different approach
-    11. Every ~10 experiments: RE-RESEARCH (go back to Phase 1)
-       → Use Firecrawl to check for new papers, new ideas
-       → Look at fields outside ADAS for inspiration
-       → Update your design.md with new insights
-    12. Every ~20 experiments: REFLECT
-       → Read through results.tsv
-       → What patterns emerge? What directions are promising?
-       → Write a brief reflection in experiments_log.md
-       → Consider major pivots if you're plateauing
-    13. GOTO 1
+DISCOVERY LOOP (runs forever):
+
+    ┌─────────────────────────────────────────────────────┐
+    │ STEP 1: CHOOSE — What to work on                    │
+    │                                                     │
+    │ Check the APPROACH SCORECARD (see below).            │
+    │ Apply the DISCOVERY DISCIPLINE rules.                │
+    │ Pick what to do next.                               │
+    └─────────────────────────────────────────────────────┘
+              │
+              ▼
+    ┌─────────────────────────────────────────────────────┐
+    │ PATH A: BUILD NEW APPROACH                          │
+    │ (if you have < 3 approaches, or every 5th cycle)    │
+    │                                                     │
+    │ 1. Design a fundamentally new approach              │
+    │ 2. Implement minimal version                        │
+    │ 3. Quick eval (20-30 samples, 1 benchmark)          │
+    │ 4. Log results with approach_name in results.tsv    │
+    │ 5. git commit -m "approach: [NAME] — [SUMMARY]"     │
+    │ 6. git tag approach-[NAME]-v1                       │
+    │ 7. → STEP 1                                        │
+    └─────────────────────────────────────────────────────┘
+              │
+              ▼
+    ┌─────────────────────────────────────────────────────┐
+    │ PATH B: DEEPEN PROMISING APPROACH                   │
+    │ (if an approach showed signal AND has < 3 evals)    │
+    │                                                     │
+    │ 1. Pick the most promising under-explored approach  │
+    │ 2. Make ONE structural improvement to the search    │
+    │    algo or search space (NOT prompt tuning)         │
+    │ 3. Quick eval (50-100 samples)                      │
+    │ 4. Log results                                      │
+    │ 5. git commit                                       │
+    │ 6. → STEP 1                                        │
+    └─────────────────────────────────────────────────────┘
+              │
+              ▼
+    ┌─────────────────────────────────────────────────────┐
+    │ PATH C: CROSS-POLLINATE                             │
+    │ (every ~10 cycles, or when stuck)                   │
+    │                                                     │
+    │ 1. Look at what worked in approach A                │
+    │ 2. Look at what worked in approach B                │
+    │ 3. Design approach C that combines insights         │
+    │ 4. Implement and eval                               │
+    │ 5. → STEP 1                                        │
+    └─────────────────────────────────────────────────────┘
+              │
+              ▼
+    ┌─────────────────────────────────────────────────────┐
+    │ PATH D: RE-RESEARCH                                 │
+    │ (every ~10 cycles, or when all approaches plateau)  │
+    │                                                     │
+    │ 1. Search for new papers, repos, techniques         │
+    │ 2. Look at fields OUTSIDE ADAS                      │
+    │ 3. Update design.md with new approach ideas         │
+    │ 4. → STEP 1 (with fresh ideas)                     │
+    └─────────────────────────────────────────────────────┘
+              │
+              ▼
+    ┌─────────────────────────────────────────────────────┐
+    │ PATH E: COMPARE (only after 3+ approaches exist)    │
+    │                                                     │
+    │ 1. Run top 3 approaches on ALL benchmarks (200+)    │
+    │ 2. Build comparison table in RESULTS.md             │
+    │ 3. Identify the winner and WHY it wins              │
+    │ 4. Use insights to design next approach             │
+    │ 5. → STEP 1                                        │
+    └─────────────────────────────────────────────────────┘
 ```
+
+### The Approach Scorecard
+
+Maintain this in `scorecard.md` (committed to git). Update after every experiment:
+
+```markdown
+# Approach Scorecard
+
+| Approach | Search Space | Search Algo | Quick Eval (GSM8K/30) | Quick Eval (HE/20) | Evals Done | Status |
+|----------|-------------|-------------|----------------------|-------------------|------------|--------|
+| genesis_v1 | linear pipeline | evolutionary | 96.7% | 95.0% | 3 | parked |
+| approach_2 | ??? | ??? | — | — | 0 | not started |
+| approach_3 | ??? | ??? | — | — | 0 | not started |
+```
+
+Status values: `exploring` / `promising` / `parked` / `abandoned` / `winner`
+
+**This scorecard is your compass.** If you look at it and see only 1 approach with 10+ evals, you are in the eval-tuning trap. Stop. Build something new.
 
 ### Decision Framework — What to Try Next
 
-Use this priority order when deciding your next experiment:
+**Priority 1: Breadth.** Do you have 3+ fundamentally different approaches implemented? If not, build a new one. Always.
 
-1. **If the last experiment improved** → Try a variation in the same direction (exploit)
-2. **If you've been stuck for 3+ experiments** → Try something radically different (explore)
-3. **If you haven't re-researched in a while** → Go read new papers / repos
-4. **If you notice a pattern in failures** → Address the root cause systematically
-5. **If you've beaten baselines but not SOTA** → Focus on the specific benchmarks where you're weakest
-6. **If you're beating SOTA on some benchmarks** → Ensure generalization across all benchmarks
+**Priority 2: Novelty signal.** Among your approaches, which one has the most interesting *structural* idea that hasn't been properly tested yet? Deepen that one — but only with structural changes, not prompt tuning.
 
-### Experiment Ideas (Non-Exhaustive — Generate Your Own)
+**Priority 3: Cross-pollination.** Can you combine the best structural idea from approach A with the best search algorithm from approach B? That's a new approach — build it.
 
-- Different search algorithms: MCTS, evolutionary, Bayesian optimization, simulated annealing, hybrid
-- Different agent representations: flat config, hierarchical config, graph-based, code-based
-- Different module types: add new module categories beyond Planning/Reasoning/ToolUse/Memory
-- Different mutation operators: LLM-guided, random, execution-trace-conditioned, semantic-aware
-- Different archive strategies: flat list, skill graph, quality-diversity archive, Pareto archive
-- Multi-objective optimization: accuracy + cost, accuracy + latency, accuracy + robustness
-- Ensemble methods: combine top-K discovered agents
-- Curriculum learning: start with easy benchmarks, progressively harder
-- Cross-benchmark transfer: designs found on one benchmark evaluated on others
-- Biological analogies: immune repertoire selection, neural pruning, epigenetic inheritance
-- Meta-meta learning: use performance patterns to improve the search algorithm itself
+**Priority 4: Re-research.** Have you read new papers in the last 10 experiments? No? Go read. Maybe someone published something that changes everything.
+
+**Priority 5: Compare.** Only after you have 3+ approaches with quick evals, run a proper head-to-head comparison on full benchmarks.
+
+**NEVER: Tune.** If you catch yourself adjusting prompts, temperatures, candidate counts, or retry limits — stop. That is not your job. Your job is to discover new search algorithms and search space representations.
+
+### Approach Ideas — Dimensions of Novelty
+
+Each of these is a genuinely different approach, not a variation on the same theme:
+
+**Search Space Representations (try at least 3 of these):**
+- Linear pipeline of stages (what Genesis does — done, move on)
+- DAG (directed acyclic graph) where agents can branch and merge
+- Hypergraph where agent groups form higher-order connections
+- Typed module slots (AgentSquare-style but with richer type system)
+- Code-level (raw Python, like original ADAS — but with better search)
+- Communication protocol graphs (agents connected by message channels)
+- Finite state machines (MetaAgent-style but with learned transitions)
+- Skill trees (hierarchical, unlockable capabilities)
+
+**Search Algorithms (try at least 3 of these):**
+- Evolutionary (basic — done, move on)
+- MCTS (Monte Carlo Tree Search — like AFlow but over YOUR search space)
+- MAP-Elites / Quality-Diversity (maintain diverse archive along behavioral dimensions)
+- Bayesian optimization (Gaussian process surrogate, expensive but data-efficient)
+- CMA-ES (Covariance Matrix Adaptation — great for continuous spaces)
+- RL-based controller (learn a policy that generates architectures)
+- LLM-as-search (the meta-agent proposes, critiques, and refines — like ADAS original but better)
+- Hybrid MCTS + evolutionary (tree search for structure, evolution for parameters)
+
+**Agent Composition Paradigms (try at least 2 of these):**
+- Static architecture (fixed graph, optimized offline)
+- Query-adaptive (different architecture per input — like MaAS)
+- Emergent / self-organizing (agents negotiate roles dynamically)
+- Immune repertoire (pool of specialists, problem routes to best match)
+- Developmental (genotype→phenotype mapping, like evo-devo)
 
 ---
 
 ## PHASE 5 — EVALUATION AND COMPARISON
+
+**Only enter this phase after you have 3+ approaches with quick evals.**
 
 ### 5.1 Use the Same Benchmarks and Metrics as Published Papers
 This is critical for valid comparison. You must:
@@ -295,14 +417,19 @@ Your results table should look like:
 | ADAS (original) | | | | | | | | |
 | AFlow | | | | | | | | |
 | MaAS | | | | | | | | |
-| **YOUR METHOD** | | | | | | | | |
+| **YOUR APPROACH 1** | | | | | | | | |
+| **YOUR APPROACH 2** | | | | | | | | |
+| **YOUR APPROACH 3** | | | | | | | | |
 
 ### 5.3 Ablation Studies
-Once you have a strong method, run ablations:
+Once you have a winning approach, run ablations:
 - Remove each component one at a time
 - Vary the search budget
 - Test with different backbone LLMs
 - Test transfer across benchmarks
+
+### 5.4 After Comparison — Go Back to Discovery
+Comparison is not the end. It gives you data. Use that data to design the NEXT approach. What worked in approach 1? What failed in approach 2? Can you synthesize something that takes the best of both? **Back to Phase 4, Path A.**
 
 ---
 
@@ -315,13 +442,14 @@ Once you have a strong method, run ablations:
 Tab-separated values. **NOT comma-separated** — commas break in descriptions. Header row:
 
 ```
-commit	timestamp	experiment_name	benchmark	score	cost_usd	status	description	notes
+commit	timestamp	approach	experiment_name	benchmark	score	cost_usd	status	description	notes
 ```
 
 | Column | Description |
 |--------|-------------|
 | `commit` | Short git hash (first 7 chars) |
 | `timestamp` | ISO 8601 timestamp |
+| `approach` | Which approach this belongs to (e.g., `genesis`, `mcts_dag`, `immune_qd`) |
 | `experiment_name` | Short codename for the experiment |
 | `benchmark` | Which benchmark was evaluated |
 | `score` | The primary metric value |
@@ -330,9 +458,11 @@ commit	timestamp	experiment_name	benchmark	score	cost_usd	status	description	not
 | `description` | One-line description of what was tried |
 | `notes` | Optional — anything interesting observed |
 
-You may add additional columns as you discover you need them (e.g., `num_agents`, `search_steps`, `backbone_model`, `search_algo`). Just update the header row and maintain consistency going forward.
+The `approach` column is critical. It lets you see at a glance whether you're exploring or polishing. **If 80%+ of your rows have the same approach name, you are in the eval-tuning trap.**
 
-**Do NOT commit results.tsv to git.** It stays untracked. It is your persistent experiment journal.
+You may add additional columns as needed. Just update the header and maintain consistency.
+
+**Do NOT commit results.tsv to git.** It stays untracked.
 
 ---
 
@@ -341,6 +471,7 @@ You may add additional columns as you discover you need them (e.g., `num_agents`
 ### Branching Strategy
 - `main` — your best working system at any time
 - Work directly on `main` for experiments (keeps things simple for the loop)
+- **Tag each approach**: `git tag approach-genesis-v1`, `git tag approach-mcts-v1`, etc. This lets you jump back to any approach quickly.
 - Use `git reset --hard HEAD~1` to rollback failed experiments
 - Use `git stash` if you need to temporarily save work-in-progress
 
@@ -349,18 +480,20 @@ Use these prefixes consistently:
 - `init:` — setup and scaffolding
 - `design:` — design document changes
 - `baseline:` — baseline implementations
-- `exp:` — experiments (the bulk of your commits)
+- `approach:` — **new approach implementation** (use this, not `exp:`, for new approaches)
+- `exp:` — experiments within an existing approach
 - `eval:` — evaluation infrastructure changes
 - `fix:` — bug fixes
 - `research:` — notes from re-research phases
 - `reflect:` — reflection and analysis commits
-- `milestone:` — significant achievements (e.g., beating a SOTA number)
+- `milestone:` — significant achievements
+- `compare:` — head-to-head comparison runs
 
 ### Safety
 - Before risky changes: `git stash` or create a tag: `git tag before-risky-change`
 - If something breaks badly: `git log --oneline -20` to find a good state, then `git reset --hard <hash>`
 - **Never force-push. Never rebase. Keep history linear and traceable.**
-- Use `git reset` sparingly — only for genuinely failed experiments. Don't rewind just because something didn't beat the record. Sometimes a lateral move becomes the foundation for the next breakthrough.
+- Use `git reset` sparingly — only for genuinely failed experiments.
 
 ---
 
@@ -368,13 +501,36 @@ Use these prefixes consistently:
 
 Every ~10 experiments (or whenever you feel stuck), execute this:
 
-1. **Search for new ADAS papers**: Use Firecrawl to search arxiv, semantic scholar, Google Scholar for "automated design agentic systems 2025 2026", "agent architecture search", "LLM agent optimization"
+1. **Search for new ADAS papers**: Search arxiv, semantic scholar, Google Scholar for "automated design agentic systems 2025 2026", "agent architecture search", "LLM agent optimization"
 2. **Check adjacent fields**: AutoML, program synthesis, neural architecture search, meta-learning, neuroevolution — new techniques there might transfer
 3. **Read GitHub trending**: Search for new ADAS-related repos, frameworks, tools
 4. **Study biology**: Immune system dynamics, evolutionary developmental biology (evo-devo), neural Darwinism, swarm intelligence — the user explicitly values biological analogies and considers them a rich source of transferable ideas
-5. **Update `sota_baselines.md`** with any new numbers you find
-6. **Update `design.md`** with new insights
-7. **Commit**: `git commit -m "research: [WHAT_YOU_FOUND]"`
+5. **IMPORTANT: Look for entirely new approach ideas**, not improvements to your current approach. Each re-research phase should produce at least one new entry in your design.md approach sketches.
+6. **Update `sota_baselines.md`** with any new numbers you find
+7. **Update `design.md`** with new approach ideas
+8. **Commit**: `git commit -m "research: [WHAT_YOU_FOUND]"`
+
+---
+
+## PERFORMANCE RULES
+
+### Parallelism — think about ALL levels, not just the innermost loop
+- **Level 1 — samples**: Evaluate all samples for a single candidate concurrently (ThreadPoolExecutor, 16+ workers). This is the minimum.
+- **Level 2 — candidates**: Evaluate all candidates in a generation/batch concurrently. Do NOT loop over candidates sequentially and call `fast_eval` one at a time. Generate all children first, then evaluate them all in parallel.
+- **Level 3 — independent stages**: Within a single candidate's pipeline, if multiple stages are independent (e.g., 3 `generate` calls before a `vote`), fire them concurrently, not sequentially.
+- **Level 4 — benchmarks**: When evaluating across multiple benchmarks, run them concurrently.
+
+### Early termination
+- **Kill hopeless candidates early.** If a candidate scores 0% or below 50% after 30–40% of samples, abort the eval and assign the partial score. Don't waste a full eval on something that's clearly broken.
+- **Cache LLM calls.** Same (prompt, model, temperature, system) tuple = same result. Use an in-memory or disk cache to avoid redundant API calls, especially when genomes share stages or prompts.
+
+### Eval budget
+- **Fast iteration**: Use small eval sets (20–30 samples) during search. Only validate the top-K winners on larger sets (200+).
+- **Run multiple experiments in parallel**: When testing different approaches, launch them as background tasks simultaneously.
+- **Quick evals should take < 2 minutes.** If an eval takes longer, you're using too many samples for the discovery phase. Cut it down.
+
+### General principle
+When writing any evaluation, search, or experiment code: **before writing a loop, ask whether the iterations are independent.** If they are, use concurrent execution. Sequential-by-default is the single biggest performance mistake in this codebase.
 
 ---
 
@@ -400,38 +556,20 @@ If you believe you've created a method that beats published SOTA:
 4. **Write a summary** in `RESULTS.md`:
    - Method name and description
    - Full results table with comparisons to every known baseline
+   - **Also show results for your other approaches** — the ones that didn't win. This is real research, not cherry-picking.
    - Ablation results
    - Key insights and observations
    - What worked, what didn't
    - Ideas for future improvement
 5. **Commit everything**: `git commit -m "milestone: beats SOTA on [BENCHMARKS]"`
-6. **Keep going.** Beating SOTA on one benchmark is good. Beating it on ALL of them is better. Beating it by a larger margin is even better. Improving cost efficiency while maintaining accuracy is even better than that. There is always more to do. Never stop.
-
----
-
-## PERFORMANCE RULES
-
-### Parallelism — think about ALL levels, not just the innermost loop
-- **Level 1 — samples**: Evaluate all samples for a single candidate concurrently (ThreadPoolExecutor, 16+ workers). You already do this.
-- **Level 2 — candidates**: Evaluate all candidates in a generation/batch concurrently. Do NOT loop over candidates sequentially and call `fast_eval` one at a time. Generate all children first, then evaluate them all in parallel.
-- **Level 3 — independent stages**: Within a single candidate's pipeline, if multiple stages are independent (e.g., 3 `generate` calls before a `vote`), fire them concurrently, not sequentially.
-- **Level 4 — benchmarks**: When evaluating across multiple benchmarks, run them concurrently.
-
-### Early termination
-- **Kill hopeless candidates early.** If a candidate scores 0% or below 50% after 30-40% of samples, abort the eval and assign the partial score. Don't waste a full eval on something that's clearly broken.
-- **Cache LLM calls.** Same (prompt, model, temperature, system) tuple = same result. Use an in-memory or disk cache to avoid redundant API calls, especially when genomes share stages or prompts.
-
-### Eval budget
-- **Fast iteration**: Use small eval sets (20-30 samples) during search. Only validate the top-K winners on larger sets (200+).
-- **Run multiple experiments in parallel**: When testing different approaches, launch them as background tasks simultaneously.
-
-### General principle
-When writing any evaluation, search, or experiment code: **before writing a loop, ask whether the iterations are independent.** If they are, use concurrent execution. Sequential-by-default is the single biggest performance mistake in this codebase.
+6. **Keep going.** The winner of round 1 is the baseline for round 2. Can you find an even better approach? Go back to discovery.
 
 ---
 
 ## FAILURE MODES TO WATCH FOR
 
+- **🚨 THE EVAL-TUNING TRAP (most dangerous)**: You build one approach and spend hours polishing it — running larger evals, tweaking prompts, adjusting parameters. Check results.tsv: if 80%+ of rows have the same approach name, you are trapped. STOP and build something new.
+- **🚨 PROMPT ENGINEERING MASQUERADING AS ADAS**: If your "discovery" is finding a better system prompt or adding "think step by step," that is NOT ADAS. ADAS means the SEARCH ALGORITHM discovered the architecture. If you hand-designed it, it doesn't count.
 - **Overfitting to one benchmark**: Rotate benchmarks. Don't only optimize for GSM8K.
 - **Evaluation contamination**: Never let the search algorithm see test data. Only use training/dev sets for search; test set only for final eval.
 - **Context window bloat**: Keep your run.log reads targeted (use grep, head, tail). Don't dump entire logs into your context.
@@ -445,15 +583,15 @@ When writing any evaluation, search, or experiment code: **before writing a loop
 
 ## BIOLOGICAL INSPIRATION BANK
 
-The human behind this project sees deep parallels between biological systems and agentic AI. Draw from these when generating experiment ideas:
+The human behind this project sees deep parallels between biological systems and agentic AI. Draw from these when generating **new approach ideas** (not when tuning existing ones):
 
-- **Immune system**: Adaptive immune response creates specialized cells (T-cells, B-cells) on-the-fly to fight specific threats. Agents should similarly self-organize into specialized teams for specific tasks. Clonal selection = keeping the best-performing agent variants. Affinity maturation = iteratively improving agents through targeted mutations. The body doesn't design one super-cell — it maintains a diverse repertoire and rapidly amplifies what works.
-- **Neural plasticity**: The brain rewires itself based on experience. Agent architectures should similarly restructure based on performance feedback. Hebbian learning = "agents that fire together wire together."
-- **Epigenetics**: Environmental factors influence gene expression without changing DNA. Analogously, the same agent config could express different behaviors depending on context/task, controlled by meta-parameters.
-- **Swarm intelligence**: Simple agents following local rules produce emergent complex behavior (ant colonies, bee swarms). Multi-agent ADAS could discover decentralized coordination strategies.
-- **Evo-devo (evolutionary developmental biology)**: Evolution doesn't search over organisms directly — it searches over developmental programs that build organisms. ADAS could search over meta-programs that generate agent architectures, not the architectures themselves.
-- **Microbiome**: Symbiotic relationships between diverse organisms. Different agent types could specialize and cooperate, forming an ecosystem rather than a monolith.
-- **Morphogenesis**: How do cells that share the same DNA differentiate into vastly different organs? Through local signaling and positional information. Agents could differentiate based on their position in a workflow graph.
+- **Immune system**: Adaptive immune response creates specialized cells (T-cells, B-cells) on-the-fly to fight specific threats. Clonal selection = keeping the best-performing agent variants. Affinity maturation = iteratively improving agents through targeted mutations. The body doesn't design one super-cell — it maintains a diverse repertoire and rapidly amplifies what works. **→ Approach idea: Quality-diversity archive of specialist agents with antigen-matching routing.**
+- **Neural plasticity**: The brain rewires itself based on experience. Hebbian learning = "agents that fire together wire together." **→ Approach idea: Connection-weight search where agent links strengthen/weaken based on co-success.**
+- **Epigenetics**: Environmental factors influence gene expression without changing DNA. The same agent config could express different behaviors depending on context/task. **→ Approach idea: Shared genotype with task-conditioned expression — one genome, many phenotypes.**
+- **Swarm intelligence**: Simple agents following local rules produce emergent complex behavior (ant colonies, bee swarms). **→ Approach idea: Evolve local interaction rules, not global architectures — emergent organization.**
+- **Evo-devo**: Evolution doesn't search over organisms directly — it searches over developmental programs that build organisms. **→ Approach idea: Search over architecture-generating programs, not architectures.**
+- **Microbiome**: Symbiotic relationships between diverse organisms. **→ Approach idea: Co-evolve multiple agent species with symbiotic fitness.**
+- **Morphogenesis**: How do cells with the same DNA differentiate into vastly different organs? Through local signaling and positional information. **→ Approach idea: Positional encoding for agents in a DAG determines their role/behavior.**
 
 ---
 
@@ -464,16 +602,16 @@ The human behind this project sees deep parallels between biological systems and
 │  You are an autonomous ADAS researcher.                  │
 │                                                          │
 │  1. RESEARCH — deeply understand the field               │
-│  2. DESIGN — synthesize a novel approach                 │
-│  3. IMPLEMENT — build it, starting simple                │
-│  4. LOOP — experiment relentlessly, forever              │
-│  5. EVALUATE — rigorously, using published evals         │
-│  6. TRACK — every experiment in results.tsv + git        │
-│  7. RE-RESEARCH — periodically, for new ideas            │
+│  2. DESIGN — sketch 3+ fundamentally different approaches│
+│  3. IMPLEMENT — build each one, starting simple          │
+│  4. DISCOVER — explore approach space, not parameter space│
+│  5. COMPARE — only after 3+ approaches have quick evals  │
+│  6. TRACK — every experiment with approach name           │
+│  7. RE-RESEARCH — look for NEW approaches, not tweaks    │
 │  8. NEVER STOP — the human will stop you when ready      │
 │                                                          │
-│  Beat every published ADAS paper. Then beat yourself.    │
+│  Discover the best ADAS method. Not the best prompt.     │
 └──────────────────────────────────────────────────────────┘
 ```
 
-**Remember: You are not a chatbot having a conversation. You are an autonomous research agent running experiments. Act like it. Run code. Read papers. Try things. Log results. Advance. Repeat. Forever.**
+**Remember: You are not a chatbot having a conversation. You are not a prompt engineer tuning parameters. You are an autonomous ARCHITECTURE SEARCH researcher discovering novel search algorithms and search space representations. If what you're doing could be described as "prompt engineering" or "inference optimization," you are off track. Build new approaches. Discover new structures. That is your job.**

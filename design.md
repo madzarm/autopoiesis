@@ -1,6 +1,38 @@
-# Design Document — AIDE: Adaptive Immune-inspired Design Evolution
+# Design Document — Multiple ADAS Approaches
 
-## Status: BEATS PUBLISHED SOTA (MaAS, AFlow) on GSM8K, MATH, HumanEval
+## Approach 1: Genesis (DONE — parked)
+- **Search space**: Linear pipeline of conditional stages
+- **Search algo**: Evolutionary (LLM-guided mutation + crossover + random)
+- **Novelty**: Phenotypic plasticity — same genome, different behavior per problem
+- **Result**: 96.7% GSM8K/30, 95.0% HumanEval/20
+- **Limitation**: Linear pipeline can't express branching/merging workflows
+
+## Approach 2: DAG-Evolve — Directed Acyclic Graph Agent Networks
+- **Search space**: DAG where nodes are agent operations and edges are data flows
+- **Search algo**: Evolutionary with graph-aware operators (node add/remove, edge rewire, subgraph swap)
+- **Novelty**: Agents can BRANCH (fork computation into parallel paths) and MERGE (combine results). This is strictly more expressive than linear pipelines — it can represent pipelines as a special case, plus fan-out/fan-in patterns, conditional routing, and feedback loops (via unrolling).
+- **Key difference from AFlow**: AFlow uses MCTS over code that defines edges. We use evolutionary search over explicit graph structures with typed ports. The graph IS the search space, not code that generates graphs.
+- **Key difference from Genesis**: Genesis stages execute sequentially with conditional skipping. DAG-Evolve has true parallel branches and merge operations.
+- **Hypothesized advantage**: Can discover parallel ensemble patterns (fan-out → diverse generate → merge → vote) that pipelines can't naturally express.
+- **Risk**: Larger search space = slower convergence. Graph operations are more complex than list operations.
+
+## Approach 3: MCTS-Morph — Monte Carlo Tree Search over Morphological Space
+- **Search space**: Tree of agent "body plans" — each node in the MCTS tree represents a partial agent design, and children are refinements/extensions
+- **Search algo**: MCTS with UCB1 selection + LLM expansion + rollout evaluation
+- **Novelty**: Unlike evolutionary search (which maintains a population and breeds), MCTS builds a TREE of designs where each path from root to leaf is a sequence of design decisions. This naturally handles the explore/exploit tradeoff via UCB1, and the tree structure provides memory of what was tried.
+- **Key difference from AFlow**: AFlow's MCTS nodes are complete workflows and modifications are expansions. Our MCTS nodes are PARTIAL designs — the tree represents the space of design DECISIONS (add CoT? add verification? add code execution?), not the space of complete designs. Leaf nodes are complete agents.
+- **Key difference from Genesis**: Genesis evolves a flat population. MCTS-Morph grows a tree of design decisions, reusing what worked in similar branches.
+- **Hypothesized advantage**: Better exploration via UCB1. Natural pruning of bad branches. Design decisions are compositional — "add verification" works across different base designs.
+- **Risk**: MCTS rollouts (random completions) may be too noisy for agent design.
+
+## Approach 4 (future): Immune-QD — Quality-Diversity Repertoire
+- **Search space**: Archive of diverse specialist agents indexed by behavioral descriptors
+- **Search algo**: MAP-Elites / Quality-Diversity — maintain a grid of agents that are diverse along chosen dimensions (cost, complexity, reasoning style) while maximizing performance
+- **Novelty**: Instead of finding ONE best agent, maintain a REPERTOIRE of diverse specialists. At inference time, route each problem to the best-matching specialist based on problem features.
+- **Deferred**: Will implement after approaches 2 and 3
+
+## Previous (pre-refactor)
+AIDE: Adaptive Immune-inspired Design Evolution
 
 ## One-Paragraph Summary
 

@@ -1,0 +1,41 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+═══ Genesis Multi-Benchmark (Parallel) ═══
+Benchmarks: gsm8k=20, humaneval=15, math=15
+Population: 8, Generations: 12
+
+── Initial Population ──
+  multi_vote                | avg= 53.9% | {'humaneval': 0.0, 'math': 66.67, 'gsm8k': 95.0}
+  adaptive_depth            | avg= 57.8% | {'humaneval': 46.67, 'math': 46.67, 'gsm8k': 80.0}
+  random_7                  | avg= 85.0% | {'math': 73.33, 'humaneval': 86.67, 'gsm8k': 95.0}
+  simple_cot                | avg= 71.7% | {'humaneval': 53.33, 'math': 66.67, 'gsm8k': 95.0}
+  code_first                | avg= 37.2% | {'gsm8k': 85.0, 'humaneval': 20.0, 'math': 6.67}
+  cot_verify_repair         | avg= 75.0% | {'humaneval': 73.33, 'gsm8k': 85.0, 'math': 66.67}
+  random_6                  | avg= 80.0% | {'humaneval': 100.0, 'math': 60.0, 'gsm8k': 80.0}
+  random_5                  | avg= 71.7% | {'humaneval': 86.67, 'math': 53.33, 'gsm8k': 75.0}
+
+Best: random_7 = 85.0%
+
+── Generation 1/12 ──
+  [crossover ] cross_g1_2             | avg= 52.8% | {'gsm8k': 85.0, 'math': 6.67, 'humaneval': 66.67}
+  [crossover ] cross_g1_5             | avg= 72.2% | {'humaneval': 73.33, 'gsm8k': 90.0, 'math': 53.33}
+  [mutation  ] mut_g1_6               | avg= 85.5% | {'humaneval': 93.33, 'gsm8k': 90.0, 'math': 73.33} *** NEW BEST ***
+  [llm_evolve] llm_g1_4               | avg= 46.7% | {'humaneval': 53.33, 'gsm8k': 80.0, 'math': 6.67}
+  [llm_evolve] llm_g1_3               | avg= 52.2% | {'humaneval': 0.0, 'gsm8k': 90.0, 'math': 66.67}
+  [llm_evolve] llm_g1_7               | avg= 76.7% | {'humaneval': 73.33, 'gsm8k': 90.0, 'math': 66.67}
+  Gen 1: best=85.5%, avg=68.9%, best_ever=85.5%
+
+── Generation 2/12 ──
+  [random    ] rand_g2_4              | avg= 78.9% | {'humaneval': 86.67, 'gsm8k': 90.0, 'math': 60.0}
+  [random    ] rand_g2_7              | avg= 83.9% | {'humaneval': 86.67, 'gsm8k': 85.0, 'math': 80.0}
+  [crossover ] cross_g2_3             | avg= 81.7% | {'humaneval': 86.67, 'gsm8k': 85.0, 'math': 73.33}
+  [mutation  ] mut_g2_6               | avg= 81.7% | {'humaneval': 93.33, 'gsm8k': 85.0, 'math': 66.67}
+  [llm_evolve] llm_g2_2               | avg= 82.2% | {'gsm8k': 80.0, 'humaneval': 86.67, 'math': 80.0}
+  [mutation  ] mut_g2_5               | avg= 77.2% | {'humaneval': 73.33, 'gsm8k': 85.0, 'math': 73.33}
+  Gen 2: best=85.5%, avg=82.0%, best_ever=85.5%
+
+── Generation 3/12 ──
+  [crossover ] cross_g3_5             | avg= 72.8% | {'gsm8k': 65.0, 'humaneval': 86.67, 'math': 66.67}
+  [mutation  ] mut_g3_3               | avg= 83.9% | {'gsm8k': 85.0, 'humaneval': 86.67, 'math': 80.0}
+  [crossover ] cross_g3_2             | avg= 78.9% | {'humaneval': 86.67, 'math': 60.0, 'gsm8k': 90.0}
+  [crossover ] cross_g3_6             | avg= 83.9% | {'humaneval': 86.67, 'gsm8k': 85.0, 'math': 80.0}
+  [llm_evolve] llm_g3_4               | avg= 77.2% | {'humaneval': 73.33, 'gsm8k': 85.0, 'math': 73.33}
